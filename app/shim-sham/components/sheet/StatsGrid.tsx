@@ -1,4 +1,4 @@
-import type { CharacterAction, CharacterSheet } from "@/lib/types";
+import type { CharacterSheet } from "@/lib/types";
 import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
 import { formatSigned, statModClass } from "../../lib/format";
@@ -13,7 +13,6 @@ export function StatsGrid({
   displayAc,
   acDelta,
   effects,
-  duelingParryAction,
   creditInput,
   onCreditInputChange,
   save,
@@ -25,7 +24,6 @@ export function StatsGrid({
   displayAc: number;
   acDelta: number;
   effects: ConditionEffects;
-  duelingParryAction?: CharacterAction;
   creditInput: string;
   onCreditInputChange: (value: string) => void;
   save: SaveFn;
@@ -47,16 +45,6 @@ export function StatsGrid({
         <div className="stat-label">Armor Class</div>
         <div className="ac-row">
           <div className={`stat-value ${statModClass(acDelta) ?? ""}`.trim()}>{displayAc}</div>
-          {duelingParryAction && (
-            <label className="ac-parry">
-              <input
-                type="checkbox"
-                checked={runtime.duelingParry}
-                onChange={(e) => void save({ duelingParry: e.target.checked })}
-              />
-              <AonLink href={duelingParryAction.url}>Dueling Parry</AonLink>
-            </label>
-          )}
         </div>
         <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.25rem" }}>
           <AonLink href={data.armor.url}>{data.armor.name}</AonLink>

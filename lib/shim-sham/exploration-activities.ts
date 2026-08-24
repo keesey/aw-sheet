@@ -8,8 +8,6 @@ export type ExplorationActivity = {
   url: string;
   /** Skill name from the sheet, or "Perception" for the Perception modifier. */
   bonusSource?: string;
-  /** Render indented directly under parentId. */
-  parentId?: string;
 };
 
 /**
@@ -33,7 +31,7 @@ export const SHIM_SHAM_EXPLORATION: readonly ExplorationActivity[] = [
     id: "group-coercion",
     name: "Group Coercion",
     url: `${AON}/feats/811-group-coercion`,
-    parentId: "coerce",
+    bonusSource: "Intimidation",
   },
   {
     id: "decipher-writing",
@@ -114,23 +112,7 @@ export function explorationActivityBonus(
 export function orderedExplorationActivities(
   activities: readonly ExplorationActivity[],
 ): ExplorationActivity[] {
-  const childrenByParent = new Map<string, ExplorationActivity[]>();
-  for (const activity of activities) {
-    if (!activity.parentId) {
-      continue;
-    }
-    const siblings = childrenByParent.get(activity.parentId) ?? [];
-    siblings.push(activity);
-    childrenByParent.set(activity.parentId, siblings);
-  }
-
-  return [...activities]
-    .filter((activity) => !activity.parentId)
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
-    .flatMap((activity) => [
-      activity,
-      ...(childrenByParent.get(activity.id) ?? []).sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-      ),
-    ]);
+  return [...activities].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+  );
 }

@@ -34,6 +34,8 @@ export function createDefaultRuntime(level = 6): RuntimeState {
     jetpack: false,
     combat: false,
     duelingParry: false,
+    batonParry: false,
+    cover: "none",
     credits: 1280,
     conditions: [],
     forceFieldHp: 0,
@@ -65,7 +67,14 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   );
   const forceFieldHp = Math.max(0, runtime.forceFieldHp);
   const forceFieldActive = runtime.forceFieldActive && forceFieldHp > 0;
-  return { ...runtime, forceFieldActive, forceFieldHp, conditions };
+  return {
+    ...runtime,
+    batonParry: runtime.batonParry ?? false,
+    cover: runtime.cover ?? "none",
+    forceFieldActive,
+    forceFieldHp,
+    conditions,
+  };
 }
 
 export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
@@ -95,6 +104,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("cardiac-accelerator"),
           traits: ["Tech"],
           url: `${AON}/treasure/130`,
+          control: "accelerate",
         },
         {
           id: "exemplary-finisher",
@@ -111,6 +121,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("meyel-reroll"),
           traits: ["Fortune"],
           url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
+          control: "meyel-reroll",
         },
         {
           id: "opportune-riposte",
@@ -119,6 +130,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("opportune-riposte"),
           traits: ["Bravado", "Swashbuckler"],
           url: `${AONP}/Actions.aspx?ID=2819`,
+          control: "strikes",
         },
         {
           id: "force-field",
@@ -127,6 +139,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("force-field"),
           traits: ["Manipulate"],
           url: `${AON}/treasure/57`,
+          control: "force-field",
         },
         {
           id: "jetpack",
@@ -135,14 +148,16 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("jetpack"),
           traits: ["Manipulate", "Move"],
           url: `${AON}/treasure/59-jetpack`,
+          control: "jetpack",
         },
         {
           id: "area-fire-grenade",
-          name: "Area Fire (Grenade)",
-          cost: "single",
+          name: "Area Fire",
+          cost: "double",
           description: actionDescription("area-fire-grenade"),
           traits: ["Area", "Attack"],
           url: `${AON}/actions/17-area-fire`,
+          control: "area-weapons",
         },
         {
           id: "confident-finisher",
@@ -151,6 +166,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("confident-finisher"),
           traits: ["Finisher", "Swashbuckler"],
           url: `${AONP}/Actions.aspx?ID=2818`,
+          control: "strikes",
         },
         {
           id: "dirty-trick",
@@ -167,6 +183,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           cost: "single",
           description: actionDescription("dueling-parry"),
           url: `${AONP}/Feats.aspx?ID=4781`,
+          control: "dueling-parry",
         },
         {
           id: "fly",
@@ -201,6 +218,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           cost: "single",
           description: actionDescription("baton-parry"),
           url: `${AON}/traits/137-parry`,
+          control: "baton-parry",
         },
         {
           id: "perform",
@@ -226,6 +244,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           cost: "single",
           description: actionDescription("take-cover"),
           url: `${AONP}/Actions.aspx?ID=2307`,
+          control: "take-cover",
         },
         {
           id: "tumble-through",

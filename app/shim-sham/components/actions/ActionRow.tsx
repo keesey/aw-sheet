@@ -1,7 +1,9 @@
-import type { CharacterAction } from "@/lib/types";
+import type { CharacterAction, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
+import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { ActionDescription } from "./ActionDescription";
+import { ActionControl } from "./ActionControl";
 
 const PANACHE_ACTION_IDS = new Set(["exemplary-finisher", "confident-finisher"]);
 const EMPTY_LOCKS: ConditionActionLocks = {
@@ -77,6 +79,12 @@ export function ActionRow({
   panache,
   meyelRerollUsed,
   locks = EMPTY_LOCKS,
+  compact = false,
+  runtime,
+  ffUsesLeft,
+  save,
+  onOpenStrikes,
+  onOpenAreaWeapons,
 }: {
   action: CharacterAction;
   combat: boolean;
@@ -84,8 +92,54 @@ export function ActionRow({
   panache: boolean;
   meyelRerollUsed: boolean;
   locks?: ConditionActionLocks;
+  compact?: boolean;
+  runtime?: RuntimeState;
+  ffUsesLeft?: number;
+  save?: SaveFn;
+  onOpenStrikes?: () => void;
+  onOpenAreaWeapons?: () => void;
 }) {
   const disabled = isActionDisabled(action, jetpack, panache, meyelRerollUsed, locks);
+  const rollBonus = compact ? <ActionRollBonus action={action} combat={combat} /> : null;
+  const control =
+    compact && runtime && save && onOpenStrikes && onOpenAreaWeapons && ffUsesLeft != null ? (
+      <ActionControl
+        action={action}
+        runtime={runtime}
+        ffUsesLeft={ffUsesLeft}
+        disabled={disabled}
+        save={save}
+        onOpenStrikes={onOpenStrikes}
+        onOpenAreaWeapons={onOpenAreaWeapons}
+      />
+    ) : null;
+
+  if (compact) {
+    const className = `action-row action-row--compact action-row--split${disabled ? " action-row--disabled" : ""}`;
+    const title = <ActionTitle action={action} />;
+    const aside = control ? (
+        <div className="action-row__aside">
+          {rollBonus}
+          {control}
+        </div>
+      ) : rollBonus ? (
+        <div className="action-row__aside">{rollBonus}</div>
+      ) : null;
+
+    return (
+      <div className={className} aria-disabled={disabled || undefined}>
+        {disabled ? (
+          <span className="action-row__link action-row__link--disabled">{title}</span>
+        ) : (
+          <AonLink href={action.url} className="action-row__link">
+            {title}
+          </AonLink>
+        )}
+        {aside}
+      </div>
+    );
+  }
+
   const content = (
     <>
       <div className="action-name">
@@ -99,16 +153,18 @@ export function ActionRow({
     </>
   );
 
+  const className = `action-row${disabled ? " action-row--disabled" : ""}`;
+
   if (disabled) {
     return (
-      <div className="action-row action-row--disabled" aria-disabled="true">
+      <div className={className} aria-disabled="true">
         {content}
       </div>
     );
   }
 
   return (
-    <AonLink href={action.url} className="action-row">
+    <AonLink href={action.url} className={className}>
       {content}
     </AonLink>
   );

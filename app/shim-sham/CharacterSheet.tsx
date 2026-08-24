@@ -14,7 +14,6 @@ import {
 import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { getSkillKeyAbilities } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
-import { ActionsPanel } from "./components/panels/ActionsPanel";
 import { AbilitiesPanel } from "./components/panels/AbilitiesPanel";
 import { FeatsPanel } from "./components/panels/FeatsPanel";
 import { InventoryPanel } from "./components/panels/InventoryPanel";
@@ -25,14 +24,21 @@ import { HpBlock } from "./components/sheet/HpBlock";
 import { SheetHeader } from "./components/sheet/SheetHeader";
 import { SkillsSection } from "./components/sheet/SkillsSection";
 import { StatsGrid } from "./components/sheet/StatsGrid";
-import { StrikesSection } from "./components/sheet/StrikesSection";
+import { ActionsSection } from "./components/sheet/ActionsSection";
 import { ExploreSection } from "./components/sheet/ExploreSection";
+import { StrikesPanel } from "./components/panels/StrikesPanel";
+import { AreaWeaponsPanel } from "./components/panels/AreaWeaponsPanel";
+import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
+import { buildAreaWeaponEntries } from "@/lib/shim-sham/area-weapons";
+import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
 import type { Panel, SpeedEntry } from "./types";
 
 export default function CharacterSheet() {
   const { sheet, kvConfigured, loading, error, save } = useCharacterSheet();
   const [panel, setPanel] = useState<Panel>(null);
+  const [strikesOpen, setStrikesOpen] = useState(false);
+  const [areaWeaponsOpen, setAreaWeaponsOpen] = useState(false);
   const [hpDeltaInput, setHpDeltaInput] = useState("");
   const [creditInput, setCreditInput] = useState("");
   const [notesDraft, setNotesDraft] = useState("");
@@ -95,17 +101,23 @@ export default function CharacterSheet() {
     free: data.actions.filter((a) => a.cost === "free").sort(byActionName),
     reaction: data.actions.filter((a) => a.cost === "reaction").sort(byActionName),
     single: data.actions.filter((a) => a.cost === "single").sort(byActionName),
+    double: data.actions.filter((a) => a.cost === "double").sort(byActionName),
   };
-  const duelingParryAction = data.actions.find((a) => a.id === "dueling-parry");
-  const duelingParryBonus = runtime.duelingParry ? 2 : 0;
-  const displayAc = level.ac + duelingParryBonus + effects.ac;
-  const acDelta = duelingParryBonus + effects.ac;
+  const circumstanceBonus = circumstanceAcBonus(runtime);
+  const displayAc = level.ac + circumstanceBonus + effects.ac;
+  const acDelta = circumstanceBonus + effects.ac;
   const inventoryBulk = totalBulk(data.inventory);
   const inventoryBulkMax = maxBulkCapacity(level.abilities.STR);
   const encumberedFromBulk = isEncumberedByBulk(inventoryBulk, level.abilities.STR);
   const lockedConditionIds = encumberedFromBulk ? ["encumbered"] : [];
   const bulkBarPct = Math.min(100, (inventoryBulk / inventoryBulkMax) * 100);
   const bulkBarFillColor = bulkBarColor(inventoryBulk, level.abilities.STR);
+  const strikeAction = buildStrikeAction();
+  const areaWeapons = buildAreaWeaponEntries(
+    data.weapons,
+    data.consumableCatalog,
+    runtime.consumables,
+  );
 
   return (
     <main className="sheet-page">
@@ -148,7 +160,6 @@ export default function CharacterSheet() {
             displayAc={displayAc}
             acDelta={acDelta}
             effects={effects}
-            duelingParryAction={duelingParryAction}
             creditInput={creditInput}
             onCreditInputChange={setCreditInput}
             save={save}
@@ -163,12 +174,19 @@ export default function CharacterSheet() {
 
         <div className="sheet-column sheet-column--strikes">
           {runtime.combat ? (
-            <StrikesSection
-              weapons={data.weapons}
-              finisherDice={level.finisherDice}
+            <ActionsSection
+              actionsByCost={actionsByCost}
+              strikeAction={strikeAction}
+              runtime={runtime}
+              ffUsesLeft={ffUsesLeft}
+              save={save}
+              onOpenStrikes={() => setStrikesOpen(true)}
+              onOpenAreaWeapons={() => setAreaWeaponsOpen(true)}
+              combat={runtime.combat}
+              jetpack={runtime.jetpack}
               panache={runtime.panache}
-              attackDelta={effects.finesseMeleeAttack}
-              damagePenalized={effects.strDamage < 0}
+              meyelRerollUsed={runtime.meyelRerollUsed}
+              locks={effects}
             />
           ) : (
             <ExploreSection
@@ -196,16 +214,6 @@ export default function CharacterSheet() {
       <div className="sheet-spacer" />
 
       <BottomNav onSelect={setPanel} />
-
-      {panel === "actions" && (
-        <ActionsPanel
-          data={data}
-          runtime={runtime}
-          actionsByCost={actionsByCost}
-          locks={effects}
-          onClose={() => setPanel(null)}
-        />
-      )}
 
       {panel === "abilities" && (
         <AbilitiesPanel level={level} onClose={() => setPanel(null)} />
@@ -240,6 +248,21 @@ export default function CharacterSheet() {
 
       {panel === "manage" && (
         <ManagePanel data={data} runtime={runtime} save={save} onClose={() => setPanel(null)} />
+      )}
+
+      {strikesOpen && runtime.combat && (
+        <StrikesPanel
+          weapons={data.weapons}
+          finisherDice={level.finisherDice}
+          panache={runtime.panache}
+          attackDelta={effects.finesseMeleeAttack}
+          damagePenalized={effects.strDamage < 0}
+          onClose={() => setStrikesOpen(false)}
+        />
+      )}
+
+      {areaWeaponsOpen && runtime.combat && (
+        <AreaWeaponsPanel weapons={areaWeapons} onClose={() => setAreaWeaponsOpen(false)} />
       )}
     </main>
   );

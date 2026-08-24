@@ -32,10 +32,12 @@ export type SkillEntry = {
   url: string;
 };
 
+export type CoverLevel = "none" | "standard" | "greater";
+
 export type CharacterAction = {
   id: string;
   name: string;
-  cost: "free" | "single" | "minute" | "reaction";
+  cost: "free" | "single" | "double" | "minute" | "reaction";
   description: string;
   traits?: string[];
   url: string;
@@ -43,6 +45,17 @@ export type CharacterAction = {
   combatBonus?: string;
   /** Omit from the sheet until this character level. */
   minLevel?: number;
+  /** Right-side control on the compact action row. */
+  control?:
+    | "accelerate"
+    | "meyel-reroll"
+    | "jetpack"
+    | "force-field"
+    | "dueling-parry"
+    | "baton-parry"
+    | "take-cover"
+    | "strikes"
+    | "area-weapons";
 };
 
 export type Consumable = {
@@ -91,6 +104,8 @@ export type RuntimeState = {
   jetpack: boolean;
   combat: boolean;
   duelingParry: boolean;
+  batonParry: boolean;
+  cover: CoverLevel;
   credits: number;
   conditions: ActiveCondition[];
   forceFieldHp: number;

@@ -4,9 +4,35 @@ import {
   SHIM_SHAM_EXPLORATION,
   explorationActivityBonus,
   orderedExplorationActivities,
+  type ExplorationActivity,
 } from "@/lib/shim-sham/exploration-activities";
 import { statModClass } from "../../lib/format";
 import { AonLink } from "../AonLink";
+
+function ExploreActivityRow({
+  activity,
+  bonus,
+  bonusDelta,
+}: {
+  activity: ExplorationActivity;
+  bonus?: number;
+  bonusDelta: number;
+}) {
+  const className = "action-row action-row--compact";
+
+  return (
+    <AonLink href={activity.url} className={className}>
+      <div className="action-name">
+        <span className="action-name__title">{activity.name}</span>
+        {bonus != null ? (
+          <span className={`action-name__bonus ${statModClass(bonusDelta) ?? ""}`.trim()}>
+            {formatSignedBonus(bonus)}
+          </span>
+        ) : null}
+      </div>
+    </AonLink>
+  );
+}
 
 export function ExploreSection({
   skills,
@@ -22,33 +48,28 @@ export function ExploreSection({
   const activities = orderedExplorationActivities(SHIM_SHAM_EXPLORATION);
 
   return (
-    <div className="stat-card sheet-section">
+    <div className="stat-card sheet-section actions-main-section">
       <div className="stat-label" style={{ marginBottom: "0.5rem" }}>
         Explore
       </div>
-      <div className="explore-grid">
-        {activities.map((activity) => {
-          const bonus = explorationActivityBonus(activity, skills, perception);
-          const bonusDelta =
-            activity.bonusSource === "Perception"
-              ? perceptionDelta
-              : activity.bonusSource
-                ? skillDelta[activity.bonusSource] ?? 0
-                : 0;
+      {activities.map((activity) => {
+        const bonus = explorationActivityBonus(activity, skills, perception);
+        const bonusDelta =
+          activity.bonusSource === "Perception"
+            ? perceptionDelta
+            : activity.bonusSource
+              ? skillDelta[activity.bonusSource] ?? 0
+              : 0;
 
-          return (
-            <div
-              key={activity.id}
-              className={`explore-entry${activity.parentId ? " explore-entry--indented" : ""}`}
-            >
-              <AonLink href={activity.url}>{activity.name}</AonLink>
-              {bonus != null ? (
-                <strong className={statModClass(bonusDelta)}>{formatSignedBonus(bonus)}</strong>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
+        return (
+          <ExploreActivityRow
+            key={activity.id}
+            activity={activity}
+            bonus={bonus}
+            bonusDelta={bonusDelta}
+          />
+        );
+      })}
     </div>
   );
 }

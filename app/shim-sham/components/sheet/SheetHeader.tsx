@@ -31,33 +31,6 @@ export function SheetHeader({
         <div className="sheet-header-actions">
           <button
             type="button"
-            className={`btn ${runtime.meyelRerollUsed ? "meyel-on" : ""}`}
-            onClick={() => {
-              if (!runtime.meyelRerollUsed) void save({ meyelRerollUsed: true });
-            }}
-            aria-pressed={runtime.meyelRerollUsed}
-            disabled={runtime.meyelRerollUsed}
-          >
-            Meyel&apos;s Chosen
-          </button>
-          <button
-            type="button"
-            className={`btn ${runtime.accelerate ? "accelerate-on" : ""}`}
-            onClick={() => void save({ accelerate: !runtime.accelerate })}
-            aria-pressed={runtime.accelerate}
-          >
-            Accelerate
-          </button>
-          <button
-            type="button"
-            className={`btn ${runtime.jetpack ? "jetpack-on" : ""}`}
-            onClick={() => void save({ jetpack: !runtime.jetpack })}
-            aria-pressed={runtime.jetpack}
-          >
-            Jetpack
-          </button>
-          <button
-            type="button"
             className={`btn ${runtime.panache ? "panache-on" : ""}`}
             onClick={() => void save({ panache: !runtime.panache })}
             aria-pressed={runtime.panache}
