@@ -1,8 +1,13 @@
 import type { LevelSnapshot } from "@/lib/types";
 import { armorClass } from "@/lib/shim-sham/armor";
+import { classDc } from "@/lib/shim-sham/class-dc";
+import { perception } from "@/lib/shim-sham/perception";
 import { savingThrows } from "@/lib/shim-sham/saves";
 
-type LevelProgression = Omit<LevelSnapshot, "ac" | "fort" | "reflex" | "will">;
+type LevelProgression = Omit<
+  LevelSnapshot,
+  "ac" | "fort" | "reflex" | "will" | "perception" | "classDc"
+>;
 
 /** Level progression from https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530
  *  Gist vs calculated values: data/progression-gist-issues.md
@@ -12,8 +17,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 1,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 18,
-    perception: 7,
-    classDc: 18,
     landSpeed: 25,
     preciseStrike: 2,
     finisherDice: "2d6",
@@ -23,8 +26,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 2,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 28,
-    perception: 8,
-    classDc: 19,
     landSpeed: 25,
     preciseStrike: 2,
     finisherDice: "2d6",
@@ -34,8 +35,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 3,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 41,
-    perception: 10,
-    classDc: 20,
     landSpeed: 35,
     climbSpeed: 30,
     preciseStrike: 2,
@@ -54,8 +53,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 4,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 52,
-    perception: 11,
-    classDc: 21,
     landSpeed: 35,
     climbSpeed: 30,
     preciseStrike: 2,
@@ -66,8 +63,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 5,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 68,
-    perception: 12,
-    classDc: 22,
     landSpeed: 35,
     flySpeed: 25,
     climbSpeed: 30,
@@ -79,8 +74,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 6,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 80,
-    perception: 11,
-    classDc: 22,
     landSpeed: 30,
     flySpeed: 25,
     climbSpeed: 30,
@@ -92,8 +85,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 7,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 92,
-    perception: 13,
-    classDc: 23,
     landSpeed: 35,
     flySpeed: 30,
     climbSpeed: 35,
@@ -112,8 +103,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 8,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 104,
-    perception: 14,
-    classDc: 24,
     landSpeed: 35,
     flySpeed: 30,
     climbSpeed: 35,
@@ -125,8 +114,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 9,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 116,
-    perception: 15,
-    classDc: 25,
     landSpeed: 35,
     flySpeed: 30,
     climbSpeed: 35,
@@ -138,8 +125,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 10,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 138,
-    perception: 16,
-    classDc: 26,
     landSpeed: 40,
     flySpeed: 35,
     climbSpeed: 40,
@@ -151,8 +136,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 11,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 151,
-    perception: 19,
-    classDc: 27,
     landSpeed: 45,
     flySpeed: 40,
     climbSpeed: 45,
@@ -170,8 +153,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 12,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 164,
-    perception: 20,
-    classDc: 28,
     landSpeed: 45,
     flySpeed: 40,
     climbSpeed: 45,
@@ -183,8 +164,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 13,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 177,
-    perception: 21,
-    classDc: 29,
     landSpeed: 45,
     flySpeed: 40,
     climbSpeed: 45,
@@ -202,8 +181,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 14,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 190,
-    perception: 22,
-    classDc: 30,
     landSpeed: 45,
     flySpeed: 40,
     climbSpeed: 45,
@@ -215,8 +192,6 @@ export const PROGRESSION: LevelProgression[] = [
     level: 15,
     abilities: { STR: 4, DEX: 5, CON: 3, INT: 1, WIS: 1, CHA: 5 },
     maxHp: 218,
-    perception: 23,
-    classDc: 31,
     landSpeed: 50,
     flySpeed: 45,
     climbSpeed: 50,
@@ -238,6 +213,8 @@ function withDerivedStats(entry: LevelProgression): LevelSnapshot {
   return {
     ...entry,
     ac: armorClass(entry.abilities.DEX, entry.level),
+    perception: perception(entry.abilities.WIS, entry.level),
+    classDc: classDc(entry.abilities.DEX, entry.level),
     ...savingThrows(entry.abilities, entry.level),
   };
 }

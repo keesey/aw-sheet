@@ -9,6 +9,7 @@ import {
   formatSignedBonus,
   skillBonusByName,
 } from "@/lib/shim-sham/skills";
+import { buildWeaponStrikes } from "@/lib/shim-sham/strikes";
 
 const AON = "https://2e.aonsrd.com";
 const AONP = "https://2e.aonprd.com";
@@ -93,71 +94,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       },
       resistances: ["Reroll crit fail on save 1×/day (Meyel's Chosen)"],
       skills: allSkills.filter((skill) => skill.proficiency !== "U"),
-      weapons: [
-        {
-          id: "baton",
-          name: "Baton (Tactical)",
-          attack: "+15 / +10 / +5",
-          damage: "1d6+2 B +3 precision (+3d6 finisher)",
-          traits: ["Club", "Finesse", "Nonlethal", "Parry"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/equipment/weapons/2-baton`,
-        },
-        {
-          id: "battle-ribbon",
-          name: "Battle Ribbon",
-          attack: "+14 / +9 / +4",
-          damage: "1d4+2 S +3 precision (+3d6 finisher)",
-          traits: ["Flail", "Finesse", "Nonlethal", "Reach", "Trip"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/equipment/weapons/9-battle-ribbon`,
-        },
-        {
-          id: "jaws",
-          name: "Jaws",
-          attack: "+14 / +9 / +4",
-          damage: "1d6+2 P +3 precision (+3d6 finisher)",
-          traits: ["Brawling", "Finesse", "Grapple", "Unarmed"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/feats/331-predatory`,
-        },
-        {
-          id: "rapier",
-          name: "Nano-Edge Rapier (Advanced)",
-          attack: "+15 / +10 / +5",
-          damage: "2d6+2 P +3 precision (+3d6 finisher, +1d8 deadly on crit)",
-          traits: ["Sword", "Deadly d8", "Disarm", "Finesse"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/equipment/weapons/17-nano-edge-rapier`,
-        },
-        {
-          id: "tailblade",
-          name: "Tailblade (Advanced)",
-          attack: "+15 / +11 / +7",
-          damage: "2d4+2 S +3 precision (+3d6 finisher; frightened 1 on crit)",
-          traits: ["Knife", "Agile", "Finesse", "Free-hand"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/equipment/weapons/29-tailblade`,
-        },
-        {
-          id: "zero-knife",
-          name: "Zero Knife",
-          attack: "+14 / +10 / +6",
-          damage: "1d4+2 C/P +3 precision (+3d6 finisher)",
-          traits: ["Knife", "Agile", "Finesse", "Powered", "Versatile P"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/equipment/weapons/7-zero-knife`,
-        },
-        {
-          id: "zero-pistol",
-          name: "Zero Pistol (Advanced)",
-          attack: "+15 / +10 / +5",
-          damage: "2d6 C (Expend 2)",
-          traits: ["Tech"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/equipment/weapons/48-zero-pistol`,
-        },
-      ],
+      weapons: buildWeaponStrikes(level),
       actions: [
         {
           id: "cardiac-accelerator",
