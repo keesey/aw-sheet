@@ -1,19 +1,19 @@
 import type { CharacterSheet } from "@/lib/types";
-import { formatStrikeDamage } from "../../lib/strike-format";
+import { formatStrikeDamage, type StrikeDamageMode } from "../../lib/strike-format";
 import { statModClass } from "../../lib/format";
 import { AonLink } from "../AonLink";
 
 export function StrikesSection({
   weapons: unsortedWeapons,
   finisherDice,
-  panache,
+  damageMode,
   attackDelta,
   damagePenalized,
   embedded = false,
 }: {
   weapons: CharacterSheet["static"]["weapons"];
   finisherDice: string;
-  panache: boolean;
+  damageMode: StrikeDamageMode;
   attackDelta: number;
   damagePenalized: boolean;
   embedded?: boolean;
@@ -30,7 +30,7 @@ export function StrikesSection({
       </div>
       <div className="strike-damage-row">
         <div className={`strike-damage ${damagePenalized && !w.ranged ? "stat-penalized" : ""}`.trim()}>
-          {formatStrikeDamage(w.damage, finisherDice, panache)}
+          {formatStrikeDamage(w.damage, finisherDice, damageMode)}
         </div>
         {w.critNote ? <span className="strike-crit">({w.critNote})</span> : null}
       </div>

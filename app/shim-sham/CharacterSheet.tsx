@@ -32,12 +32,14 @@ import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
 import { buildAreaWeaponEntries } from "@/lib/shim-sham/area-weapons";
 import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
+import type { StrikeDamageMode } from "./lib/strike-format";
 import type { Panel } from "./types";
 
 export default function CharacterSheet() {
   const { sheet, kvConfigured, loading, error, save } = useCharacterSheet();
   const [panel, setPanel] = useState<Panel>(null);
   const [strikesOpen, setStrikesOpen] = useState(false);
+  const [strikesDamageMode, setStrikesDamageMode] = useState<StrikeDamageMode>("default");
   const [areaWeaponsOpen, setAreaWeaponsOpen] = useState(false);
   const [hpDeltaInput, setHpDeltaInput] = useState("");
   const [creditInput, setCreditInput] = useState("");
@@ -168,7 +170,10 @@ export default function CharacterSheet() {
               runtime={runtime}
               ffUsesLeft={ffUsesLeft}
               save={save}
-              onOpenStrikes={() => setStrikesOpen(true)}
+              onOpenStrikes={(mode) => {
+                setStrikesDamageMode(mode);
+                setStrikesOpen(true);
+              }}
               onOpenAreaWeapons={() => setAreaWeaponsOpen(true)}
               combat={runtime.combat}
               jetpack={runtime.jetpack}
@@ -242,7 +247,7 @@ export default function CharacterSheet() {
         <StrikesPanel
           weapons={data.weapons}
           finisherDice={level.finisherDice}
-          panache={runtime.panache}
+          damageMode={strikesDamageMode}
           attackDelta={effects.finesseMeleeAttack}
           damagePenalized={effects.strDamage < 0}
           onClose={() => setStrikesOpen(false)}

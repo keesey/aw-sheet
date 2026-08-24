@@ -1,18 +1,19 @@
 import type { CharacterSheet } from "@/lib/types";
+import type { StrikeDamageMode } from "../../lib/strike-format";
 import { StrikesSection } from "../sheet/StrikesSection";
 import { BottomPanel } from "../BottomPanel";
 
 export function StrikesPanel({
   weapons,
   finisherDice,
-  panache,
+  damageMode,
   attackDelta,
   damagePenalized,
   onClose,
 }: {
   weapons: CharacterSheet["static"]["weapons"];
   finisherDice: string;
-  panache: boolean;
+  damageMode: StrikeDamageMode;
   attackDelta: number;
   damagePenalized: boolean;
   onClose: () => void;
@@ -22,7 +23,7 @@ export function StrikesPanel({
       <StrikesSection
         weapons={weapons}
         finisherDice={finisherDice}
-        panache={panache}
+        damageMode={damageMode}
         attackDelta={attackDelta}
         damagePenalized={damagePenalized}
         embedded

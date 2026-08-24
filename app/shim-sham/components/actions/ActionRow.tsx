@@ -1,5 +1,6 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
+import type { StrikeDamageMode } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { ActionDescription } from "./ActionDescription";
@@ -99,7 +100,7 @@ export function ActionRow({
   runtime?: RuntimeState;
   ffUsesLeft?: number;
   save?: SaveFn;
-  onOpenStrikes?: () => void;
+  onOpenStrikes?: (mode: StrikeDamageMode) => void;
   onOpenAreaWeapons?: () => void;
   level?: LevelSnapshot;
   speedDelta?: number;

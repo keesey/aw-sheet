@@ -1,4 +1,5 @@
 import type { CharacterAction, CoverLevel, RuntimeState } from "@/lib/types";
+import type { StrikeDamageMode } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 
 function TakeCoverButtons({
@@ -75,7 +76,7 @@ export function ActionControl({
   ffUsesLeft: number;
   disabled: boolean;
   save: SaveFn;
-  onOpenStrikes: () => void;
+  onOpenStrikes: (mode: StrikeDamageMode) => void;
   onOpenAreaWeapons: () => void;
 }) {
   if (!action.control) {
@@ -159,7 +160,9 @@ export function ActionControl({
           type="button"
           className="btn btn-icon action-row__icon-btn"
           disabled={disabled}
-          onClick={onOpenStrikes}
+          onClick={() =>
+            onOpenStrikes(action.id === "confident-finisher" ? "finisher" : "default")
+          }
           aria-label="Open strikes"
         >
           ⚔

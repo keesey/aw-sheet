@@ -1,5 +1,6 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
+import type { StrikeDamageMode } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { ActionRow } from "../actions/ActionRow";
 
@@ -31,7 +32,7 @@ export function ActionsSection({
   runtime: RuntimeState;
   ffUsesLeft: number;
   save: SaveFn;
-  onOpenStrikes: () => void;
+  onOpenStrikes: (mode: StrikeDamageMode) => void;
   onOpenAreaWeapons: () => void;
   combat: boolean;
   jetpack: boolean;

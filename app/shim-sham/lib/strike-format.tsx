@@ -1,11 +1,21 @@
-export function formatStrikeDamage(damage: string, finisherDice: string, panache: boolean) {
-  const hasFinisher = damage.includes(" precision");
-  return (
-    <>
-      {damage}
-      {panache && hasFinisher ? (
-        <span className="speed-panache"> (+{finisherDice} finisher)</span>
-      ) : null}
-    </>
-  );
+export type StrikeDamageMode = "default" | "finisher";
+
+const PRECISION_SUFFIX_RE = / [+-]\d+ precision$/;
+
+export function formatStrikeDamage(
+  damage: string,
+  finisherDice: string,
+  mode: StrikeDamageMode,
+) {
+  if (mode === "finisher") {
+    const base = damage.replace(PRECISION_SUFFIX_RE, "");
+    return (
+      <>
+        {base}
+        <span className="speed-panache"> +{finisherDice} precision</span>
+      </>
+    );
+  }
+
+  return damage;
 }
