@@ -9,6 +9,10 @@ export function sessionLogLineForSave(
   runtime: RuntimeState,
   context: SessionLogContext,
 ): string | null {
+  if (body.action === "rest") {
+    return "REST (8 hours)";
+  }
+
   if (body.combat === true && !runtime.combat) {
     return "ENCOUNTER";
   }
