@@ -13,6 +13,8 @@
   --success: #4ade80;
   --warning: #fbbf24;
   --panache: #f472b6;
+  --accelerate: #facc15;
+  --jetpack: #a78bfa;
 }
 
 * {
@@ -60,6 +62,12 @@ body {
   gap: 0.5rem;
 }
 
+.sheet-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 .sheet-title {
   margin: 0;
   font-size: 1.35rem;
@@ -94,7 +102,11 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.35rem 1rem;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
+}
+
+.sheet-skills-grid a {
+  font-weight: 500;
 }
 
 .strike-entry {
@@ -107,6 +119,7 @@ body {
   justify-content: space-between;
   align-items: baseline;
   gap: 0.75rem;
+  font-size: 1.05rem;
   font-weight: 600;
 }
 
@@ -116,20 +129,44 @@ body {
 
 .strike-attack {
   flex-shrink: 0;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .strike-damage {
-  font-size: 0.85rem;
-  color: var(--muted);
+  margin-top: 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
 }
 
 .strike-traits {
   font-size: 0.75rem;
   color: var(--muted);
   margin-top: 0.15rem;
+}
+
+.sheet-notes {
+  width: 100%;
+  min-height: 8rem;
+  margin-top: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0.625rem 0.75rem;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.sheet-notes-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 @media (min-width: 1024px) and (orientation: landscape) {
@@ -196,10 +233,24 @@ body {
     grid-column: span 2;
   }
 
+  .sheet-column--skills .stat-card:first-child {
+    flex-shrink: 0;
+  }
+
+  .sheet-notes-card {
+    flex: 1;
+  }
+
+  .sheet-notes {
+    flex: 1;
+    min-height: 0;
+    resize: none;
+  }
+
   .sheet-skills-grid {
     grid-template-columns: 1fr;
     gap: 0.3rem;
-    font-size: 0.85rem;
+    font-size: 1.1rem;
   }
 
   .stat-value {
@@ -471,8 +522,50 @@ button {
   color: #fce7f3;
 }
 
+.accelerate-on {
+  background: var(--accelerate);
+  border-color: #eab308;
+  color: #422006;
+}
+
+.jetpack-on {
+  background: var(--jetpack);
+  border-color: #8b5cf6;
+  color: #2e1065;
+}
+
+.combat-on {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  border-color: var(--danger);
+  color: #fecaca;
+}
+
 .speed-panache {
   color: var(--panache);
+}
+
+.action-combat-bonus {
+  color: var(--danger);
+}
+
+.speed-fly-label {
+  color: var(--jetpack);
+}
+
+.action-row--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.speed-accelerate {
+  color: var(--accelerate);
+}
+
+.speed-accelerate-panache {
+  background: linear-gradient(90deg, var(--accelerate), var(--panache));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .action-group-title {

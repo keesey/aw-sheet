@@ -14,6 +14,9 @@ export function createDefaultRuntime(level = 6): RuntimeState {
     level,
     currentHp: snapshot.maxHp,
     panache: false,
+    accelerate: false,
+    jetpack: false,
+    combat: false,
     credits: 1280,
     conditions: [],
     forceFieldHp: 0,
@@ -30,6 +33,7 @@ export function createDefaultRuntime(level = 6): RuntimeState {
       { id: "battery-2", charges: 10, max: 10 },
     ],
     chemTankCharges: 8,
+    notes: "",
   };
 }
 
@@ -245,7 +249,8 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Bravado move to reposition a foe.",
           traits: ["Bravado", "Move", "Swashbuckler"],
           url: `${AONP}/Feats.aspx?ID=6149`,
-          bonus: "+14 (+1 circumstance with panache)",
+          bonus: "+14",
+          combatBonus: "+1",
         },
         {
           id: "baton-parry",
@@ -259,10 +264,11 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "perform",
           name: "Perform / Fascinating Performance",
           cost: "single",
-          summary: "Performance +14 (+1 circumstance). Focused Fascination.",
+          summary: "Focused Fascination.",
           traits: ["Bravado", "Concentrate", "Incapacitation"],
           url: `${AONP}/Feats.aspx?ID=5147`,
           bonus: "+14",
+          combatBonus: "+1",
         },
         {
           id: "stride",
@@ -279,7 +285,8 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Acrobatics to move through a foe's space.",
           traits: ["Bravado", "Move"],
           url: `${AONP}/Actions.aspx?ID=2370`,
-          bonus: "+14 (+1 circumstance)",
+          bonus: "+14",
+          combatBonus: "+1",
         },
         {
           id: "group-coercion",

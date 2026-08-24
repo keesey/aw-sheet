@@ -28,6 +28,7 @@ export type CharacterAction = {
   traits?: string[];
   url: string;
   bonus?: string;
+  combatBonus?: string;
 };
 
 export type Consumable = {
@@ -70,6 +71,9 @@ export type RuntimeState = {
   level: number;
   currentHp: number;
   panache: boolean;
+  accelerate: boolean;
+  jetpack: boolean;
+  combat: boolean;
   credits: number;
   conditions: string[];
   forceFieldHp: number;
@@ -78,6 +82,7 @@ export type RuntimeState = {
   consumables: Record<string, number>;
   batteries: { id: string; charges: number; max: number }[];
   chemTankCharges: number;
+  notes: string;
 };
 
 export type CharacterSheet = {

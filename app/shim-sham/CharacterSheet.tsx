@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CharacterSheet } from "@/lib/types";
+import type { CharacterAction, CharacterSheet } from "@/lib/types";
 import { CONDITIONS, findCondition } from "@/lib/shim-sham/conditions";
 import {
   FORCE_FIELD_DAILY_USES,
@@ -11,6 +11,30 @@ import { getNextLevelSnapshot } from "@/lib/shim-sham/progression";
 
 const LOCAL_KEY = "shim-sham-runtime";
 const PANACHE_SPEED_BONUS = 5;
+const ACCELERATE_SPEED_BONUS = 20;
+
+type SpeedEntry = {
+  label: string;
+  value: number;
+  panacheBoost: boolean;
+  accelerateBoost: boolean;
+};
+
+function getSpeedDisplayValue(speed: SpeedEntry, panache: boolean, accelerate: boolean) {
+  let total = speed.value;
+  if (panache && speed.panacheBoost) total += PANACHE_SPEED_BONUS;
+  if (accelerate && speed.accelerateBoost) total += ACCELERATE_SPEED_BONUS;
+  return total;
+}
+
+function getSpeedClassName(speed: SpeedEntry, panache: boolean, accelerate: boolean) {
+  const panacheActive = panache && speed.panacheBoost;
+  const accelerateActive = accelerate && speed.accelerateBoost;
+  if (panacheActive && accelerateActive) return "speed-accelerate-panache";
+  if (accelerateActive) return "speed-accelerate";
+  if (panacheActive) return "speed-panache";
+  return undefined;
+}
 
 type Panel = "actions" | "abilities" | "inventory" | "conditions" | "manage" | null;
 
@@ -56,6 +80,56 @@ async function patchSheet(body: Record<string, unknown>) {
     throw new Error(err.error ?? "Save failed");
   }
   return res.json() as Promise<{ sheet: CharacterSheet; kvConfigured: boolean }>;
+}
+
+function ActionTitle({ action, combat }: { action: CharacterAction; combat: boolean }) {
+  const name =
+    action.id === "fly" ? <span className="speed-fly-label">{action.name}</span> : action.name;
+
+  return (
+    <>
+      {name}
+      {action.bonus ? ` ${action.bonus}` : ""}
+      {combat && action.combatBonus ? (
+        <span className="action-combat-bonus"> {action.combatBonus}</span>
+      ) : null}
+    </>
+  );
+}
+
+function SingleActionRow({
+  action,
+  combat,
+  jetpack,
+}: {
+  action: CharacterAction;
+  combat: boolean;
+  jetpack: boolean;
+}) {
+  const disabled = action.id === "fly" && !jetpack;
+  const content = (
+    <>
+      <div className="action-name">
+        <ActionTitle action={action} combat={combat} />
+      </div>
+      <div className="action-summary">{action.summary}</div>
+      {action.traits && <div className="action-summary">{action.traits.join(" · ")}</div>}
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <div className="action-row action-row--disabled" aria-disabled="true">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <AonLink href={action.url} className="action-row">
+      {content}
+    </AonLink>
+  );
 }
 
 function AonLink({
@@ -111,6 +185,8 @@ export default function CharacterSheet() {
   const [panel, setPanel] = useState<Panel>(null);
   const [hpDeltaInput, setHpDeltaInput] = useState("");
   const [creditInput, setCreditInput] = useState("");
+  const [notesDraft, setNotesDraft] = useState("");
+  const notesFocused = useRef(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const sheetRef = useRef<CharacterSheet | null>(null);
@@ -118,6 +194,12 @@ export default function CharacterSheet() {
   useEffect(() => {
     sheetRef.current = sheet;
   }, [sheet]);
+
+  useEffect(() => {
+    if (!notesFocused.current) {
+      setNotesDraft(sheet?.runtime.notes ?? "");
+    }
+  }, [sheet?.runtime.notes]);
 
   const load = useCallback(async () => {
     try {
@@ -197,12 +279,18 @@ export default function CharacterSheet() {
   const ffUsesLeft = FORCE_FIELD_DAILY_USES - runtime.forceFieldUsesUsed;
   const nextLevel = getNextLevelSnapshot(runtime.level);
 
-  const speedEntries = [
-    { label: "Land", value: level.landSpeed, panacheBoost: true },
-    level.flySpeed != null ? { label: "Fly", value: level.flySpeed, panacheBoost: true } : null,
-    level.climbSpeed != null ? { label: "Climb", value: level.climbSpeed, panacheBoost: true } : null,
-    level.swimSpeed != null ? { label: "Swim", value: level.swimSpeed, panacheBoost: false } : null,
-  ].filter((entry): entry is { label: string; value: number; panacheBoost: boolean } => entry != null);
+  const speedEntries: SpeedEntry[] = [
+    { label: "Land", value: level.landSpeed, panacheBoost: true, accelerateBoost: true },
+    level.flySpeed != null && runtime.jetpack
+      ? { label: "Fly", value: level.flySpeed, panacheBoost: true, accelerateBoost: false }
+      : null,
+    level.climbSpeed != null
+      ? { label: "Climb", value: level.climbSpeed, panacheBoost: true, accelerateBoost: true }
+      : null,
+    level.swimSpeed != null
+      ? { label: "Swim", value: level.swimSpeed, panacheBoost: false, accelerateBoost: false }
+      : null,
+  ].filter((entry): entry is SpeedEntry => entry != null);
 
   const actionsByCost = {
     free: data.actions.filter((a) => a.cost === "free"),
@@ -240,14 +328,44 @@ export default function CharacterSheet() {
               <AonLink href={data.style.url}>{data.style.name}</AonLink>
             </p>
           </div>
-          <button
-            type="button"
-            className={`btn ${runtime.panache ? "panache-on" : ""}`}
-            onClick={() => void save({ panache: !runtime.panache })}
-            aria-pressed={runtime.panache}
-          >
-            {runtime.panache ? "Panache ✦" : "Panache"}
-          </button>
+          <div className="sheet-header-actions">
+            <button
+              type="button"
+              className={`btn ${runtime.accelerate ? "accelerate-on" : ""}`}
+              onClick={() => void save({ accelerate: !runtime.accelerate })}
+              aria-pressed={runtime.accelerate}
+            >
+              {runtime.accelerate ? "Accelerate ✦" : "Accelerate"}
+            </button>
+            <button
+              type="button"
+              className={`btn ${runtime.jetpack ? "jetpack-on" : ""}`}
+              onClick={() => void save({ jetpack: !runtime.jetpack })}
+              aria-pressed={runtime.jetpack}
+            >
+              {runtime.jetpack ? "Jetpack ✦" : "Jetpack"}
+            </button>
+            <button
+              type="button"
+              className={`btn ${runtime.panache ? "panache-on" : ""}`}
+              onClick={() => void save({ panache: !runtime.panache })}
+              aria-pressed={runtime.panache}
+              disabled={!runtime.combat}
+            >
+              {runtime.panache ? "Panache ✦" : "Panache"}
+            </button>
+            <button
+              type="button"
+              className={`btn ${runtime.combat ? "combat-on" : ""}`}
+              onClick={() => {
+                const nextCombat = !runtime.combat;
+                void save(nextCombat ? { combat: true } : { combat: false, panache: false });
+              }}
+              aria-pressed={runtime.combat}
+            >
+              {runtime.combat ? "Combat ✦" : "Combat"}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -355,18 +473,72 @@ export default function CharacterSheet() {
               <div className="stat-label">Speed</div>
               <div style={{ fontSize: "1rem", fontWeight: 600, marginTop: "0.35rem", lineHeight: 1.5 }}>
                 {speedEntries.map((speed, index) => {
-                  const boosted = runtime.panache && speed.panacheBoost;
-                  const displayValue = speed.value + (boosted ? PANACHE_SPEED_BONUS : 0);
+                  const speedClass = getSpeedClassName(speed, runtime.panache, runtime.accelerate);
+                  const displayValue = getSpeedDisplayValue(speed, runtime.panache, runtime.accelerate);
                   return (
                     <span key={speed.label}>
                       {index > 0 && " · "}
-                      {speed.label}{" "}
-                      <span className={boosted ? "speed-panache" : undefined}>
+                      {speed.label === "Fly" ? (
+                        <span className="speed-fly-label">{speed.label}</span>
+                      ) : (
+                        speed.label
+                      )}{" "}
+                      <span className={speedClass}>
                         {displayValue}′
                       </span>
                     </span>
                   );
                 })}
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">Daily</div>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", fontSize: "0.9rem" }}>
+                <input
+                  type="checkbox"
+                  checked={runtime.meyelRerollUsed}
+                  onChange={(e) => void save({ meyelRerollUsed: e.target.checked })}
+                />
+                <AonLink href={data.heritage.url}>
+                  <em>{data.heritage.name}</em> reroll used
+                </AonLink>
+              </label>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">Credits</div>
+              <div className="stat-value" style={{ fontSize: "1.5rem" }}>{runtime.credits.toLocaleString()}</div>
+              <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.5rem" }}>
+                <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits - 10 })}>−</button>
+                <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits + 10 })}>+</button>
+                <form
+                  style={{ display: "flex", flex: 1 }}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const n = parseInt(creditInput, 10);
+                    if (!Number.isNaN(n)) {
+                      void save({ credits: Math.max(0, runtime.credits + n) });
+                      setCreditInput("");
+                    }
+                  }}
+                >
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    value={creditInput}
+                    onChange={(e) => setCreditInput(e.target.value)}
+                    style={{
+                      width: "100%",
+                      minHeight: 44,
+                      borderRadius: 10,
+                      border: "1px solid var(--border)",
+                      background: "var(--surface-2)",
+                      color: "var(--text)",
+                      padding: "0 0.5rem",
+                    }}
+                  />
+                </form>
               </div>
             </div>
           </div>
@@ -417,52 +589,24 @@ export default function CharacterSheet() {
             </div>
           </div>
 
-          <div className="stat-card sheet-section">
-            <div className="stat-label">Daily</div>
-            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", fontSize: "0.9rem" }}>
-              <input
-                type="checkbox"
-                checked={runtime.meyelRerollUsed}
-                onChange={(e) => void save({ meyelRerollUsed: e.target.checked })}
-              />
-              <AonLink href={data.heritage.url}>Meyel reroll used</AonLink>
-            </label>
-          </div>
-
-          <div className="stat-card sheet-section">
-            <div className="stat-label">Credits</div>
-            <div className="stat-value" style={{ fontSize: "1.5rem" }}>{runtime.credits.toLocaleString()}</div>
-            <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.5rem" }}>
-              <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits - 10 })}>−</button>
-              <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits + 10 })}>+</button>
-              <form
-                style={{ display: "flex", flex: 1 }}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const n = parseInt(creditInput, 10);
-                  if (!Number.isNaN(n)) {
-                    void save({ credits: Math.max(0, runtime.credits + n) });
-                    setCreditInput("");
-                  }
-                }}
-              >
-                <input
-                  type="number"
-                  placeholder="Amount"
-                  value={creditInput}
-                  onChange={(e) => setCreditInput(e.target.value)}
-                  style={{
-                    width: "100%",
-                    minHeight: 44,
-                    borderRadius: 10,
-                    border: "1px solid var(--border)",
-                    background: "var(--surface-2)",
-                    color: "var(--text)",
-                    padding: "0 0.5rem",
-                  }}
-                />
-              </form>
-            </div>
+          <div className="stat-card sheet-section sheet-notes-card">
+            <label className="stat-label" htmlFor="sheet-notes">Notes</label>
+            <textarea
+              id="sheet-notes"
+              className="sheet-notes"
+              value={notesDraft}
+              placeholder="Session notes, reminders…"
+              onFocus={() => {
+                notesFocused.current = true;
+              }}
+              onChange={(e) => setNotesDraft(e.target.value)}
+              onBlur={() => {
+                notesFocused.current = false;
+                if (notesDraft !== (runtime.notes ?? "")) {
+                  void save({ notes: notesDraft });
+                }
+              }}
+            />
           </div>
         </div>
       </section>
@@ -485,7 +629,7 @@ export default function CharacterSheet() {
               {actionsByCost.free.map((a) => (
                 <AonLink key={a.id} href={a.url} className="action-row">
                   <div className="action-name">
-                    {a.name}{a.bonus ? ` ${a.bonus}` : ""}
+                    <ActionTitle action={a} combat={runtime.combat} />
                   </div>
                   <div className="action-summary">{a.summary}</div>
                   {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
@@ -495,7 +639,7 @@ export default function CharacterSheet() {
               {actionsByCost.reaction.map((a) => (
                 <AonLink key={a.id} href={a.url} className="action-row">
                   <div className="action-name">
-                    {a.name}{a.bonus ? ` ${a.bonus}` : ""}
+                    <ActionTitle action={a} combat={runtime.combat} />
                   </div>
                   <div className="action-summary">{a.summary}</div>
                   {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
@@ -513,13 +657,12 @@ export default function CharacterSheet() {
               <div className="action-group-title">Single Action</div>
               <div className="actions-single-grid">
                 {actionsByCost.single.map((a) => (
-                  <AonLink key={a.id} href={a.url} className="action-row">
-                    <div className="action-name">
-                      {a.name}{a.bonus ? ` ${a.bonus}` : ""}
-                    </div>
-                    <div className="action-summary">{a.summary}</div>
-                    {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
-                  </AonLink>
+                  <SingleActionRow
+                    key={a.id}
+                    action={a}
+                    combat={runtime.combat}
+                    jetpack={runtime.jetpack}
+                  />
                 ))}
               </div>
             </div>
@@ -673,6 +816,9 @@ export default function CharacterSheet() {
                 forceFieldHp: 0,
                 meyelRerollUsed: false,
                 panache: false,
+                accelerate: false,
+                jetpack: false,
+                combat: false,
               }).then(() => setPanel(null));
             }}
           >

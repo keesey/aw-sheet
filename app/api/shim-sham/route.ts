@@ -47,6 +47,9 @@ export async function PATCH(request: Request) {
       forceFieldHp: 0,
       meyelRerollUsed: false,
       panache: false,
+      accelerate: false,
+      jetpack: false,
+      combat: false,
       conditions: conditions.filter((c) => c !== "fatigued"),
     };
   } else if (body.action === "level-up") {
@@ -118,6 +121,10 @@ export async function PATCH(request: Request) {
         runtime.currentHp = Math.min(runtime.currentHp, snapshot.maxHp);
       }
     }
+  }
+
+  if (!runtime.combat) {
+    runtime.panache = false;
   }
 
   await saveRuntimeState(runtime);
