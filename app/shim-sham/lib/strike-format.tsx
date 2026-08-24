@@ -1,30 +1,27 @@
-const STRIKE_FINISHER_RE = /\s*\(\+\d+d\d+ finisher(?:,\s*([^)]+)|;\s*([^)]+))?\)/;
-
-export function formatStrikeDamage(damage: string, finisherDice: string, panache: boolean) {
-  const match = damage.match(STRIKE_FINISHER_RE);
-  if (!match) {
-    return damage;
-  }
-
-  const base = damage.replace(STRIKE_FINISHER_RE, "").trimEnd();
-  const extra = match[1] ?? match[2] ?? "";
-  const damageLine = panache ? (
+export function formatStrikeDamage(
+  damage: string,
+  finisherDice: string,
+  panache: boolean,
+  critNote?: string,
+) {
+  const hasFinisher = damage.includes(" precision");
+  const damageLine = (
     <>
-      {base}
-      <span className="speed-panache"> (+{finisherDice} finisher)</span>
+      {damage}
+      {panache && hasFinisher ? (
+        <span className="speed-panache"> (+{finisherDice} finisher)</span>
+      ) : null}
     </>
-  ) : (
-    base
   );
 
-  if (!extra) {
+  if (!critNote) {
     return damageLine;
   }
 
   return (
     <>
       {damageLine}
-      <span className="strike-crit">{extra}</span>
+      <span className="strike-crit">({critNote})</span>
     </>
   );
 }

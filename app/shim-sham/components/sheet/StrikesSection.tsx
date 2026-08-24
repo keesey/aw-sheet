@@ -27,7 +27,7 @@ export function StrikesSection({
             <span className="strike-attack">{w.attack}</span>
           </div>
           <div className="strike-damage">
-            {formatStrikeDamage(w.damage, finisherDice, panache)}
+            {formatStrikeDamage(w.damage, finisherDice, panache, w.critNote)}
           </div>
           <div className="strike-traits">{w.traits.join(" · ")}</div>
         </div>

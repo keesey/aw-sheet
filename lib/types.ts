@@ -13,6 +13,8 @@ export type WeaponStrike = {
   name: string;
   attack: string;
   damage: string;
+  /** Shown on its own line, e.g. "+1d8 deadly on crit". */
+  critNote?: string;
   traits: string[];
   url: string;
   weaponUrl?: string;

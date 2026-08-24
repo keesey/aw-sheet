@@ -1,0 +1,12 @@
+---
+description: Never use Grok models for this project
+alwaysApply: true
+---
+
+# Never use Grok
+
+Do not use Grok for any work in this project.
+
+- Do not set a Task/subagent `model` to any Grok slug (`cursor-grok-*`, `grok-*`, or similar).
+- Use `inherit` or a non-Grok model the user requested.
+- Do not recommend, default to, or fall back to Grok.

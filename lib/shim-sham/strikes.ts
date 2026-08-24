@@ -15,7 +15,11 @@ type StrikeDefinition = {
   agile?: boolean;
   /** Item bonus to attack from the Tracking trait (0 if none). */
   tracking: number;
-  damage: string;
+  dice: string;
+  damageType: string;
+  /** Shown on its own line below damage, e.g. "+1d8 deadly on crit". */
+  critNote?: string;
+  expend?: number;
   traits: string[];
   url: string;
   weaponUrl?: string;
@@ -39,7 +43,8 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     category: "simple",
     finesse: true,
     tracking: 1,
-    damage: "1d6+2 B +3 precision (+3d6 finisher)",
+    dice: "1d6",
+    damageType: "B",
     traits: ["Club", "Finesse", "Nonlethal", "Parry"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/2-baton`,
@@ -50,7 +55,8 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     category: "martial",
     finesse: true,
     tracking: 0,
-    damage: "1d4+2 S +3 precision (+3d6 finisher)",
+    dice: "1d4",
+    damageType: "S",
     traits: ["Flail", "Finesse", "Nonlethal", "Reach", "Trip"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/9-battle-ribbon`,
@@ -61,7 +67,8 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     category: "unarmed",
     finesse: true,
     tracking: 0,
-    damage: "1d6+2 P +3 precision (+3d6 finisher)",
+    dice: "1d6",
+    damageType: "P",
     traits: ["Brawling", "Finesse", "Grapple", "Unarmed"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/feats/331-predatory`,
@@ -72,7 +79,9 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     category: "martial",
     finesse: true,
     tracking: 1,
-    damage: "2d6+2 P +3 precision (+3d6 finisher, +1d8 deadly on crit)",
+    dice: "2d6",
+    damageType: "P",
+    critNote: "+1d8 deadly on crit",
     traits: ["Sword", "Deadly d8", "Disarm", "Finesse"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/17-nano-edge-rapier`,
@@ -84,7 +93,9 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     finesse: true,
     agile: true,
     tracking: 1,
-    damage: "2d4+2 S +3 precision (+3d6 finisher; frightened 1 on crit)",
+    dice: "2d4",
+    damageType: "S",
+    critNote: "frightened 1 on crit",
     traits: ["Knife", "Agile", "Finesse", "Free-hand"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/29-tailblade`,
@@ -96,7 +107,8 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     finesse: true,
     agile: true,
     tracking: 0,
-    damage: "1d4+2 C/P +3 precision (+3d6 finisher)",
+    dice: "1d4",
+    damageType: "C/P",
     traits: ["Knife", "Agile", "Finesse", "Powered", "Versatile P"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/7-zero-knife`,
@@ -107,7 +119,9 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     category: "simple",
     ranged: true,
     tracking: 1,
-    damage: "2d6 C (Expend 2)",
+    dice: "2d6",
+    damageType: "C",
+    expend: 2,
     traits: ["Tech"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/48-zero-pistol`,
@@ -123,6 +137,33 @@ function attackAttribute(strike: StrikeDefinition): AbilityKey {
   return "STR";
 }
 
+function weaponRank(level: number): ProficiencyRank {
+  return proficiencyRankAtLevel(WEAPON_RANKS, level);
+}
+
+/**
+ * Extra damage from Weapon Specialization (7) / Greater (15).
+ * @see https://2e.aonprd.com/Classes.aspx?ID=63
+ */
+function weaponSpecializationDamage(level: number, rank: ProficiencyRank): number {
+  if (rank === "U" || rank === "T") return 0;
+  if (level >= 15) {
+    if (rank === "L") return 8;
+    if (rank === "M") return 6;
+    return 4;
+  }
+  if (level >= 7) {
+    if (rank === "L") return 4;
+    if (rank === "M") return 3;
+    return 2;
+  }
+  return 0;
+}
+
+function usesPreciseStrike(strike: StrikeDefinition): boolean {
+  return !strike.ranged && (strike.finesse === true || strike.agile === true);
+}
+
 /**
  * Attack modifier = attribute + weapon proficiency + Tracking item bonus.
  * MAP: –5/–10, or –4/–8 with Agile.
@@ -130,8 +171,7 @@ function attackAttribute(strike: StrikeDefinition): AbilityKey {
  * @see https://2e.aonsrd.com/traits/11-agile
  * @see https://2e.aonsrd.com/traits/183-tracking
  */
-function attackBonus(strike: StrikeDefinition, snapshot: LevelSnapshot): number {
-  const rank = proficiencyRankAtLevel(WEAPON_RANKS, snapshot.level);
+function attackBonus(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: ProficiencyRank): number {
   const attribute = snapshot.abilities[attackAttribute(strike)];
   return attribute + proficiencyBonus(rank, snapshot.level) + strike.tracking;
 }
@@ -142,12 +182,37 @@ function formatMapAttacks(first: number, agile: boolean): string {
   return [first, first - secondPenalty, first - thirdPenalty].map(signed).join(" / ");
 }
 
+/**
+ * Melee: dice + Strength + specialization + Precise Strike.
+ * Ranged: dice + specialization (no Strength unless thrown/propulsive).
+ * @see https://2e.aonsrd.com/rules/349-damage-rolls
+ */
+function formatDamage(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: ProficiencyRank): string {
+  const strength = strike.ranged ? 0 : snapshot.abilities.STR;
+  const bonus = strength + weaponSpecializationDamage(snapshot.level, rank);
+  let text = strike.dice;
+  if (bonus !== 0) text += signed(bonus);
+  text += ` ${strike.damageType}`;
+
+  if (usesPreciseStrike(strike)) {
+    text += ` ${signed(snapshot.preciseStrike)} precision`;
+  }
+
+  if (strike.expend != null) {
+    text += ` (Expend ${strike.expend})`;
+  }
+
+  return text;
+}
+
 export function buildWeaponStrikes(snapshot: LevelSnapshot): WeaponStrike[] {
+  const rank = weaponRank(snapshot.level);
   return SHIM_SHAM_STRIKES.map((strike) => ({
     id: strike.id,
     name: strike.name,
-    attack: formatMapAttacks(attackBonus(strike, snapshot), strike.agile === true),
-    damage: strike.damage,
+    attack: formatMapAttacks(attackBonus(strike, snapshot, rank), strike.agile === true),
+    damage: formatDamage(strike, snapshot, rank),
+    critNote: strike.critNote,
     traits: [...strike.traits],
     url: strike.url,
     weaponUrl: strike.weaponUrl,
