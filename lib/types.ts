@@ -1,0 +1,112 @@
+export type AonLink = {
+  name: string;
+  url: string;
+};
+
+export type WeaponStrike = {
+  id: string;
+  name: string;
+  attack: string;
+  damage: string;
+  traits: string[];
+  url: string;
+  weaponUrl?: string;
+};
+
+export type SkillEntry = {
+  name: string;
+  bonus: number;
+  proficiency: "U" | "T" | "E" | "M" | "L";
+  url: string;
+};
+
+export type CharacterAction = {
+  id: string;
+  name: string;
+  cost: "free" | "single" | "minute" | "reaction";
+  summary: string;
+  traits?: string[];
+  url: string;
+  bonus?: string;
+};
+
+export type Consumable = {
+  id: string;
+  name: string;
+  url: string;
+  quantity: number;
+  used: number;
+};
+
+export type InventoryItem = {
+  id: string;
+  name: string;
+  bulk: string;
+  url?: string;
+  invested?: boolean;
+  notes?: string;
+};
+
+export type LevelSnapshot = {
+  level: number;
+  abilities: Record<"STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA", number>;
+  maxHp: number;
+  ac: number;
+  fort: number;
+  reflex: number;
+  will: number;
+  perception: number;
+  classDc: number;
+  landSpeed: number;
+  flySpeed?: number;
+  climbSpeed?: number;
+  swimSpeed?: number;
+  preciseStrike: number;
+  finisherDice: string;
+  notes: string[];
+};
+
+export type RuntimeState = {
+  level: number;
+  currentHp: number;
+  panache: boolean;
+  credits: number;
+  conditions: string[];
+  forceFieldHp: number;
+  forceFieldUsesUsed: number;
+  meyelRerollUsed: boolean;
+  consumables: Record<string, number>;
+  batteries: { id: string; charges: number; max: number }[];
+  chemTankCharges: number;
+};
+
+export type CharacterSheet = {
+  static: {
+    name: string;
+    nickname: string;
+    player: string;
+    deity: string;
+    ancestry: AonLink;
+    heritage: AonLink;
+    background: AonLink;
+    class: AonLink;
+    style: AonLink;
+    size: string;
+    languages: string[];
+    homeWorld: string;
+    portOfCall: string;
+    senses: AonLink[];
+    anathema: string[];
+    armor: AonLink & { acBonus: number; notes?: string };
+    resistances: string[];
+    skills: SkillEntry[];
+    weapons: WeaponStrike[];
+    actions: CharacterAction[];
+    inventory: InventoryItem[];
+    consumableCatalog: Consumable[];
+    planUrl: string;
+    playbookUrl: string;
+  };
+  level: LevelSnapshot;
+  runtime: RuntimeState;
+};
