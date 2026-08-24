@@ -1,15 +1,13 @@
 import type { CharacterSheet } from "@/lib/types";
 import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
-import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
 import { formatSigned, statModClass } from "../../lib/format";
-import type { SaveFn, SpeedEntry } from "../../types";
+import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 
 export function StatsGrid({
   data,
   level,
   runtime,
-  speedEntries,
   displayAc,
   acDelta,
   effects,
@@ -20,7 +18,6 @@ export function StatsGrid({
   data: CharacterSheet["static"];
   level: CharacterSheet["level"];
   runtime: CharacterSheet["runtime"];
-  speedEntries: SpeedEntry[];
   displayAc: number;
   acDelta: number;
   effects: ConditionEffects;
@@ -87,33 +84,6 @@ export function StatsGrid({
           <span className={`stat-value ${statModClass(effects.will) ?? ""}`.trim()} style={{ fontSize: "1.35rem" }}>
             {formatSigned(level.will + effects.will)}
           </span>
-        </div>
-      </div>
-
-      <div className="stat-card stat-card--wide">
-        <div className="stat-label">Speed</div>
-        <div style={{ fontSize: "1rem", fontWeight: 600, marginTop: "0.35rem", lineHeight: 1.5 }}>
-          {speedEntries.map((speed, index) => {
-            const speedClass = getSpeedClassName(speed, runtime.panache, runtime.accelerate);
-            const displayValue = getSpeedDisplayValue(
-              speed,
-              runtime.panache,
-              runtime.accelerate,
-              effects.speedDelta,
-            );
-            const penalized = effects.speedDelta < 0;
-            return (
-              <span key={speed.label}>
-                {index > 0 && " · "}
-                {speed.label === "Fly" ? (
-                  <span className="speed-fly-label">{speed.label}</span>
-                ) : (
-                  speed.label
-                )}{" "}
-                <span className={penalized ? "stat-penalized" : speedClass}>{displayValue}′</span>
-              </span>
-            );
-          })}
         </div>
       </div>
 

@@ -32,7 +32,7 @@ import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
 import { buildAreaWeaponEntries } from "@/lib/shim-sham/area-weapons";
 import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
-import type { Panel, SpeedEntry } from "./types";
+import type { Panel } from "./types";
 
 export default function CharacterSheet() {
   const { sheet, kvConfigured, loading, error, save } = useCharacterSheet();
@@ -81,19 +81,6 @@ export default function CharacterSheet() {
   const hpPct = Math.round((currentHp / maxHp) * 100);
   const ffPct = Math.round((runtime.forceFieldHp / FORCE_FIELD_MAX_HP) * 100);
   const ffUsesLeft = FORCE_FIELD_DAILY_USES - runtime.forceFieldUsesUsed;
-
-  const speedEntries: SpeedEntry[] = [
-    { label: "Land", value: level.landSpeed, panacheBoost: true, accelerateBoost: true },
-    level.flySpeed != null && runtime.jetpack
-      ? { label: "Fly", value: level.flySpeed, panacheBoost: true, accelerateBoost: false }
-      : null,
-    level.climbSpeed != null
-      ? { label: "Climb", value: level.climbSpeed, panacheBoost: true, accelerateBoost: true }
-      : null,
-    level.swimSpeed != null
-      ? { label: "Swim", value: level.swimSpeed, panacheBoost: false, accelerateBoost: false }
-      : null,
-  ].filter((entry): entry is SpeedEntry => entry != null);
 
   const byActionName = (a: { name: string }, b: { name: string }) =>
     a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
@@ -156,7 +143,6 @@ export default function CharacterSheet() {
             data={data}
             level={level}
             runtime={runtime}
-            speedEntries={speedEntries}
             displayAc={displayAc}
             acDelta={acDelta}
             effects={effects}
@@ -177,6 +163,8 @@ export default function CharacterSheet() {
             <ActionsSection
               actionsByCost={actionsByCost}
               strikeAction={strikeAction}
+              level={level}
+              speedDelta={effects.speedDelta}
               runtime={runtime}
               ffUsesLeft={ffUsesLeft}
               save={save}

@@ -1,4 +1,4 @@
-import type { CharacterAction, RuntimeState } from "@/lib/types";
+import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import type { SaveFn } from "../../types";
 import { ActionRow } from "../actions/ActionRow";
@@ -6,6 +6,8 @@ import { ActionRow } from "../actions/ActionRow";
 export function ActionsSection({
   actionsByCost,
   strikeAction,
+  level,
+  speedDelta,
   runtime,
   ffUsesLeft,
   save,
@@ -24,6 +26,8 @@ export function ActionsSection({
     double: CharacterAction[];
   };
   strikeAction: CharacterAction;
+  level: LevelSnapshot;
+  speedDelta: number;
   runtime: RuntimeState;
   ffUsesLeft: number;
   save: SaveFn;
@@ -47,6 +51,8 @@ export function ActionsSection({
     save,
     onOpenStrikes,
     onOpenAreaWeapons,
+    level,
+    speedDelta,
   };
 
   const singleActions = [...actionsByCost.single, strikeAction].sort((a, b) =>

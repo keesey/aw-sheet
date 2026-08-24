@@ -1,9 +1,10 @@
-import type { CharacterAction, RuntimeState } from "@/lib/types";
+import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { ActionDescription } from "./ActionDescription";
 import { ActionControl } from "./ActionControl";
+import { ActionSpeedNote } from "./ActionSpeedNote";
 
 const PANACHE_ACTION_IDS = new Set(["exemplary-finisher", "confident-finisher"]);
 const EMPTY_LOCKS: ConditionActionLocks = {
@@ -85,6 +86,8 @@ export function ActionRow({
   save,
   onOpenStrikes,
   onOpenAreaWeapons,
+  level,
+  speedDelta = 0,
 }: {
   action: CharacterAction;
   combat: boolean;
@@ -98,6 +101,8 @@ export function ActionRow({
   save?: SaveFn;
   onOpenStrikes?: () => void;
   onOpenAreaWeapons?: () => void;
+  level?: LevelSnapshot;
+  speedDelta?: number;
 }) {
   const disabled = isActionDisabled(action, jetpack, panache, meyelRerollUsed, locks);
   const rollBonus = compact ? <ActionRollBonus action={action} combat={combat} /> : null;
@@ -117,24 +122,35 @@ export function ActionRow({
   if (compact) {
     const className = `action-row action-row--compact action-row--split${disabled ? " action-row--disabled" : ""}`;
     const title = <ActionTitle action={action} />;
-    const aside = control ? (
+    const speedNote =
+      level && runtime ? (
+        <ActionSpeedNote
+          actionId={action.id}
+          level={level}
+          runtime={runtime}
+          speedDelta={speedDelta}
+        />
+      ) : null;
+    const aside =
+      speedNote || rollBonus || control ? (
         <div className="action-row__aside">
+          {speedNote}
           {rollBonus}
           {control}
         </div>
-      ) : rollBonus ? (
-        <div className="action-row__aside">{rollBonus}</div>
       ) : null;
 
     return (
       <div className={className} aria-disabled={disabled || undefined}>
-        {disabled ? (
-          <span className="action-row__link action-row__link--disabled">{title}</span>
-        ) : (
-          <AonLink href={action.url} className="action-row__link">
-            {title}
-          </AonLink>
-        )}
+        <div className="action-row__main">
+          {disabled ? (
+            <span className="action-row__link action-row__link--disabled">{title}</span>
+          ) : (
+            <AonLink href={action.url} className="action-row__link">
+              {title}
+            </AonLink>
+          )}
+        </div>
         {aside}
       </div>
     );

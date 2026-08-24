@@ -942,7 +942,22 @@ button {
   pointer-events: none;
 }
 
+.action-row__main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.action-row__speeds {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text);
+}
+
 .action-row__link {
+  flex-shrink: 1;
   min-width: 0;
   flex: 1 1 auto;
   font-weight: 600;
