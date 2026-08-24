@@ -1,4 +1,4 @@
-import type { CharacterSheet, RuntimeState } from "@/lib/types";
+import type { CharacterAction, CharacterSheet, RuntimeState } from "@/lib/types";
 import { getLevelSnapshot } from "@/lib/shim-sham/progression";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
 import { syncEncumberedFromBulk, totalBulk } from "@/lib/shim-sham/bulk";
@@ -83,40 +83,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   }));
   const skillBonus = (name: string) => formatSignedBonus(skillBonusByName(allSkills, name));
   const armor = getWornArmor(level.level);
-
-  return {
-    static: {
-      name: "Jenluwess Wivvashimmeh",
-      nickname: "Shim Sham",
-      player: "Keesey",
-      deity: "Meyel",
-      ancestry: { name: "Pahtra", url: `${AON}/ancestries/12-pahtra` },
-      heritage: {
-        name: "Meyel's Chosen",
-        url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
-      },
-      background: { name: "Space Pirate", url: `${AON}/backgrounds/32-space-pirate` },
-      class: { name: "Swashbuckler 6", url: `${AONP}/Classes.aspx?ID=63` },
-      style: { name: "Battledancer", url: `${AONP}/Styles.aspx?ID=7` },
-      size: "Medium",
-      languages: ["Common", "Pahtra", "Vesk"],
-      homeWorld: "Pulonis",
-      portOfCall: "Absalom Station",
-      senses: [{ name: "Darkvision", url: `${AON}/rules/459-darkvision-and-greater-darkvision` }],
-      anathema: ["Look clumsy (never do)", "Reveal secretive Pahtra names"],
-      armor: {
-        name: armor.name,
-        url: armor.url,
-        acBonus: armor.acBonus,
-        notes: armor.notes,
-      },
-      resistances: ["Reroll crit fail on save 1×/day (Meyel's Chosen)"],
-      skills: allSkills.filter((skill) => skill.proficiency !== "U"),
-      weapons: buildWeaponStrikes(level, {
-        attackDelta: (strike) => attackDeltaForStrike(effects, strike),
-        strDamageDelta: effects.strDamage,
-      }),
-      actions: [
+  const allActions: CharacterAction[] = [
         {
           id: "cardiac-accelerator",
           name: "Activate Cardiac Accelerator",
@@ -131,6 +98,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           cost: "free",
           summary: "Step after a finisher.",
           url: `${AONP}/Styles.aspx?ID=7`,
+          minLevel: 9,
         },
         {
           id: "meyel-reroll",
@@ -276,7 +244,41 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Coerce up to 5 targets.",
           url: `${AON}/feats/811-group-coercion`,
         },
-      ],
+  ];
+
+  return {
+    static: {
+      name: "Jenluwess Wivvashimmeh",
+      nickname: "Shim Sham",
+      player: "Keesey",
+      deity: "Meyel",
+      ancestry: { name: "Pahtra", url: `${AON}/ancestries/12-pahtra` },
+      heritage: {
+        name: "Meyel's Chosen",
+        url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
+      },
+      background: { name: "Space Pirate", url: `${AON}/backgrounds/32-space-pirate` },
+      class: { name: "Swashbuckler 6", url: `${AONP}/Classes.aspx?ID=63` },
+      style: { name: "Battledancer", url: `${AONP}/Styles.aspx?ID=7` },
+      size: "Medium",
+      languages: ["Common", "Pahtra", "Vesk"],
+      homeWorld: "Pulonis",
+      portOfCall: "Absalom Station",
+      senses: [{ name: "Darkvision", url: `${AON}/rules/459-darkvision-and-greater-darkvision` }],
+      anathema: ["Look clumsy (never do)", "Reveal secretive Pahtra names"],
+      armor: {
+        name: armor.name,
+        url: armor.url,
+        acBonus: armor.acBonus,
+        notes: armor.notes,
+      },
+      resistances: ["Reroll crit fail on save 1×/day (Meyel's Chosen)"],
+      skills: allSkills.filter((skill) => skill.proficiency !== "U"),
+      weapons: buildWeaponStrikes(level, {
+        attackDelta: (strike) => attackDeltaForStrike(effects, strike),
+        strDamageDelta: effects.strDamage,
+      }),
+      actions: allActions.filter((action) => level.level >= (action.minLevel ?? 1)),
       inventory: SHIM_SHAM_INVENTORY,
       consumableCatalog: [
         {

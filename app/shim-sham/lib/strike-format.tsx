@@ -1,27 +1,11 @@
-export function formatStrikeDamage(
-  damage: string,
-  finisherDice: string,
-  panache: boolean,
-  critNote?: string,
-) {
+export function formatStrikeDamage(damage: string, finisherDice: string, panache: boolean) {
   const hasFinisher = damage.includes(" precision");
-  const damageLine = (
+  return (
     <>
       {damage}
       {panache && hasFinisher ? (
         <span className="speed-panache"> (+{finisherDice} finisher)</span>
       ) : null}
-    </>
-  );
-
-  if (!critNote) {
-    return damageLine;
-  }
-
-  return (
-    <>
-      {damageLine}
-      <span className="strike-crit">({critNote})</span>
     </>
   );
 }

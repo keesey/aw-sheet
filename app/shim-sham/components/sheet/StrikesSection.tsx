@@ -31,8 +31,11 @@ export function StrikesSection({
             <AonLink href={w.weaponUrl ?? w.url}>{w.name}</AonLink>
             <span className={`strike-attack ${statModClass(attackDelta) ?? ""}`.trim()}>{w.attack}</span>
           </div>
-          <div className={`strike-damage ${damagePenalized && !w.ranged ? "stat-penalized" : ""}`.trim()}>
-            {formatStrikeDamage(w.damage, finisherDice, panache, w.critNote)}
+          <div className="strike-damage-row">
+            <div className={`strike-damage ${damagePenalized && !w.ranged ? "stat-penalized" : ""}`.trim()}>
+              {formatStrikeDamage(w.damage, finisherDice, panache)}
+            </div>
+            {w.critNote ? <span className="strike-crit">({w.critNote})</span> : null}
           </div>
           <div className="strike-traits">{w.traits.join(" · ")}</div>
         </div>

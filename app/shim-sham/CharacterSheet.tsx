@@ -16,6 +16,7 @@ import { getSkillKeyAbilities } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
 import { ActionsPanel } from "./components/panels/ActionsPanel";
 import { AbilitiesPanel } from "./components/panels/AbilitiesPanel";
+import { FeatsPanel } from "./components/panels/FeatsPanel";
 import { InventoryPanel } from "./components/panels/InventoryPanel";
 import { ConditionsPanel } from "./components/panels/ConditionsPanel";
 import { ManagePanel } from "./components/panels/ManagePanel";
@@ -199,6 +200,10 @@ export default function CharacterSheet() {
 
       {panel === "abilities" && (
         <AbilitiesPanel level={level} onClose={() => setPanel(null)} />
+      )}
+
+      {panel === "feats" && (
+        <FeatsPanel currentLevel={runtime.level} onClose={() => setPanel(null)} />
       )}
 
       {panel === "inventory" && (

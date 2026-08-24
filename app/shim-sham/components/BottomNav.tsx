@@ -9,6 +9,9 @@ export function BottomNav({ onSelect }: { onSelect: (panel: Panel) => void }) {
       <button type="button" className="btn" onClick={() => onSelect("abilities")}>
         Abilities
       </button>
+      <button type="button" className="btn" onClick={() => onSelect("feats")}>
+        Feats
+      </button>
       <button type="button" className="btn" onClick={() => onSelect("inventory")}>
         Inventory
       </button>

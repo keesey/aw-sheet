@@ -157,6 +157,10 @@ export async function PATCH(request: Request) {
     runtime.panache = false;
   }
 
+  if (previous.meyelRerollUsed && body.action !== "rest") {
+    runtime.meyelRerollUsed = true;
+  }
+
   runtime = normalizeRuntime(runtime);
   const snapshot = getLevelSnapshot(runtime.level)!;
   runtime.currentHp = adjustCurrentHpForDrainedChange(

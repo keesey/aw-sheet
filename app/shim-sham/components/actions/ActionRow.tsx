@@ -79,7 +79,7 @@ export function ActionRow({
         <ActionTitle action={action} combat={combat} />
       </div>
       <div className="action-summary">{action.summary}</div>
-      {action.traits && <div className="action-summary">{action.traits.join(" · ")}</div>}
+      {action.traits && <div className="action-traits">{action.traits.join(" · ")}</div>}
     </>
   );
 

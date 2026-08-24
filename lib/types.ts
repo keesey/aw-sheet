@@ -41,6 +41,8 @@ export type CharacterAction = {
   url: string;
   bonus?: string;
   combatBonus?: string;
+  /** Omit from the sheet until this character level. */
+  minLevel?: number;
 };
 
 export type Consumable = {

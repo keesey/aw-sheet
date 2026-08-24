@@ -30,6 +30,17 @@ export function StatsGrid({
   onCreditInputChange: (value: string) => void;
   save: SaveFn;
 }) {
+  const creditsAmount = (() => {
+    const parsed = parseInt(creditInput.trim(), 10);
+    return creditInput.trim() === "" || Number.isNaN(parsed) || parsed <= 0 ? 0 : parsed;
+  })();
+
+  const applyCredits = (sign: -1 | 1) => {
+    if (!creditsAmount) return;
+    void save({ credits: Math.max(0, runtime.credits + sign * creditsAmount) });
+    onCreditInputChange("");
+  };
+
   return (
     <div className="sheet-grid">
       <div className="stat-card">
@@ -119,58 +130,48 @@ export function StatsGrid({
       </div>
 
       <div className="stat-card">
-        <div className="stat-label">Daily</div>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", fontSize: "0.9rem" }}>
-          <input
-            type="checkbox"
-            checked={runtime.meyelRerollUsed}
-            onChange={(e) => void save({ meyelRerollUsed: e.target.checked })}
-          />
-          <AonLink href={data.heritage.url}>
-            <em>{data.heritage.name}</em> reroll used
-          </AonLink>
-        </label>
-      </div>
-
-      <div className="stat-card">
         <div className="stat-label">Credits</div>
         <div className="stat-value" style={{ fontSize: "1.5rem" }}>
           {runtime.credits.toLocaleString()}
         </div>
         <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.5rem" }}>
-          <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits - 10 })}>
+          <button
+            type="button"
+            className="btn btn-icon"
+            onClick={() => applyCredits(-1)}
+            disabled={!creditsAmount}
+            aria-label="Subtract credits"
+          >
             −
           </button>
-          <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits + 10 })}>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            placeholder="Amount"
+            value={creditInput}
+            onChange={(e) => onCreditInputChange(e.target.value)}
+            aria-label="Credit change amount"
+            style={{
+              flex: 1,
+              minWidth: 72,
+              minHeight: 44,
+              borderRadius: 10,
+              border: "1px solid var(--border)",
+              background: "var(--surface-2)",
+              color: "var(--text)",
+              padding: "0 0.5rem",
+            }}
+          />
+          <button
+            type="button"
+            className="btn btn-icon"
+            onClick={() => applyCredits(1)}
+            disabled={!creditsAmount}
+            aria-label="Add credits"
+          >
             +
           </button>
-          <form
-            style={{ display: "flex", flex: 1 }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              const n = parseInt(creditInput, 10);
-              if (!Number.isNaN(n)) {
-                void save({ credits: Math.max(0, runtime.credits + n) });
-                onCreditInputChange("");
-              }
-            }}
-          >
-            <input
-              type="number"
-              placeholder="Amount"
-              value={creditInput}
-              onChange={(e) => onCreditInputChange(e.target.value)}
-              style={{
-                width: "100%",
-                minHeight: 44,
-                borderRadius: 10,
-                border: "1px solid var(--border)",
-                background: "var(--surface-2)",
-                color: "var(--text)",
-                padding: "0 0.5rem",
-              }}
-            />
-          </form>
         </div>
       </div>
     </div>
