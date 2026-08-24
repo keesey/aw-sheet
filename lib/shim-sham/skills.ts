@@ -121,6 +121,10 @@ export function buildSkillEntries(snapshot: LevelSnapshot): SkillEntry[] {
   });
 }
 
+export function getSkillKeyAbilities(): Record<string, AbilityKey> {
+  return Object.fromEntries(SHIM_SHAM_SKILLS.map((skill) => [skill.name, skill.keyAbility]));
+}
+
 export function skillBonusByName(skills: SkillEntry[], name: string): number {
   const skill = skills.find((entry) => entry.name === name);
   if (!skill) {

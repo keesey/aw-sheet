@@ -9,6 +9,7 @@ import { AonLink } from "../AonLink";
 export function HpBlock({
   level,
   runtime,
+  maxHp,
   hpPct,
   ffPct,
   ffUsesLeft,
@@ -19,6 +20,7 @@ export function HpBlock({
 }: {
   level: CharacterSheet["level"];
   runtime: CharacterSheet["runtime"];
+  maxHp: number;
   hpPct: number;
   ffPct: number;
   ffUsesLeft: number;
@@ -32,8 +34,11 @@ export function HpBlock({
       <span className="stat-label">Hit Points</span>
       <div className="stat-value stat-value--hp" style={{ fontSize: "2.5rem" }}>
         {runtime.currentHp}
-        <span style={{ fontSize: "1.25rem", color: "var(--muted)", fontWeight: 500 }}>
-          {" "}/ {level.maxHp}
+        <span
+          style={{ fontSize: "1.25rem", fontWeight: 500 }}
+          className={maxHp < level.maxHp ? "stat-penalized" : undefined}
+        >
+          {" "}/ {maxHp}
         </span>
       </div>
       <div className="hp-bar">
@@ -75,7 +80,7 @@ export function HpBlock({
         >
           +
         </button>
-        <button type="button" className="btn" onClick={() => void save({ currentHp: level.maxHp })}>
+        <button type="button" className="btn" onClick={() => void save({ currentHp: maxHp })}>
           Full
         </button>
       </div>

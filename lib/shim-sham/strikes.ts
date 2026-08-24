@@ -187,8 +187,13 @@ function formatMapAttacks(first: number, agile: boolean): string {
  * Ranged: dice + specialization (no Strength unless thrown/propulsive).
  * @see https://2e.aonsrd.com/rules/349-damage-rolls
  */
-function formatDamage(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: ProficiencyRank): string {
-  const strength = strike.ranged ? 0 : snapshot.abilities.STR;
+function formatDamage(
+  strike: StrikeDefinition,
+  snapshot: LevelSnapshot,
+  rank: ProficiencyRank,
+  strDamageDelta = 0,
+): string {
+  const strength = strike.ranged ? 0 : snapshot.abilities.STR + strDamageDelta;
   const bonus = strength + weaponSpecializationDamage(snapshot.level, rank);
   let text = strike.dice;
   if (bonus !== 0) text += signed(bonus);
@@ -205,16 +210,25 @@ function formatDamage(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: P
   return text;
 }
 
-export function buildWeaponStrikes(snapshot: LevelSnapshot): WeaponStrike[] {
+export function buildWeaponStrikes(
+  snapshot: LevelSnapshot,
+  extras: {
+    attackDelta?: (strike: { ranged?: boolean; finesse?: boolean }) => number;
+    strDamageDelta?: number;
+  } = {},
+): WeaponStrike[] {
   const rank = weaponRank(snapshot.level);
+  const attackDelta = extras.attackDelta ?? (() => 0);
+  const strDamageDelta = extras.strDamageDelta ?? 0;
   return SHIM_SHAM_STRIKES.map((strike) => ({
     id: strike.id,
     name: strike.name,
-    attack: formatMapAttacks(attackBonus(strike, snapshot, rank), strike.agile === true),
-    damage: formatDamage(strike, snapshot, rank),
+    attack: formatMapAttacks(attackBonus(strike, snapshot, rank) + attackDelta(strike), strike.agile === true),
+    damage: formatDamage(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),
     critNote: strike.critNote,
     traits: [...strike.traits],
     url: strike.url,
     weaponUrl: strike.weaponUrl,
+    ranged: strike.ranged,
   }));
 }

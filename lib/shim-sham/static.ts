@@ -5,8 +5,13 @@ import { syncEncumberedFromBulk, totalBulk } from "@/lib/shim-sham/bulk";
 import { SHIM_SHAM_INVENTORY } from "@/lib/shim-sham/inventory";
 import { getWornArmor } from "@/lib/shim-sham/armor";
 import {
+  attackDeltaForStrike,
+  resolveConditionEffects,
+} from "@/lib/shim-sham/condition-effects";
+import {
   buildSkillEntries,
   formatSignedBonus,
+  getSkillKeyAbilities,
   skillBonusByName,
 } from "@/lib/shim-sham/skills";
 import { buildWeaponStrikes } from "@/lib/shim-sham/strikes";
@@ -67,7 +72,15 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
 export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   const normalizedRuntime = normalizeRuntimeState(runtime);
   const level = getLevelSnapshot(normalizedRuntime.level)!;
-  const allSkills = buildSkillEntries(level);
+  const effects = resolveConditionEffects(
+    normalizedRuntime.conditions,
+    level,
+    getSkillKeyAbilities(),
+  );
+  const allSkills = buildSkillEntries(level).map((skill) => ({
+    ...skill,
+    bonus: skill.bonus + (effects.skillDelta[skill.name] ?? 0),
+  }));
   const skillBonus = (name: string) => formatSignedBonus(skillBonusByName(allSkills, name));
   const armor = getWornArmor(level.level);
 
@@ -99,7 +112,10 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       },
       resistances: ["Reroll crit fail on save 1×/day (Meyel's Chosen)"],
       skills: allSkills.filter((skill) => skill.proficiency !== "U"),
-      weapons: buildWeaponStrikes(level),
+      weapons: buildWeaponStrikes(level, {
+        attackDelta: (strike) => attackDeltaForStrike(effects, strike),
+        strDamageDelta: effects.strDamage,
+      }),
       actions: [
         {
           id: "cardiac-accelerator",

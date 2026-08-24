@@ -1,4 +1,5 @@
 import type { CharacterAction, CharacterSheet } from "@/lib/types";
+import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import { ActionRow, MinuteActionRow } from "../actions/ActionRow";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
@@ -7,6 +8,7 @@ export function ActionsPanel({
   data,
   runtime,
   actionsByCost,
+  locks,
   onClose,
 }: {
   data: CharacterSheet["static"];
@@ -17,6 +19,7 @@ export function ActionsPanel({
     single: CharacterAction[];
     minute: CharacterAction[];
   };
+  locks: ConditionActionLocks;
   onClose: () => void;
 }) {
   const actionProps = {
@@ -24,6 +27,7 @@ export function ActionsPanel({
     jetpack: runtime.jetpack,
     panache: runtime.panache,
     meyelRerollUsed: runtime.meyelRerollUsed,
+    locks,
   };
 
   return (
@@ -40,7 +44,7 @@ export function ActionsPanel({
           ))}
           <div className="action-group-title">One Minute</div>
           {actionsByCost.minute.map((a) => (
-            <MinuteActionRow key={a.id} action={a} />
+            <MinuteActionRow key={a.id} action={a} locks={locks} />
           ))}
         </div>
         <div className="actions-single-section">

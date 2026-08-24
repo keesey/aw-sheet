@@ -11,6 +11,8 @@ import {
   maxBulkCapacity,
   totalBulk,
 } from "@/lib/shim-sham/bulk";
+import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
+import { getSkillKeyAbilities } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
 import { ActionsPanel } from "./components/panels/ActionsPanel";
 import { AbilitiesPanel } from "./components/panels/AbilitiesPanel";
@@ -65,7 +67,10 @@ export default function CharacterSheet() {
   }
 
   const { static: data, level, runtime } = sheet;
-  const hpPct = Math.round((runtime.currentHp / level.maxHp) * 100);
+  const effects = resolveConditionEffects(runtime.conditions, level, getSkillKeyAbilities());
+  const maxHp = Math.max(1, level.maxHp + effects.maxHpDelta);
+  const currentHp = Math.min(runtime.currentHp, maxHp);
+  const hpPct = Math.round((currentHp / maxHp) * 100);
   const ffPct = Math.round((runtime.forceFieldHp / FORCE_FIELD_MAX_HP) * 100);
   const ffUsesLeft = FORCE_FIELD_DAILY_USES - runtime.forceFieldUsesUsed;
 
@@ -91,7 +96,9 @@ export default function CharacterSheet() {
     minute: data.actions.filter((a) => a.cost === "minute").sort(byActionName),
   };
   const duelingParryAction = data.actions.find((a) => a.id === "dueling-parry");
-  const displayAc = level.ac + (runtime.duelingParry ? 2 : 0);
+  const duelingParryBonus = runtime.duelingParry ? 2 : 0;
+  const displayAc = level.ac + duelingParryBonus + effects.ac;
+  const acDelta = duelingParryBonus + effects.ac;
   const inventoryBulk = totalBulk(data.inventory);
   const inventoryBulkMax = maxBulkCapacity(level.abilities.STR);
   const encumberedFromBulk = isEncumberedByBulk(inventoryBulk, level.abilities.STR);
@@ -121,13 +128,14 @@ export default function CharacterSheet() {
         <div className="sheet-column sheet-column--combat">
           <HpBlock
             level={level}
-            runtime={runtime}
+            runtime={{ ...runtime, currentHp }}
+            maxHp={maxHp}
             hpPct={hpPct}
             ffPct={ffPct}
             ffUsesLeft={ffUsesLeft}
             hpDeltaInput={hpDeltaInput}
             onHpDeltaInputChange={setHpDeltaInput}
-            onApplyHpDelta={(sign) => applyHpDelta(sign, runtime.currentHp, runtime.forceFieldHp)}
+            onApplyHpDelta={(sign) => applyHpDelta(sign, currentHp, runtime.forceFieldHp)}
             save={save}
           />
 
@@ -137,6 +145,8 @@ export default function CharacterSheet() {
             runtime={runtime}
             speedEntries={speedEntries}
             displayAc={displayAc}
+            acDelta={acDelta}
+            effects={effects}
             duelingParryAction={duelingParryAction}
             creditInput={creditInput}
             onCreditInputChange={setCreditInput}
@@ -155,16 +165,19 @@ export default function CharacterSheet() {
             weapons={data.weapons}
             finisherDice={level.finisherDice}
             panache={runtime.panache}
+            attackDelta={effects.finesseMeleeAttack}
+            damagePenalized={effects.strDamage < 0}
           />
         </div>
 
         <div className="sheet-column sheet-column--skills">
           <SkillsSection
             skills={data.skills}
+            skillDelta={effects.skillDelta}
             notesDraft={notesDraft}
             onNotesDraftChange={setNotesDraft}
             runtimeNotes={runtime.notes}
-            notesFocused={notesFocused}
+            notesFocusedRef={notesFocused}
             save={save}
           />
         </div>
@@ -179,6 +192,7 @@ export default function CharacterSheet() {
           data={data}
           runtime={runtime}
           actionsByCost={actionsByCost}
+          locks={effects}
           onClose={() => setPanel(null)}
         />
       )}

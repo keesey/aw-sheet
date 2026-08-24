@@ -18,6 +18,7 @@ export type WeaponStrike = {
   traits: string[];
   url: string;
   weaponUrl?: string;
+  ranged?: boolean;
 };
 
 export type ProficiencyRank = "U" | "T" | "E" | "M" | "L";

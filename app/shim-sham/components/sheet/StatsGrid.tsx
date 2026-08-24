@@ -1,5 +1,7 @@
 import type { CharacterAction, CharacterSheet } from "@/lib/types";
+import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
+import { formatSigned, statModClass } from "../../lib/format";
 import type { SaveFn, SpeedEntry } from "../../types";
 import { AonLink } from "../AonLink";
 
@@ -9,6 +11,8 @@ export function StatsGrid({
   runtime,
   speedEntries,
   displayAc,
+  acDelta,
+  effects,
   duelingParryAction,
   creditInput,
   onCreditInputChange,
@@ -19,6 +23,8 @@ export function StatsGrid({
   runtime: CharacterSheet["runtime"];
   speedEntries: SpeedEntry[];
   displayAc: number;
+  acDelta: number;
+  effects: ConditionEffects;
   duelingParryAction?: CharacterAction;
   creditInput: string;
   onCreditInputChange: (value: string) => void;
@@ -29,7 +35,7 @@ export function StatsGrid({
       <div className="stat-card">
         <div className="stat-label">Armor Class</div>
         <div className="ac-row">
-          <div className="stat-value">{displayAc}</div>
+          <div className={`stat-value ${statModClass(acDelta) ?? ""}`.trim()}>{displayAc}</div>
           {duelingParryAction && (
             <label className="ac-parry">
               <input
@@ -48,10 +54,12 @@ export function StatsGrid({
 
       <div className="stat-card">
         <div className="stat-label">Perception</div>
-        <div className="stat-value">+{level.perception}</div>
+        <div className={`stat-value ${statModClass(effects.perception) ?? ""}`.trim()}>
+          {formatSigned(level.perception + effects.perception)}
+        </div>
         <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.35rem", lineHeight: 1.4 }}>
           {data.senses.map((s, i) => (
-            <span key={s.name}>
+            <span key={s.name} className={effects.sensesDisabled ? "stat-penalized" : undefined} style={effects.sensesDisabled ? { textDecoration: "line-through" } : undefined}>
               {i > 0 && " · "}
               <AonLink href={s.url}>{s.name}</AonLink>
             </span>
@@ -61,7 +69,9 @@ export function StatsGrid({
 
       <div className="stat-card">
         <div className="stat-label">Class DC</div>
-        <div className="stat-value">{level.classDc}</div>
+        <div className={`stat-value ${statModClass(effects.classDc) ?? ""}`.trim()}>
+          {level.classDc + effects.classDc}
+        </div>
       </div>
 
       <div className="stat-card">
@@ -69,14 +79,14 @@ export function StatsGrid({
           <span className="stat-label">Fort</span>
           <span className="stat-label">Ref</span>
           <span className="stat-label">Will</span>
-          <span className="stat-value" style={{ fontSize: "1.35rem" }}>
-            +{level.fort}
+          <span className={`stat-value ${statModClass(effects.fort) ?? ""}`.trim()} style={{ fontSize: "1.35rem" }}>
+            {formatSigned(level.fort + effects.fort)}
           </span>
-          <span className="stat-value" style={{ fontSize: "1.35rem" }}>
-            +{level.reflex}
+          <span className={`stat-value ${statModClass(effects.reflex) ?? ""}`.trim()} style={{ fontSize: "1.35rem" }}>
+            {formatSigned(level.reflex + effects.reflex)}
           </span>
-          <span className="stat-value" style={{ fontSize: "1.35rem" }}>
-            +{level.will}
+          <span className={`stat-value ${statModClass(effects.will) ?? ""}`.trim()} style={{ fontSize: "1.35rem" }}>
+            {formatSigned(level.will + effects.will)}
           </span>
         </div>
       </div>
@@ -86,7 +96,13 @@ export function StatsGrid({
         <div style={{ fontSize: "1rem", fontWeight: 600, marginTop: "0.35rem", lineHeight: 1.5 }}>
           {speedEntries.map((speed, index) => {
             const speedClass = getSpeedClassName(speed, runtime.panache, runtime.accelerate);
-            const displayValue = getSpeedDisplayValue(speed, runtime.panache, runtime.accelerate);
+            const displayValue = getSpeedDisplayValue(
+              speed,
+              runtime.panache,
+              runtime.accelerate,
+              effects.speedDelta,
+            );
+            const penalized = effects.speedDelta < 0;
             return (
               <span key={speed.label}>
                 {index > 0 && " · "}
@@ -95,7 +111,7 @@ export function StatsGrid({
                 ) : (
                   speed.label
                 )}{" "}
-                <span className={speedClass}>{displayValue}′</span>
+                <span className={penalized ? "stat-penalized" : speedClass}>{displayValue}′</span>
               </span>
             );
           })}

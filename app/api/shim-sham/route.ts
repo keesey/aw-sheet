@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { loadRuntimeState, saveRuntimeState, isKvConfigured } from "@/lib/kv";
 import { buildCharacterSheet, normalizeRuntimeState } from "@/lib/shim-sham/static";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
+import {
+  adjustCurrentHpForDrainedChange,
+  effectiveMaxHp,
+  tickRestConditions,
+} from "@/lib/shim-sham/condition-effects";
 import { getLevelSnapshot, getNextLevelSnapshot } from "@/lib/shim-sham/progression";
 import type { RuntimeState } from "@/lib/types";
 import {
@@ -37,17 +42,19 @@ export async function PATCH(request: Request) {
     delta?: number;
   };
 
-  let runtime = mergeClientRuntime(await loadRuntimeState(), body);
+  const previous = await loadRuntimeState();
+  let runtime = mergeClientRuntime(previous, body);
 
   if (body.action === "rest") {
     const snapshot = getLevelSnapshot(runtime.level)!;
     const conMod = Math.max(1, snapshot.abilities.CON);
     const heal = conMod * runtime.level;
     const startHp = typeof body.currentHp === "number" ? body.currentHp : runtime.currentHp;
-    const conditions = Array.isArray(body.conditions) ? body.conditions : runtime.conditions;
+    const incoming = Array.isArray(body.conditions) ? body.conditions : runtime.conditions;
+    const conditions = tickRestConditions(normalizeConditions(incoming));
     runtime = {
       ...runtime,
-      currentHp: Math.min(snapshot.maxHp, startHp + heal),
+      currentHp: Math.min(effectiveMaxHp(snapshot.maxHp, conditions, snapshot.level), startHp + heal),
       forceFieldUsesUsed: 0,
       forceFieldHp: 0,
       forceFieldActive: false,
@@ -56,7 +63,7 @@ export async function PATCH(request: Request) {
       accelerate: false,
       jetpack: false,
       combat: false,
-      conditions: normalizeConditions(conditions).filter((c) => c.id !== "fatigued"),
+      conditions,
     };
   } else if (body.action === "level-up") {
     const next = getNextLevelSnapshot(runtime.level);
@@ -129,7 +136,10 @@ export async function PATCH(request: Request) {
     } else if (body.delta > 0) {
       runtime = {
         ...runtime,
-        currentHp: Math.max(0, Math.min(snapshot.maxHp, startHp + body.delta)),
+        currentHp: Math.max(
+          0,
+          Math.min(effectiveMaxHp(snapshot.maxHp, runtime.conditions, snapshot.level), startHp + body.delta),
+        ),
       };
     }
   } else {
@@ -148,6 +158,14 @@ export async function PATCH(request: Request) {
   }
 
   runtime = normalizeRuntime(runtime);
+  const snapshot = getLevelSnapshot(runtime.level)!;
+  runtime.currentHp = adjustCurrentHpForDrainedChange(
+    normalizeConditions(previous.conditions),
+    runtime.conditions,
+    runtime.currentHp,
+    snapshot.level,
+    snapshot.maxHp,
+  );
 
   await saveRuntimeState(runtime);
   const sheet = buildCharacterSheet(runtime);

@@ -2,22 +2,26 @@
 
 import type { MutableRefObject } from "react";
 import type { CharacterSheet } from "@/lib/types";
+import { formatSignedBonus } from "@/lib/shim-sham/skills";
+import { statModClass } from "../../lib/format";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 
 export function SkillsSection({
   skills,
+  skillDelta,
   notesDraft,
   onNotesDraftChange,
   runtimeNotes,
-  notesFocused,
+  notesFocusedRef,
   save,
 }: {
   skills: CharacterSheet["static"]["skills"];
+  skillDelta: Record<string, number>;
   notesDraft: string;
   onNotesDraftChange: (value: string) => void;
   runtimeNotes: string;
-  notesFocused: MutableRefObject<boolean>;
+  notesFocusedRef: MutableRefObject<boolean>;
   save: SaveFn;
 }) {
   return (
@@ -30,7 +34,9 @@ export function SkillsSection({
           {skills.map((s) => (
             <div key={s.name} style={{ display: "flex", justifyContent: "space-between", gap: "0.5rem" }}>
               <AonLink href={s.url}>{s.name}</AonLink>
-              <strong>+{s.bonus}</strong>
+              <strong className={statModClass(skillDelta[s.name] ?? 0)}>
+                {formatSignedBonus(s.bonus)}
+              </strong>
             </div>
           ))}
         </div>
@@ -46,11 +52,11 @@ export function SkillsSection({
           value={notesDraft}
           placeholder="Session notes, reminders…"
           onFocus={() => {
-            notesFocused.current = true;
+            notesFocusedRef.current = true;
           }}
           onChange={(e) => onNotesDraftChange(e.target.value)}
           onBlur={() => {
-            notesFocused.current = false;
+            notesFocusedRef.current = false;
             if (notesDraft !== (runtimeNotes ?? "")) {
               void save({ notes: notesDraft });
             }

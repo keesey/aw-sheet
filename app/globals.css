@@ -15,6 +15,7 @@
   --panache: #f472b6;
   --accelerate: #facc15;
   --jetpack: #a78bfa;
+  --condition: #fb923c;
 }
 
 * {
@@ -344,6 +345,14 @@ button {
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.1;
+}
+
+.stat-penalized {
+  color: var(--condition);
+}
+
+.stat-boosted {
+  color: var(--success);
 }
 
 .saves-grid {
