@@ -127,6 +127,7 @@ export function expandImpliedConditions(conditions: ActiveCondition[]): ActiveCo
     }
     if (map.has("encumbered")) changed = ensure("clumsy", 1) || changed;
     if (map.has("flat-footed")) changed = ensure("off-guard") || changed;
+    if (map.has("blinded")) changed = ensure("dazzled") || changed;
   }
 
   return [...map.values()];

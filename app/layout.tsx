@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AW Sheet — Shim Sham",
+  title: "Shim Sham — Aw Sheet",
   description: "Interactive character sheet for Jenluwess Wivvashimmeh",
   appleWebApp: {
     capable: true,
