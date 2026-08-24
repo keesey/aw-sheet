@@ -1,5 +1,8 @@
+"use client";
+
 import type { CharacterSheet } from "@/lib/types";
 import type { SaveFn } from "../../types";
+import { useRoll } from "../../context/RollContext";
 import { AonLink } from "../AonLink";
 
 export function SheetHeader({
@@ -11,6 +14,8 @@ export function SheetHeader({
   runtime: CharacterSheet["runtime"];
   save: SaveFn;
 }) {
+  const { openRoll } = useRoll();
+
   return (
     <header className="sheet-header">
       <div className="sheet-header-row">
@@ -48,6 +53,14 @@ export function SheetHeader({
             aria-pressed={runtime.combat}
           >
             Combat
+          </button>
+          <button
+            type="button"
+            className="btn btn-icon"
+            onClick={() => openRoll("Flat check", 0)}
+            aria-label="Roll flat d20 check"
+          >
+            d20
           </button>
         </div>
       </div>

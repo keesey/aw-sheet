@@ -12,7 +12,6 @@ export function HpBlock({
   maxHp,
   hpPct,
   ffPct,
-  ffUsesLeft,
   hpDeltaInput,
   onHpDeltaInputChange,
   onApplyHpDelta,
@@ -23,7 +22,6 @@ export function HpBlock({
   maxHp: number;
   hpPct: number;
   ffPct: number;
-  ffUsesLeft: number;
   hpDeltaInput: string;
   onHpDeltaInputChange: (value: string) => void;
   onApplyHpDelta: (sign: -1 | 1) => void;
@@ -91,18 +89,10 @@ export function HpBlock({
             {" "}/ {FORCE_FIELD_MAX_HP}
           </span>
         </div>
-        <div className="hp-bar">
-          <div className="force-field-bar-fill" style={{ width: `${ffPct}%` }} />
-        </div>
-        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void save({ action: "activate-force-field" })}
-            disabled={runtime.forceFieldActive || ffUsesLeft <= 0}
-          >
-            Activate
-          </button>
+        <div className="force-field-bar-row">
+          <div className="hp-bar">
+            <div className="force-field-bar-fill" style={{ width: `${ffPct}%` }} />
+          </div>
           <button
             type="button"
             className="btn"
@@ -113,14 +103,6 @@ export function HpBlock({
             }
           >
             +2 (turn)
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={() => void save({ action: "deactivate-force-field" })}
-            disabled={!runtime.forceFieldActive}
-          >
-            Deactivate
           </button>
         </div>
       </div>

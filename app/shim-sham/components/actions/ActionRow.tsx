@@ -1,7 +1,9 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import type { StrikeDamageMode } from "../../lib/strike-format";
+import { parseRollBonusString } from "../../lib/roll";
 import type { SaveFn } from "../../types";
+import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 import { ActionDescription } from "./ActionDescription";
 import { ActionControl } from "./ActionControl";
@@ -46,11 +48,15 @@ function ActionRollBonus({ action, combat }: { action: CharacterAction; combat: 
     return null;
   }
 
+  const numericBonus =
+    (rollBonus ? parseRollBonusString(rollBonus) : 0) +
+    (combatBonus ? parseRollBonusString(combatBonus) : 0);
+
   return (
-    <span className="action-name__bonus">
+    <RollBonusButton label={action.name} bonus={numericBonus} className="action-name__bonus">
       {rollBonus}
       {combatBonus ? <span className="action-combat-bonus"> {combatBonus}</span> : null}
-    </span>
+    </RollBonusButton>
   );
 }
 

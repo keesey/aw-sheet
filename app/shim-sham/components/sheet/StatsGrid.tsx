@@ -2,6 +2,7 @@ import type { CharacterSheet } from "@/lib/types";
 import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { formatSigned, statModClass } from "../../lib/format";
 import type { SaveFn } from "../../types";
+import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 
 export function StatsGrid({
@@ -50,9 +51,13 @@ export function StatsGrid({
 
       <div className="stat-card">
         <div className="stat-label">Perception</div>
-        <div className={`stat-value ${statModClass(effects.perception) ?? ""}`.trim()}>
+        <RollBonusButton
+          label="Perception"
+          bonus={level.perception + effects.perception}
+          className={`stat-value roll-bonus-btn--stat ${statModClass(effects.perception) ?? ""}`.trim()}
+        >
           {formatSigned(level.perception + effects.perception)}
-        </div>
+        </RollBonusButton>
         <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.35rem", lineHeight: 1.4 }}>
           {data.senses.map((s, i) => (
             <span key={s.name} className={effects.sensesDisabled ? "stat-penalized" : undefined} style={effects.sensesDisabled ? { textDecoration: "line-through" } : undefined}>
@@ -75,15 +80,27 @@ export function StatsGrid({
           <span className="stat-label">Fort</span>
           <span className="stat-label">Ref</span>
           <span className="stat-label">Will</span>
-          <span className={`stat-value ${statModClass(effects.fort) ?? ""}`.trim()} style={{ fontSize: "1.35rem" }}>
+          <RollBonusButton
+            label="Fortitude"
+            bonus={level.fort + effects.fort}
+            className={`stat-value ${statModClass(effects.fort) ?? ""}`.trim()}
+          >
             {formatSigned(level.fort + effects.fort)}
-          </span>
-          <span className={`stat-value ${statModClass(effects.reflex) ?? ""}`.trim()} style={{ fontSize: "1.35rem" }}>
+          </RollBonusButton>
+          <RollBonusButton
+            label="Reflex"
+            bonus={level.reflex + effects.reflex}
+            className={`stat-value ${statModClass(effects.reflex) ?? ""}`.trim()}
+          >
             {formatSigned(level.reflex + effects.reflex)}
-          </span>
-          <span className={`stat-value ${statModClass(effects.will) ?? ""}`.trim()} style={{ fontSize: "1.35rem" }}>
+          </RollBonusButton>
+          <RollBonusButton
+            label="Will"
+            bonus={level.will + effects.will}
+            className={`stat-value ${statModClass(effects.will) ?? ""}`.trim()}
+          >
             {formatSigned(level.will + effects.will)}
-          </span>
+          </RollBonusButton>
         </div>
       </div>
 

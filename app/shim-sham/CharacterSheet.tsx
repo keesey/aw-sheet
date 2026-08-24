@@ -32,6 +32,7 @@ import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
 import { buildAreaWeaponEntries } from "@/lib/shim-sham/area-weapons";
 import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
+import { RollProvider } from "./context/RollContext";
 import type { StrikeDamageMode } from "./lib/strike-format";
 import type { Panel } from "./types";
 
@@ -109,6 +110,7 @@ export default function CharacterSheet() {
   );
 
   return (
+    <RollProvider>
     <main className="sheet-page">
       {!kvConfigured && (
         <div className="save-banner">
@@ -134,7 +136,6 @@ export default function CharacterSheet() {
             maxHp={maxHp}
             hpPct={hpPct}
             ffPct={ffPct}
-            ffUsesLeft={ffUsesLeft}
             hpDeltaInput={hpDeltaInput}
             onHpDeltaInputChange={setHpDeltaInput}
             onApplyHpDelta={(sign) => applyHpDelta(sign, currentHp, runtime.forceFieldHp)}
@@ -258,5 +259,6 @@ export default function CharacterSheet() {
         <AreaWeaponsPanel weapons={areaWeapons} onClose={() => setAreaWeaponsOpen(false)} />
       )}
     </main>
+    </RollProvider>
   );
 }

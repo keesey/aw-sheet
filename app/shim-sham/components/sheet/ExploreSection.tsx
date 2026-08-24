@@ -7,6 +7,7 @@ import {
   type ExplorationActivity,
 } from "@/lib/shim-sham/exploration-activities";
 import { statModClass } from "../../lib/format";
+import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 
 function ExploreActivityRow({
@@ -18,19 +19,27 @@ function ExploreActivityRow({
   bonus?: number;
   bonusDelta: number;
 }) {
-  const className = "action-row action-row--compact";
+  const className = "action-row action-row--compact action-row--split";
 
   return (
-    <AonLink href={activity.url} className={className}>
-      <div className="action-name">
-        <span className="action-name__title">{activity.name}</span>
-        {bonus != null ? (
-          <span className={`action-name__bonus ${statModClass(bonusDelta) ?? ""}`.trim()}>
-            {formatSignedBonus(bonus)}
-          </span>
-        ) : null}
+    <div className={className}>
+      <div className="action-row__main">
+        <AonLink href={activity.url} className="action-row__link">
+          {activity.name}
+        </AonLink>
       </div>
-    </AonLink>
+      {bonus != null ? (
+        <div className="action-row__aside">
+          <RollBonusButton
+            label={activity.name}
+            bonus={bonus}
+            className={`action-name__bonus ${statModClass(bonusDelta) ?? ""}`.trim()}
+          >
+            {formatSignedBonus(bonus)}
+          </RollBonusButton>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

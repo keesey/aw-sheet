@@ -379,6 +379,10 @@ button {
   text-align: center;
 }
 
+.saves-grid .stat-value {
+  font-size: 1.35rem;
+}
+
 .ac-row {
   display: flex;
   align-items: center;
@@ -693,6 +697,19 @@ button {
 
 .hp-bar-fill.low {
   background: linear-gradient(90deg, #dc2626, #f87171);
+}
+
+.force-field-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.force-field-bar-row .hp-bar {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
 }
 
 .force-field-bar-fill {
@@ -1140,6 +1157,7 @@ button {
 
 .ability-mod {
   font-size: 1.35rem;
+  font-weight: 700;
 }
 
 .feats-panel {
@@ -1213,4 +1231,84 @@ button {
   font-size: 0.8rem;
   padding: 0.5rem 1rem;
   text-align: center;
+}
+
+.roll-bonus-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  line-height: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: inherit;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.sheet-skills-grid .roll-bonus-btn {
+  font-weight: 700;
+}
+
+.roll-bonus-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.roll-bonus-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.roll-bonus-btn--stat {
+  display: block;
+  width: fit-content;
+}
+
+.roll-result-modal {
+  width: min(360px, calc(100vw - 2rem));
+}
+
+.roll-result-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.75rem;
+}
+
+.roll-result__d20 {
+  font-size: 4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--text);
+}
+
+.roll-result__d20--nat20 {
+  color: #4ade80;
+}
+
+.roll-result__d20--nat1 {
+  color: #f87171;
+}
+
+.roll-result__label {
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.roll-result__math {
+  margin-top: 0.75rem;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.roll-result__reroll {
+  margin-top: 1.25rem;
 }

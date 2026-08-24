@@ -5,6 +5,7 @@ import type { CharacterSheet } from "@/lib/types";
 import { formatSignedBonus } from "@/lib/shim-sham/skills";
 import { statModClass } from "../../lib/format";
 import type { SaveFn } from "../../types";
+import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 
 export function SkillsSection({
@@ -34,9 +35,13 @@ export function SkillsSection({
           {skills.map((s) => (
             <div key={s.name} style={{ display: "flex", justifyContent: "space-between", gap: "0.5rem" }}>
               <AonLink href={s.url}>{s.name}</AonLink>
-              <strong className={statModClass(skillDelta[s.name] ?? 0)}>
+              <RollBonusButton
+                label={s.name}
+                bonus={s.bonus}
+                className={statModClass(skillDelta[s.name] ?? 0)}
+              >
                 {formatSignedBonus(s.bonus)}
-              </strong>
+              </RollBonusButton>
             </div>
           ))}
         </div>
