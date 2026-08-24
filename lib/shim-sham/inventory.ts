@@ -1,5 +1,5 @@
 import type { Consumable, InventoryItem, RuntimeState } from "@/lib/types";
-import { totalBulk } from "@/lib/shim-sham/bulk";
+import { normalizeAdHocItems, totalBulk } from "@/lib/shim-sham/bulk";
 
 const AON = "https://2e.aonsrd.com";
 
@@ -152,9 +152,12 @@ export function getEquipmentGroups(items: InventoryItem[]) {
   })).filter((group) => group.items.length > 0);
 }
 
-type InventoryRuntime = Pick<RuntimeState, "consumables" | "batteries" | "chemTankCharges">;
+type InventoryRuntime = Pick<
+  RuntimeState,
+  "consumables" | "batteries" | "chemTankCharges" | "adHocItems"
+>;
 
-/** One bulk entry per carried item (equipment piece, remaining consumable, battery, chem tank). */
+/** One bulk entry per carried item (equipment piece, remaining consumable, battery, chem tank, ad hoc). */
 export function inventoryBulkItems(
   equipment: InventoryItem[],
   consumableCatalog: Consumable[],
@@ -175,6 +178,10 @@ export function inventoryBulkItems(
   }
 
   items.push({ bulk: SHIM_SHAM_AMMUNITION.chemTank.bulk });
+
+  for (const item of normalizeAdHocItems(runtime.adHocItems)) {
+    items.push({ bulk: item.bulk });
+  }
 
   return items;
 }

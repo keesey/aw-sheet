@@ -1,5 +1,47 @@
 /** Bulk units: 10 L (light) = 1 bulk. Negligible (—) = 0. */
-import type { ActiveCondition } from "@/lib/types";
+import type { ActiveCondition, AdHocInventoryItem } from "@/lib/types";
+
+/** Normalize user bulk input per AoN rules (number, L, or —). */
+export function normalizeBulkValue(input: string): string | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  if (trimmed === "—" || trimmed === "-") return "—";
+  if (trimmed.toUpperCase() === "L") return "L";
+  const n = Number.parseFloat(trimmed);
+  if (!Number.isNaN(n) && n >= 0) {
+    return Number.isInteger(n) ? String(n) : String(n);
+  }
+  return null;
+}
+
+export function bulkSelectOptions(maxBulk: number): { value: string; label: string }[] {
+  const numeric = Array.from({ length: Math.max(0, maxBulk) }, (_, index) => {
+    const value = String(index + 1);
+    return { value, label: value };
+  });
+  return [
+    { value: "—", label: "—" },
+    { value: "L", label: "L" },
+    ...numeric,
+  ];
+}
+
+export function normalizeAdHocItems(items: AdHocInventoryItem[] | undefined): AdHocInventoryItem[] {
+  if (!items?.length) return [];
+  return items
+    .map((item) => {
+      const name = item.name.trim();
+      const bulk = normalizeBulkValue(item.bulk) ?? "—";
+      const url = item.url?.trim();
+      return {
+        id: item.id,
+        name,
+        bulk,
+        ...(url ? { url } : {}),
+      };
+    })
+    .filter((item) => item.name.length > 0);
+}
 
 export function bulkToUnits(bulk: string): number {
   const trimmed = bulk.trim();

@@ -897,6 +897,81 @@ button {
   padding-bottom: 0;
 }
 
+.inventory-ad-hoc-footer {
+  flex-shrink: 0;
+  width: 100%;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.inventory-ad-hoc-footer .action-group-title {
+  margin: 0 0 0.5rem;
+}
+
+.ad-hoc-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  gap: 0.5rem 0.65rem;
+  width: 100%;
+}
+
+.ad-hoc-form__field--bulk {
+  width: min-content;
+}
+
+.ad-hoc-form__select {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  padding-inline: 0.15rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.ad-hoc-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.ad-hoc-form__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ad-hoc-form__input {
+  min-height: 36px;
+  padding: 0 0.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.ad-hoc-form__submit {
+  align-self: end;
+  min-height: 36px;
+}
+
+.ad-hoc-form__help {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.ad-hoc-form__error {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--danger);
+}
+
 .inventory-item--indented {
   padding-left: 1rem;
 }

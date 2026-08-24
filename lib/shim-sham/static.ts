@@ -2,7 +2,7 @@ import type { CharacterAction, CharacterSheet, RuntimeState } from "@/lib/types"
 import { actionDescription } from "@/lib/shim-sham/action-descriptions";
 import { getLevelSnapshot } from "@/lib/shim-sham/progression";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
-import { syncEncumberedFromBulk } from "@/lib/shim-sham/bulk";
+import { normalizeAdHocItems, syncEncumberedFromBulk } from "@/lib/shim-sham/bulk";
 import {
   inventoryTotalBulk,
   SHIM_SHAM_CONSUMABLES,
@@ -58,6 +58,7 @@ export function createDefaultRuntime(level = 6): RuntimeState {
     ],
     chemTankCharges: 8,
     notes: "",
+    adHocItems: [],
   };
 }
 
@@ -76,6 +77,7 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     cover: runtime.cover ?? "none",
     forceFieldActive,
     forceFieldHp,
+    adHocItems: normalizeAdHocItems(runtime.adHocItems),
     conditions,
   };
 }

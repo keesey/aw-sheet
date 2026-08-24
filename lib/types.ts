@@ -92,6 +92,14 @@ export type InventoryItem = {
   indented?: boolean;
 };
 
+/** Session-only inventory entries added from the inventory panel. */
+export type AdHocInventoryItem = {
+  id: string;
+  name: string;
+  bulk: string;
+  url?: string;
+};
+
 export type LevelSnapshot = {
   level: number;
   abilities: Record<AbilityKey, number>;
@@ -132,6 +140,7 @@ export type RuntimeState = {
   batteries: { id: string; charges: number; max: number }[];
   chemTankCharges: number;
   notes: string;
+  adHocItems: AdHocInventoryItem[];
 };
 
 export type CharacterSheet = {

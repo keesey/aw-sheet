@@ -9,6 +9,8 @@ import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
 import { InventoryEquipmentItem } from "../inventory/InventoryEquipmentItem";
+import { AdHocItemForm } from "../inventory/AdHocItemForm";
+import { AdHocItemsList } from "../inventory/AdHocItemsList";
 
 function InventorySection({
   title,
@@ -157,6 +159,15 @@ export function InventoryPanel({
   );
 
   const sections = [
+    ...(runtime.adHocItems.length > 0
+      ? [
+          {
+            id: "ad-hoc",
+            title: "Ad Hoc",
+            content: <AdHocItemsList items={runtime.adHocItems} save={save} />,
+          },
+        ]
+      : []),
     ...getEquipmentGroups(data.inventory).map((group) => ({
       id: group.id,
       title: group.label,
@@ -203,6 +214,12 @@ export function InventoryPanel({
             </InventorySection>
           ))}
         </div>
+
+        <AdHocItemForm
+          items={runtime.adHocItems}
+          maxBulk={inventoryBulkMax}
+          save={save}
+        />
       </div>
     </BottomPanel>
   );
