@@ -3,7 +3,8 @@ export type Panel = "abilities" | "feats" | "inventory" | "conditions" | "manage
 export type SpeedEntry = {
   label: string;
   value: number;
-  panacheBoost: boolean;
+  /** Stylish Combatant / Vivacious Speed status bonus applies. */
+  stylishBoost: boolean;
   accelerateBoost: boolean;
 };
 

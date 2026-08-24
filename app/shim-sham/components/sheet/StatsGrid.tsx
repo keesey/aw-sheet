@@ -119,6 +119,7 @@ export function StatsGrid({
               const speedClass = getSpeedClassName(speed, runtime.panache, runtime.accelerate);
               const displayValue = getSpeedDisplayValue(
                 speed,
+                level.level,
                 runtime.panache,
                 runtime.accelerate,
                 effects.speedDelta,

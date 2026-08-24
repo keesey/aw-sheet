@@ -1,8 +1,51 @@
-import type { CoverLevel, RuntimeState } from "@/lib/types";
+import { formatActiveCondition } from "@/lib/shim-sham/conditions";
+import type { ActiveCondition, CoverLevel, RuntimeState } from "@/lib/types";
 
 type SessionLogContext = {
   maxHp: number;
 };
+
+function isActiveCondition(value: unknown): value is ActiveCondition {
+  return !!value && typeof value === "object" && typeof (value as ActiveCondition).id === "string";
+}
+
+function parseConditions(value: unknown): ActiveCondition[] | null {
+  if (!Array.isArray(value)) return null;
+  return value.filter(isActiveCondition);
+}
+
+function conditionValue(active: ActiveCondition | undefined): number | null {
+  return active?.value ?? null;
+}
+
+export function sessionLogLinesForConditionChanges(
+  before: ActiveCondition[],
+  after: ActiveCondition[],
+): string[] {
+  const beforeById = new Map(before.map((condition) => [condition.id, condition]));
+  const afterById = new Map(after.map((condition) => [condition.id, condition]));
+  const ids = new Set([...beforeById.keys(), ...afterById.keys()]);
+  const lines: string[] = [];
+
+  for (const id of [...ids].sort()) {
+    const previous = beforeById.get(id);
+    const next = afterById.get(id);
+
+    if (!previous && next) {
+      lines.push(`+ ${formatActiveCondition(next)}`);
+      continue;
+    }
+    if (previous && !next) {
+      lines.push(`- ${formatActiveCondition(previous)}`);
+      continue;
+    }
+    if (previous && next && conditionValue(previous) !== conditionValue(next)) {
+      lines.push(`${formatActiveCondition(previous)} → ${formatActiveCondition(next)}`);
+    }
+  }
+
+  return lines;
+}
 
 export function sessionLogLineForSave(
   body: Record<string, unknown>,
@@ -11,6 +54,14 @@ export function sessionLogLineForSave(
 ): string | null {
   if (body.action === "rest") {
     return "REST (8 hours)";
+  }
+
+  const nextConditions = parseConditions(body.conditions);
+  if (nextConditions) {
+    const lines = sessionLogLinesForConditionChanges(runtime.conditions, nextConditions);
+    if (lines.length > 0) {
+      return lines.join("\n");
+    }
   }
 
   if (body.combat === true && !runtime.combat) {

@@ -4,19 +4,21 @@ import type { SpeedEntry } from "../../types";
 
 function SpeedValue({
   speed,
+  level,
   panache,
   accelerate,
   speedDelta,
   valueOnly = false,
 }: {
   speed: SpeedEntry;
+  level: number;
   panache: boolean;
   accelerate: boolean;
   speedDelta: number;
   valueOnly?: boolean;
 }) {
   const speedClass = getSpeedClassName(speed, panache, accelerate);
-  const displayValue = getSpeedDisplayValue(speed, panache, accelerate, speedDelta);
+  const displayValue = getSpeedDisplayValue(speed, level, panache, accelerate, speedDelta);
   const penalized = speedDelta < 0;
 
   if (valueOnly) {
@@ -33,12 +35,14 @@ function SpeedValue({
 
 function ActionSpeedList({
   speeds,
+  level,
   panache,
   accelerate,
   speedDelta,
   valueOnly = false,
 }: {
   speeds: SpeedEntry[];
+  level: number;
   panache: boolean;
   accelerate: boolean;
   speedDelta: number;
@@ -51,6 +55,7 @@ function ActionSpeedList({
           {index > 0 && " · "}
           <SpeedValue
             speed={speed}
+            level={level}
             panache={panache}
             accelerate={accelerate}
             speedDelta={speedDelta}
@@ -75,14 +80,15 @@ export function ActionSpeedNote({
 }) {
   if (actionId === "stride") {
     const speeds: SpeedEntry[] = [
-      { label: "Land", value: level.landSpeed, panacheBoost: true, accelerateBoost: true },
+      { label: "Land", value: level.landSpeed, stylishBoost: true, accelerateBoost: true },
       ...(level.climbSpeed != null
-        ? [{ label: "Climb", value: level.climbSpeed, panacheBoost: true, accelerateBoost: true }]
+        ? [{ label: "Climb", value: level.climbSpeed, stylishBoost: true, accelerateBoost: true }]
         : []),
     ];
     return (
       <ActionSpeedList
         speeds={speeds}
+        level={level.level}
         panache={runtime.panache}
         accelerate={runtime.accelerate}
         speedDelta={speedDelta}
@@ -93,7 +99,8 @@ export function ActionSpeedNote({
   if (actionId === "fly" && runtime.jetpack && level.flySpeed != null) {
     return (
       <ActionSpeedList
-        speeds={[{ label: "Fly", value: level.flySpeed, panacheBoost: true, accelerateBoost: false }]}
+        speeds={[{ label: "Fly", value: level.flySpeed, stylishBoost: true, accelerateBoost: false }]}
+        level={level.level}
         panache={runtime.panache}
         accelerate={runtime.accelerate}
         speedDelta={speedDelta}
