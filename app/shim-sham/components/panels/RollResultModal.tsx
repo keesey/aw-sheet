@@ -23,10 +23,10 @@ export function RollResultModal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  const d20Class =
-    result.d20 === 20 ? "roll-result__d20 roll-result__d20--nat20" :
-    result.d20 === 1 ? "roll-result__d20 roll-result__d20--nat1" :
-    "roll-result__d20";
+  const natClass =
+    result.d20 === 20 ? "roll-result__nat20" :
+    result.d20 === 1 ? "roll-result__nat1" :
+    undefined;
 
   return (
     <>
@@ -39,10 +39,16 @@ export function RollResultModal({
           </button>
         </div>
         <div className="panel-body roll-result-body">
-          <div className={d20Class}>{result.d20}</div>
-          <div className="roll-result__label">d20</div>
-          <div className="roll-result__math">
-            {result.d20} {formatSigned(result.bonus)} = <strong>{result.total}</strong>
+          <div className={`roll-result__total${natClass ? ` ${natClass}` : ""}`}>{result.total}</div>
+          <div className="roll-result__breakdown">
+            <span className={`roll-result__die${natClass ? ` ${natClass}` : ""}`}>{result.d20}</span>
+            {result.bonus !== 0 ? (
+              <>
+                <span className="roll-result__operator">{formatSigned(result.bonus)}</span>
+              </>
+            ) : (
+              <span className="roll-result__label">d20</span>
+            )}
           </div>
           <button type="button" className="btn roll-result__reroll" onClick={onReroll}>
             Roll again

@@ -53,7 +53,7 @@ export function SheetHeader({
             }}
             aria-pressed={runtime.combat}
           >
-            Combat
+            Encounter
           </button>
           <button
             type="button"

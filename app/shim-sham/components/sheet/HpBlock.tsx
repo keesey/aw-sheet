@@ -83,7 +83,7 @@ export function HpBlock({
             {runtime.forceFieldUsesUsed}/{FORCE_FIELD_DAILY_USES} raises used
           </span>
         </div>
-        <div className="stat-value stat-value--ff" style={{ fontSize: "1.75rem", color: "var(--accent)" }}>
+        <div className="stat-value stat-value--ff" style={{ fontSize: "1.75rem" }}>
           {runtime.forceFieldHp}
           <span style={{ fontSize: "1rem", color: "var(--muted)", fontWeight: 500 }}>
             {" "}/ {FORCE_FIELD_MAX_HP}

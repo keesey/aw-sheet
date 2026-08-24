@@ -42,14 +42,18 @@ function ActionToggle({
   disabled,
   onChange,
   label,
+  variant,
 }: {
   checked: boolean;
   disabled?: boolean;
   onChange: (checked: boolean) => void;
   label: string;
+  variant?: "force-field";
 }) {
   return (
-    <label className="action-toggle">
+    <label
+      className={`action-toggle${variant === "force-field" ? " action-toggle--force-field" : ""}`}
+    >
       <input
         type="checkbox"
         checked={checked}
@@ -117,6 +121,7 @@ export function ActionControl({
       return (
         <ActionToggle
           label="Force Field active"
+          variant="force-field"
           checked={runtime.forceFieldActive}
           disabled={disabled || (!runtime.forceFieldActive && ffUsesLeft <= 0)}
           onChange={(checked) => {

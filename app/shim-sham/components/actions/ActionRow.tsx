@@ -31,6 +31,8 @@ function ActionTitle({ action }: { action: CharacterAction }) {
       <span className="action-jetpack-label">{action.name}</span>
     ) : action.id === "cardiac-accelerator" ? (
       <span className="action-accelerate-label">{action.name}</span>
+    ) : action.id === "force-field" ? (
+      <span className="action-force-field-label">{action.name}</span>
     ) : PANACHE_ACTION_IDS.has(action.id) ? (
       <span className="speed-panache">{action.name}</span>
     ) : (
