@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { formatSigned } from "../lib/format";
 import { RollBonusButton } from "./RollBonusButton";
 
@@ -21,14 +22,20 @@ export function MapRollButtons({
       {values.map((value, index) => {
         const bonus = value + combatBonus;
         return (
-          <RollBonusButton
-            key={index}
-            label={`${label}${MAP_ATTACK_SUFFIXES[index]}`}
-            bonus={bonus}
-            className="map-roll-btn"
-          >
-            {formatSigned(bonus)}
-          </RollBonusButton>
+          <Fragment key={index}>
+            {index > 0 ? (
+              <span className="map-roll-sep" aria-hidden="true">
+                /
+              </span>
+            ) : null}
+            <RollBonusButton
+              label={`${label}${MAP_ATTACK_SUFFIXES[index]}`}
+              bonus={bonus}
+              className="map-roll-btn"
+            >
+              {formatSigned(bonus)}
+            </RollBonusButton>
+          </Fragment>
         );
       })}
     </span>
