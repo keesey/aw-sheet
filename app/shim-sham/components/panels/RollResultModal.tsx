@@ -1,8 +1,155 @@
 "use client";
 
-import { useEffect } from "react";
-import { formatSigned } from "../../lib/format";
-import type { RollResult } from "../../lib/roll";
+import { Fragment, useEffect, useState } from "react";
+import { rollDiceNotation, type DamageRollLine, type RollResult } from "../../lib/roll";
+
+function natClass(d20: number): string | undefined {
+  if (d20 === 20) return "roll-result__nat20";
+  if (d20 === 1) return "roll-result__nat1";
+  return undefined;
+}
+
+function AttackRollBreakdown({ d20, bonus }: { d20: number; bonus: number }) {
+  const nat = natClass(d20);
+  const bonusText = bonus < 0 ? bonus : Math.abs(bonus);
+  return (
+    <div className="roll-result__breakdown">
+      <span className={`roll-result__die${nat ? ` ${nat}` : ""}`}>{d20}</span>
+      {bonus !== 0 ? (
+        <span className="roll-result__operator">{` + ${bonusText}`}</span>
+      ) : (
+        <span className="roll-result__label">d20</span>
+      )}
+    </div>
+  );
+}
+
+function CheckRollBody({ result }: { result: Extract<RollResult, { kind: "check" }> }) {
+  const nat = natClass(result.d20);
+  return (
+    <>
+      <div className={`roll-result__total${nat ? ` ${nat}` : ""}`}>{result.total}</div>
+      <AttackRollBreakdown d20={result.d20} bonus={result.bonus} />
+    </>
+  );
+}
+
+function DamageRollCell({ line }: { line: DamageRollLine }) {
+  if (line.rolls.length === 0) {
+    return null;
+  }
+
+  const segments: { value: number; bold: boolean }[] = [
+    ...line.rolls.map((value) => ({ value, bold: true })),
+  ];
+  if (line.modifier !== 0) {
+    segments.push({ value: line.modifier, bold: false });
+  }
+
+  return (
+    <>
+      {segments.map((segment, index) => (
+        <Fragment key={index}>
+          {index > 0 ? " + " : null}
+          {segment.bold ? (
+            <span className="roll-result__die">{segment.value}</span>
+          ) : (
+            <span>{segment.value < 0 ? segment.value : Math.abs(segment.value)}</span>
+          )}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
+function CritEffectControl({
+  critNote,
+  critDice,
+  isCrit,
+  resetKey,
+}: {
+  critNote: string;
+  critDice: string;
+  isCrit: boolean;
+  resetKey: string;
+}) {
+  const [critRoll, setCritRoll] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCritRoll(null);
+  }, [resetKey]);
+
+  return (
+    <div
+      className={`roll-result__crit-note${isCrit ? " roll-result__crit-note--active" : ""}`}
+    >
+      <button
+        type="button"
+        className="roll-result__crit-btn"
+        onClick={() => setCritRoll(rollDiceNotation(critDice).total)}
+        aria-label={`Roll ${critDice} for ${critNote}`}
+      >
+        {critNote}
+      </button>
+      {critRoll != null ? (
+        <div className="roll-result__crit-roll">{critRoll}</div>
+      ) : null}
+    </div>
+  );
+}
+
+function StrikeRollBody({ result }: { result: Extract<RollResult, { kind: "strike" }> }) {
+  const nat = natClass(result.d20);
+  return (
+    <>
+      <div className="roll-result__section-label">Attack</div>
+      <div className={`roll-result__total${nat ? ` ${nat}` : ""}`}>{result.total}</div>
+      <AttackRollBreakdown d20={result.d20} bonus={result.bonus} />
+
+      <div className="roll-result__section-label">Damage</div>
+      <table className="roll-damage-table">
+        <thead>
+          <tr>
+            <th scope="col">Type</th>
+            <th scope="col">Roll</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {result.damageLines.map((line) => (
+            <tr key={line.label}>
+              <td>{line.label}</td>
+              <td className="roll-damage-table__roll-cell">
+                <DamageRollCell line={line} />
+              </td>
+              <td>{line.subtotal}</td>
+            </tr>
+          ))}
+          <tr className="roll-damage-table__total-row">
+            <td colSpan={2}>Total</td>
+            <td>{result.damageTotal}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {result.critNote && result.critDice ? (
+        <CritEffectControl
+          critNote={result.critNote}
+          critDice={result.critDice}
+          isCrit={result.isCrit}
+          resetKey={`${result.d20}-${result.damageTotal}`}
+        />
+      ) : result.critNote ? (
+        <div
+          className={`roll-result__crit-note${result.isCrit ? " roll-result__crit-note--active" : ""}`}
+        >
+          {result.critNote}
+          {result.isCrit ? " (on critical hit)" : null}
+        </div>
+      ) : null}
+    </>
+  );
+}
 
 export function RollResultModal({
   result,
@@ -23,11 +170,6 @@ export function RollResultModal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  const natClass =
-    result.d20 === 20 ? "roll-result__nat20" :
-    result.d20 === 1 ? "roll-result__nat1" :
-    undefined;
-
   return (
     <>
       <div className="panel-overlay" onClick={onClose} aria-hidden />
@@ -39,17 +181,11 @@ export function RollResultModal({
           </button>
         </div>
         <div className="panel-body roll-result-body">
-          <div className={`roll-result__total${natClass ? ` ${natClass}` : ""}`}>{result.total}</div>
-          <div className="roll-result__breakdown">
-            <span className={`roll-result__die${natClass ? ` ${natClass}` : ""}`}>{result.d20}</span>
-            {result.bonus !== 0 ? (
-              <>
-                <span className="roll-result__operator">{formatSigned(result.bonus)}</span>
-              </>
-            ) : (
-              <span className="roll-result__label">d20</span>
-            )}
-          </div>
+          {result.kind === "strike" ? (
+            <StrikeRollBody result={result} />
+          ) : (
+            <CheckRollBody result={result} />
+          )}
           <button type="button" className="btn roll-result__reroll" onClick={onReroll}>
             Roll again
           </button>

@@ -1,6 +1,13 @@
-import type { InventoryItem } from "@/lib/types";
+import type { Consumable, InventoryItem, RuntimeState } from "@/lib/types";
+import { totalBulk } from "@/lib/shim-sham/bulk";
 
 const AON = "https://2e.aonsrd.com";
+
+/** Commercial-grade ammunition carried on the sheet (see AoN ammunition tables). */
+export const SHIM_SHAM_AMMUNITION = {
+  battery: { bulk: "—" },
+  chemTank: { bulk: "—" },
+} as const;
 
 export const SHIM_SHAM_INVENTORY: InventoryItem[] = [
   {
@@ -80,24 +87,59 @@ export const SHIM_SHAM_INVENTORY: InventoryItem[] = [
     id: "adaptine-gel",
     name: "Adaptine Weapon Gel",
     bulk: "—",
-    notes: "Valuable",
-    equipmentGroup: "other",
+    equipmentGroup: "valuable",
   },
   {
     id: "thermal-dynafan",
     name: "Thermal Dynafan",
     bulk: "—",
-    notes: "Valuable",
-    equipmentGroup: "other",
+    url: `${AON}/equipment/weapons/34-thermal-dynafan`,
+    equipmentGroup: "valuable",
   },
 ];
 
-const EQUIPMENT_GROUP_ORDER = ["armor", "weapon", "other"] as const;
+export const SHIM_SHAM_CONSUMABLES: Consumable[] = [
+  {
+    id: "medpatch-tactical",
+    name: "Medpatch (Tactical)",
+    url: `${AON}/treasure/35-medpatch`,
+    quantity: 1,
+    used: 0,
+    bulk: "L",
+  },
+  {
+    id: "medpatch-commercial",
+    name: "Medpatch (Commercial)",
+    url: `${AON}/treasure/35-medpatch`,
+    quantity: 3,
+    used: 0,
+    bulk: "L",
+  },
+  {
+    id: "celebrity-serum",
+    name: "Celebrity Serum",
+    url: `${AON}/treasure/38-celebrity-serum`,
+    quantity: 5,
+    used: 0,
+    bulk: "L",
+  },
+  {
+    id: "incendiary-grenade",
+    name: "Incendiary Grenade (Commercial)",
+    url: `${AON}/treasure/104-incendiary-grenade`,
+    quantity: 1,
+    used: 0,
+    bulk: "L",
+  },
+];
+
+const EQUIPMENT_GROUP_ORDER = ["armor", "weapon", "other", "valuable"] as const;
 
 const EQUIPMENT_GROUP_LABELS: Record<(typeof EQUIPMENT_GROUP_ORDER)[number], string> = {
   armor: "Armor",
   weapon: "Weapons",
-  other: "Other",
+  other: "Other Equipment",
+  valuable: "Valuables",
 };
 
 export function getEquipmentGroups(items: InventoryItem[]) {
@@ -108,4 +150,39 @@ export function getEquipmentGroups(items: InventoryItem[]) {
       .filter((item) => item.equipmentGroup === group)
       .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" })),
   })).filter((group) => group.items.length > 0);
+}
+
+type InventoryRuntime = Pick<RuntimeState, "consumables" | "batteries" | "chemTankCharges">;
+
+/** One bulk entry per carried item (equipment piece, remaining consumable, battery, chem tank). */
+export function inventoryBulkItems(
+  equipment: InventoryItem[],
+  consumableCatalog: Consumable[],
+  runtime: InventoryRuntime,
+): { bulk: string }[] {
+  const items: { bulk: string }[] = [...equipment];
+
+  for (const consumable of consumableCatalog) {
+    const used = runtime.consumables[consumable.id] ?? 0;
+    const remaining = Math.max(0, consumable.quantity - used);
+    for (let i = 0; i < remaining; i++) {
+      items.push({ bulk: consumable.bulk });
+    }
+  }
+
+  for (const _battery of runtime.batteries) {
+    items.push({ bulk: SHIM_SHAM_AMMUNITION.battery.bulk });
+  }
+
+  items.push({ bulk: SHIM_SHAM_AMMUNITION.chemTank.bulk });
+
+  return items;
+}
+
+export function inventoryTotalBulk(
+  equipment: InventoryItem[],
+  consumableCatalog: Consumable[],
+  runtime: InventoryRuntime,
+): number {
+  return totalBulk(inventoryBulkItems(equipment, consumableCatalog, runtime));
 }

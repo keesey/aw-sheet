@@ -1,7 +1,8 @@
 import type { CharacterSheet } from "@/lib/types";
 import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { formatSigned, statModClass } from "../../lib/format";
-import type { SaveFn } from "../../types";
+import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
+import type { SaveFn, SpeedEntry } from "../../types";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 
@@ -12,6 +13,9 @@ export function StatsGrid({
   displayAc,
   acDelta,
   effects,
+  showCredits = true,
+  showSpeed = false,
+  speedEntries = [],
   creditInput,
   onCreditInputChange,
   save,
@@ -22,6 +26,9 @@ export function StatsGrid({
   displayAc: number;
   acDelta: number;
   effects: ConditionEffects;
+  showCredits?: boolean;
+  showSpeed?: boolean;
+  speedEntries?: SpeedEntry[];
   creditInput: string;
   onCreditInputChange: (value: string) => void;
   save: SaveFn;
@@ -104,6 +111,37 @@ export function StatsGrid({
         </div>
       </div>
 
+      {showSpeed ? (
+        <div className="stat-card stat-card--wide">
+          <div className="stat-label">Speed</div>
+          <div style={{ fontSize: "1rem", fontWeight: 600, marginTop: "0.35rem", lineHeight: 1.5 }}>
+            {speedEntries.map((speed, index) => {
+              const speedClass = getSpeedClassName(speed, runtime.panache, runtime.accelerate);
+              const displayValue = getSpeedDisplayValue(
+                speed,
+                runtime.panache,
+                runtime.accelerate,
+                effects.speedDelta,
+              );
+              const valueClass =
+                effects.speedDelta < 0 ? "stat-penalized" : speedClass;
+              return (
+                <span key={speed.label}>
+                  {index > 0 && " · "}
+                  {speed.label === "Fly" ? (
+                    <span className="speed-fly-label">{speed.label}</span>
+                  ) : (
+                    speed.label
+                  )}{" "}
+                  <span className={valueClass}>{displayValue}′</span>
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {showCredits ? (
       <div className="stat-card stat-card--wide">
         <div className="stat-label">Credits</div>
         <div className="credits-row">
@@ -142,6 +180,7 @@ export function StatsGrid({
           </div>
         </div>
       </div>
+      ) : null}
     </div>
   );
 }

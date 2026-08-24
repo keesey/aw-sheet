@@ -49,7 +49,19 @@ export function SheetHeader({
             className={`btn ${runtime.combat ? "combat-on" : ""}`}
             onClick={() => {
               const nextCombat = !runtime.combat;
-              void save(nextCombat ? { combat: true } : { combat: false, panache: false });
+              void save(
+                nextCombat
+                  ? { combat: true }
+                  : {
+                      combat: false,
+                      panache: false,
+                      accelerate: false,
+                      duelingParry: false,
+                      batonParry: false,
+                      forceFieldActive: false,
+                      forceFieldHp: 0,
+                    },
+              );
             }}
             aria-pressed={runtime.combat}
           >

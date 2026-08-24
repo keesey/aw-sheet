@@ -12,6 +12,7 @@ export function HpBlock({
   maxHp,
   hpPct,
   ffPct,
+  showForceField,
   hpDeltaInput,
   onHpDeltaInputChange,
   onApplyHpDelta,
@@ -22,6 +23,7 @@ export function HpBlock({
   maxHp: number;
   hpPct: number;
   ffPct: number;
+  showForceField: boolean;
   hpDeltaInput: string;
   onHpDeltaInputChange: (value: string) => void;
   onApplyHpDelta: (sign: -1 | 1) => void;
@@ -74,6 +76,7 @@ export function HpBlock({
         </button>
       </div>
 
+      {showForceField ? (
       <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span className="stat-label">
@@ -106,6 +109,7 @@ export function HpBlock({
           </button>
         </div>
       </div>
+      ) : null}
     </div>
   );
 }

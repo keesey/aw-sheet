@@ -155,7 +155,15 @@ export async function PATCH(request: Request) {
   }
 
   if (!runtime.combat) {
-    runtime.panache = false;
+    runtime = {
+      ...runtime,
+      panache: false,
+      accelerate: false,
+      duelingParry: false,
+      batonParry: false,
+      forceFieldActive: false,
+      forceFieldHp: 0,
+    };
   }
 
   if (previous.meyelRerollUsed && body.action !== "rest") {

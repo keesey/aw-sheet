@@ -9,8 +9,8 @@ import {
   bulkBarColor,
   isEncumberedByBulk,
   maxBulkCapacity,
-  totalBulk,
 } from "@/lib/shim-sham/bulk";
+import { inventoryTotalBulk } from "@/lib/shim-sham/inventory";
 import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { getSkillKeyAbilities } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
@@ -31,6 +31,7 @@ import { AreaWeaponsPanel } from "./components/panels/AreaWeaponsPanel";
 import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
 import { buildAreaWeaponEntries } from "@/lib/shim-sham/area-weapons";
 import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
+import { buildSpeedEntries } from "./lib/speed";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
 import { RollProvider } from "./context/RollContext";
 import type { StrikeDamageMode } from "./lib/strike-format";
@@ -96,7 +97,7 @@ export default function CharacterSheet() {
   const circumstanceBonus = circumstanceAcBonus(runtime);
   const displayAc = level.ac + circumstanceBonus + effects.ac;
   const acDelta = circumstanceBonus + effects.ac;
-  const inventoryBulk = totalBulk(data.inventory);
+  const inventoryBulk = inventoryTotalBulk(data.inventory, data.consumableCatalog, runtime);
   const inventoryBulkMax = maxBulkCapacity(level.abilities.STR);
   const encumberedFromBulk = isEncumberedByBulk(inventoryBulk, level.abilities.STR);
   const lockedConditionIds = encumberedFromBulk ? ["encumbered"] : [];
@@ -108,6 +109,7 @@ export default function CharacterSheet() {
     data.consumableCatalog,
     runtime.consumables,
   );
+  const speedEntries = buildSpeedEntries(level, runtime.jetpack);
 
   return (
     <RollProvider>
@@ -136,6 +138,7 @@ export default function CharacterSheet() {
             maxHp={maxHp}
             hpPct={hpPct}
             ffPct={ffPct}
+            showForceField={runtime.combat}
             hpDeltaInput={hpDeltaInput}
             onHpDeltaInputChange={setHpDeltaInput}
             onApplyHpDelta={(sign) => applyHpDelta(sign, currentHp, runtime.forceFieldHp)}
@@ -149,6 +152,9 @@ export default function CharacterSheet() {
             displayAc={displayAc}
             acDelta={acDelta}
             effects={effects}
+            showCredits={!runtime.combat}
+            showSpeed={!runtime.combat}
+            speedEntries={speedEntries}
             creditInput={creditInput}
             onCreditInputChange={setCreditInput}
             save={save}

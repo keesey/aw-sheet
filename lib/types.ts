@@ -14,12 +14,25 @@ export type WeaponStrike = {
   attack: string;
   mapAttacks: [number, number, number];
   damage: string;
+  damageProfile: StrikeDamageProfile;
   /** Shown on its own line, e.g. "+1d8 deadly on crit". */
   critNote?: string;
   traits: string[];
   url: string;
   weaponUrl?: string;
   ranged?: boolean;
+};
+
+/** Structured damage for strike attack rolls. */
+export type StrikeDamageProfile = {
+  weaponDice: string;
+  flatBonus: number;
+  damageType: string;
+  preciseStrike: number;
+  finisherDice: string;
+  critNote?: string;
+  /** e.g. "1d8" from "+1d8 deadly on crit". */
+  critDice?: string;
 };
 
 export type ProficiencyRank = "U" | "T" | "E" | "M" | "L";
@@ -65,6 +78,7 @@ export type Consumable = {
   url: string;
   quantity: number;
   used: number;
+  bulk: string;
 };
 
 export type InventoryItem = {
@@ -74,7 +88,7 @@ export type InventoryItem = {
   url?: string;
   traits?: string[];
   notes?: string;
-  equipmentGroup?: "armor" | "weapon" | "other";
+  equipmentGroup?: "armor" | "weapon" | "other" | "valuable";
   indented?: boolean;
 };
 

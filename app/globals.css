@@ -831,21 +831,38 @@ button {
 }
 
 .inventory-layout {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   flex: 1;
   min-height: 0;
 }
 
 .inventory-bulk {
-  grid-column: 1 / -1;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border);
+}
+
+.inventory-sections {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  column-count: 3;
+  column-gap: 1rem;
+}
+
+.inventory-section {
+  break-inside: avoid;
+  margin-bottom: 0.75rem;
+}
+
+.inventory-section .action-group-title {
+  margin: 0 0 0.5rem;
 }
 
 .inventory-bulk__header {
@@ -875,31 +892,9 @@ button {
   transition: width 0.2s ease, background 0.2s ease;
 }
 
-.inventory-column {
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.inventory-column .action-group-title {
-  margin-top: 0;
-}
-
-.inventory-equipment-group + .inventory-equipment-group {
-  margin-top: 0.75rem;
-}
-
-.inventory-subgroup-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 0.5rem 0 0.25rem;
-}
-
-.inventory-equipment-group:first-of-type .inventory-subgroup-title {
-  margin-top: 0;
+.inventory-section .inventory-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .inventory-item--indented {
@@ -1303,7 +1298,7 @@ button {
 }
 
 .roll-result-modal {
-  width: min(360px, calc(100vw - 2rem));
+  width: min(420px, calc(100vw - 2rem));
 }
 
 .roll-result-body {
@@ -1316,6 +1311,116 @@ button {
   padding-bottom: 1.75rem;
 }
 
+.roll-result__section-label {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.roll-damage-table {
+  width: 100%;
+  margin-top: 0.35rem;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.roll-damage-table th,
+.roll-damage-table td {
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.roll-damage-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.roll-damage-table td:last-child,
+.roll-damage-table th:last-child {
+  text-align: right;
+  font-weight: 700;
+}
+
+.roll-damage-table__roll-cell {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.roll-damage-table__roll-cell .roll-result__die {
+  color: var(--text);
+}
+
+.roll-damage-table__crit-row td {
+  color: #fde68a;
+}
+
+.roll-damage-table__total-row td {
+  border-bottom: none;
+  font-weight: 700;
+}
+
+.roll-damage-table__total-row td:last-child {
+  font-size: 1.05rem;
+}
+
+.roll-result__crit-note {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.roll-result__crit-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.roll-result__crit-btn:hover {
+  color: #fde68a;
+}
+
+.roll-result__crit-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.roll-result__crit-roll {
+  margin-top: 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fde68a;
+}
+
+.roll-result__crit-note--active {
+  color: #fde68a;
+  border: 1px solid #854d0e;
+}
+
+.roll-result__crit-note--active .roll-result__crit-btn {
+  color: #fde68a;
+}
+
 .roll-result__total {
   font-size: 4rem;
   font-weight: 700;
@@ -1325,10 +1430,7 @@ button {
 }
 
 .roll-result__breakdown {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.5rem;
+  text-align: center;
   font-size: 1.15rem;
   font-variant-numeric: tabular-nums;
   color: var(--muted);

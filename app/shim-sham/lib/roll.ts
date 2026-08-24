@@ -1,17 +1,44 @@
-export type RollResult = {
+import type { StrikeRollResult } from "./strike-roll";
+
+export type DamageRollLine = {
+  label: string;
+  rolls: number[];
+  modifier: number;
+  subtotal: number;
+};
+
+export type CheckRollResult = {
+  kind: "check";
   label: string;
   d20: number;
   bonus: number;
   total: number;
 };
 
-export function rollD20(): number {
-  return Math.floor(Math.random() * 20) + 1;
+export type RollResult = CheckRollResult | StrikeRollResult;
+
+export function rollD(sides: number): number {
+  return Math.floor(Math.random() * sides) + 1;
 }
 
-export function rollCheck(label: string, bonus: number): RollResult {
+export function rollD20(): number {
+  return rollD(20);
+}
+
+export function rollDiceNotation(notation: string): { rolls: number[]; total: number } {
+  const match = notation.match(/^(\d+)d(\d+)$/);
+  if (!match) {
+    return { rolls: [], total: 0 };
+  }
+  const count = parseInt(match[1], 10);
+  const sides = parseInt(match[2], 10);
+  const rolls = Array.from({ length: count }, () => rollD(sides));
+  return { rolls, total: rolls.reduce((sum, roll) => sum + roll, 0) };
+}
+
+export function rollCheck(label: string, bonus: number): CheckRollResult {
   const d20 = rollD20();
-  return { label, d20, bonus, total: d20 + bonus };
+  return { kind: "check", label, d20, bonus, total: d20 + bonus };
 }
 
 /** Parse the first numeric bonus from strings like "+12" or "+15/+10/+5". */

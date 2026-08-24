@@ -9,12 +9,14 @@ export function RollBonusButton({
   className,
   style,
   children,
+  onRoll,
 }: {
   label: string;
   bonus: number;
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
+  onRoll?: () => void;
 }) {
   const { openRoll } = useRoll();
 
@@ -27,7 +29,11 @@ export function RollBonusButton({
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        openRoll(label, bonus);
+        if (onRoll) {
+          onRoll();
+        } else {
+          openRoll(label, bonus);
+        }
       }}
     >
       {children}

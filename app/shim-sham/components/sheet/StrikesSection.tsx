@@ -31,6 +31,7 @@ export function StrikesSection({
           label={w.name}
           values={w.mapAttacks}
           className={statModClass(attackDelta) ?? undefined}
+          strikeRoll={{ damage: w.damageProfile, damageMode }}
         />
       </div>
       <div className="strike-damage-row">

@@ -2,8 +2,12 @@ import type { CharacterAction, CharacterSheet, RuntimeState } from "@/lib/types"
 import { actionDescription } from "@/lib/shim-sham/action-descriptions";
 import { getLevelSnapshot } from "@/lib/shim-sham/progression";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
-import { syncEncumberedFromBulk, totalBulk } from "@/lib/shim-sham/bulk";
-import { SHIM_SHAM_INVENTORY } from "@/lib/shim-sham/inventory";
+import { syncEncumberedFromBulk } from "@/lib/shim-sham/bulk";
+import {
+  inventoryTotalBulk,
+  SHIM_SHAM_CONSUMABLES,
+  SHIM_SHAM_INVENTORY,
+} from "@/lib/shim-sham/inventory";
 import { getWornArmor } from "@/lib/shim-sham/armor";
 import {
   attackDeltaForStrike,
@@ -45,7 +49,6 @@ export function createDefaultRuntime(level = 6): RuntimeState {
     consumables: {
       "medpatch-tactical": 0,
       "medpatch-commercial": 0,
-      "resist-energy": 0,
       "celebrity-serum": 0,
       "incendiary-grenade": 0,
     },
@@ -62,7 +65,7 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   const level = getLevelSnapshot(runtime.level)!;
   const conditions = syncEncumberedFromBulk(
     normalizeConditions(runtime.conditions),
-    totalBulk(SHIM_SHAM_INVENTORY),
+    inventoryTotalBulk(SHIM_SHAM_INVENTORY, SHIM_SHAM_CONSUMABLES, runtime),
     level.abilities.STR,
   );
   const forceFieldHp = Math.max(0, runtime.forceFieldHp);
@@ -289,43 +292,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       weapons,
       actions: allActions.filter((action) => level.level >= (action.minLevel ?? 1)),
       inventory: SHIM_SHAM_INVENTORY,
-      consumableCatalog: [
-        {
-          id: "medpatch-tactical",
-          name: "Medpatch (Tactical)",
-          url: `${AON}/treasure/35-medpatch`,
-          quantity: 1,
-          used: 0,
-        },
-        {
-          id: "medpatch-commercial",
-          name: "Medpatch (Commercial)",
-          url: `${AON}/treasure/35-medpatch`,
-          quantity: 3,
-          used: 0,
-        },
-        {
-          id: "resist-energy",
-          name: "Resist Energy Spell Ampoule (Commercial)",
-          url: `${AON}/treasure/117`,
-          quantity: 1,
-          used: 0,
-        },
-        {
-          id: "celebrity-serum",
-          name: "Celebrity Serum",
-          url: `${AON}/treasure/38-celebrity-serum`,
-          quantity: 5,
-          used: 0,
-        },
-        {
-          id: "incendiary-grenade",
-          name: "Incendiary Grenade (Commercial)",
-          url: `${AON}/treasure/104-incendiary-grenade`,
-          quantity: 1,
-          used: 0,
-        },
-      ],
+      consumableCatalog: SHIM_SHAM_CONSUMABLES,
       planUrl: "https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530",
       playbookUrl: "https://gist.github.com/keesey/2c6a5bb30f1ccc30e4d4b7fe3e1c7e78",
     },

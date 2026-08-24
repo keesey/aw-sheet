@@ -1,4 +1,4 @@
-import type { AbilityKey, LevelSnapshot, ProficiencyRank, WeaponStrike } from "@/lib/types";
+import type { AbilityKey, LevelSnapshot, ProficiencyRank, StrikeDamageProfile, WeaponStrike } from "@/lib/types";
 import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/proficiency";
 
 const AON = "https://2e.aonsrd.com";
@@ -195,6 +195,31 @@ function usesPreciseStrike(strike: StrikeDefinition): boolean {
   return !strike.ranged && (strike.finesse === true || strike.agile === true);
 }
 
+function parseCritDice(critNote?: string): string | undefined {
+  if (!critNote) return undefined;
+  const match = critNote.match(/(\d+d\d+)/);
+  return match?.[1];
+}
+
+function buildDamageProfile(
+  strike: StrikeDefinition,
+  snapshot: LevelSnapshot,
+  rank: ProficiencyRank,
+  strDamageDelta: number,
+): StrikeDamageProfile {
+  const strength = strike.ranged ? 0 : snapshot.abilities.STR + strDamageDelta;
+  const flatBonus = strength + weaponSpecializationDamage(snapshot.level, rank);
+  return {
+    weaponDice: strike.dice,
+    flatBonus,
+    damageType: strike.damageType,
+    preciseStrike: usesPreciseStrike(strike) ? snapshot.preciseStrike : 0,
+    finisherDice: snapshot.finisherDice,
+    critNote: strike.critNote,
+    critDice: parseCritDice(strike.critNote),
+  };
+}
+
 /**
  * Attack modifier = attribute + weapon proficiency + Tracking item bonus.
  * MAP: –5/–10, or –4/–8 with Agile.
@@ -255,6 +280,7 @@ export function buildWeaponStrikes(
     attack: formatMapAttacks(first, agile),
     mapAttacks,
     damage: formatDamage(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),
+    damageProfile: buildDamageProfile(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),
     critNote: strike.critNote,
     traits: [...strike.traits],
     url: strike.url,

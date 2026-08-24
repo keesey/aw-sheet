@@ -10,17 +10,17 @@ export function bulkToUnits(bulk: string): number {
 }
 
 export function totalBulk(items: { bulk: string }[]): number {
-  return items.reduce((sum, item) => sum + bulkToUnits(item.bulk), 0);
+  const sum = items.reduce((total, item) => total + bulkToUnits(item.bulk), 0);
+  return Math.floor(sum);
 }
 
 export function maxBulkCapacity(strModifier: number): number {
   return 10 + strModifier;
 }
 
-/** e.g. 2.7 → "2.7", 2 → "2", 0.3 → "0.3" */
+/** Whole bulk units, rounded down (e.g. 3.7 → "3"). */
 export function formatBulkUnits(units: number): string {
-  const rounded = Math.round(units * 10) / 10;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+  return String(Math.floor(units));
 }
 
 export function formatBulkLabel(bulk: string): string {
