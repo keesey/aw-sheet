@@ -32,9 +32,11 @@ import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
 import { buildAreaWeaponEntries } from "@/lib/shim-sham/area-weapons";
 import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
 import { buildSpeedEntries } from "./lib/speed";
+import type { RuntimeState } from "@/lib/types";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
 import { RollProvider } from "./context/RollContext";
 import { formatRollSummary, type RollResult } from "./lib/roll";
+import { appendSessionLogLine, sessionLogLineForSave } from "./lib/session-log";
 import type { StrikeDamageMode } from "./lib/strike-format";
 import type { Panel } from "./types";
 
@@ -50,6 +52,23 @@ export default function CharacterSheet() {
   const notesFocused = useRef(false);
   const notesDraftRef = useRef(notesDraft);
   const runtimeNotesRef = useRef("");
+  const logContextRef = useRef<{ runtime: RuntimeState | null; maxHp: number }>({
+    runtime: null,
+    maxHp: 0,
+  });
+
+  useEffect(() => {
+    if (!sheet) return;
+    const effects = resolveConditionEffects(
+      sheet.runtime.conditions,
+      sheet.level,
+      getSkillKeyAbilities(),
+    );
+    logContextRef.current = {
+      runtime: sheet.runtime,
+      maxHp: Math.max(1, sheet.level.maxHp + effects.maxHpDelta),
+    };
+  }, [sheet]);
 
   useEffect(() => {
     notesDraftRef.current = notesDraft;
@@ -67,18 +86,30 @@ export default function CharacterSheet() {
 
   const saveSheet = useCallback(
     async (body: Record<string, unknown>) => {
-      await save({ ...body, notes: notesDraftRef.current });
+      const ctx = logContextRef.current;
+      let notes = typeof body.notes === "string" ? body.notes : notesDraftRef.current;
+
+      if (ctx.runtime && typeof body.notes !== "string") {
+        const logLine = sessionLogLineForSave(body, ctx.runtime, { maxHp: ctx.maxHp });
+        if (logLine) {
+          notes = appendSessionLogLine(notes, logLine);
+          notesDraftRef.current = notes;
+          runtimeNotesRef.current = notes;
+          setNotesDraft(notes);
+        }
+      }
+
+      await save({ ...body, notes });
     },
     [save],
   );
 
-  const appendSessionNote = useCallback(
+  const appendSessionLog = useCallback(
     (line: string) => {
-      const base = notesFocused.current ? notesDraftRef.current : runtimeNotesRef.current;
-      const next = base ? `${base}\n${line}` : line;
+      const next = appendSessionLogLine(notesDraftRef.current, line);
+      notesDraftRef.current = next;
       runtimeNotesRef.current = next;
       setNotesDraft(next);
-      notesDraftRef.current = next;
       void saveSheet({ notes: next });
     },
     [saveSheet],
@@ -86,9 +117,9 @@ export default function CharacterSheet() {
 
   const handleRollResult = useCallback(
     (result: RollResult) => {
-      appendSessionNote(formatRollSummary(result));
+      appendSessionLog(formatRollSummary(result));
     },
-    [appendSessionNote],
+    [appendSessionLog],
   );
 
   const applyHpDelta = (sign: -1 | 1, currentHp: number, forceFieldHp: number) => {
