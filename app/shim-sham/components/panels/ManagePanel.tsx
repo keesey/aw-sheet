@@ -42,6 +42,7 @@ export function ManagePanel({
             conditions: runtime.conditions,
             forceFieldUsesUsed: 0,
             forceFieldHp: 0,
+            forceFieldActive: false,
             meyelRerollUsed: false,
             panache: false,
             accelerate: false,

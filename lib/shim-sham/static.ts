@@ -32,6 +32,7 @@ export function createDefaultRuntime(level = 6): RuntimeState {
     conditions: [],
     forceFieldHp: 0,
     forceFieldUsesUsed: 0,
+    forceFieldActive: false,
     meyelRerollUsed: false,
     consumables: {
       "medpatch-tactical": 0,
@@ -56,7 +57,11 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     totalBulk(SHIM_SHAM_INVENTORY),
     level.abilities.STR,
   );
-  return { ...runtime, conditions };
+  const forceFieldActive =
+    runtime.forceFieldActive ?? runtime.forceFieldHp > 0;
+  const forceFieldHp =
+    forceFieldActive || runtime.forceFieldHp <= 0 ? runtime.forceFieldHp : 0;
+  return { ...runtime, forceFieldActive, forceFieldHp, conditions };
 }
 
 export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {

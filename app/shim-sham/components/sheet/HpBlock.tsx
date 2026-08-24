@@ -103,7 +103,7 @@ export function HpBlock({
             type="button"
             className="btn btn-primary"
             onClick={() => void save({ action: "activate-force-field" })}
-            disabled={ffUsesLeft <= 0}
+            disabled={runtime.forceFieldActive || ffUsesLeft <= 0}
           >
             Activate
           </button>
@@ -111,7 +111,10 @@ export function HpBlock({
             type="button"
             className="btn"
             onClick={() => void save({ action: "force-field-regen" })}
-            disabled={runtime.forceFieldHp <= 0 || runtime.forceFieldHp >= FORCE_FIELD_MAX_HP}
+            disabled={
+              !runtime.forceFieldActive ||
+              runtime.forceFieldHp >= FORCE_FIELD_MAX_HP
+            }
           >
             +2 (turn)
           </button>
@@ -119,6 +122,7 @@ export function HpBlock({
             type="button"
             className="btn btn-danger"
             onClick={() => void save({ action: "deactivate-force-field" })}
+            disabled={!runtime.forceFieldActive}
           >
             Deactivate
           </button>

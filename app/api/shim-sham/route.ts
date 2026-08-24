@@ -50,6 +50,7 @@ export async function PATCH(request: Request) {
       currentHp: Math.min(snapshot.maxHp, startHp + heal),
       forceFieldUsesUsed: 0,
       forceFieldHp: 0,
+      forceFieldActive: false,
       meyelRerollUsed: false,
       panache: false,
       accelerate: false,
@@ -71,17 +72,31 @@ export async function PATCH(request: Request) {
     if (runtime.forceFieldUsesUsed >= FORCE_FIELD_DAILY_USES) {
       return NextResponse.json({ error: "No Force Field uses remaining" }, { status: 400 });
     }
+    if (runtime.forceFieldActive) {
+      return NextResponse.json({ error: "Force Field is already active" }, { status: 400 });
+    }
     runtime = {
       ...runtime,
+      forceFieldActive: true,
       forceFieldUsesUsed: runtime.forceFieldUsesUsed + 1,
       forceFieldHp: FORCE_FIELD_MAX_HP,
     };
   } else if (body.action === "deactivate-force-field") {
+    if (!runtime.forceFieldActive) {
+      return NextResponse.json({ error: "Force Field is not active" }, { status: 400 });
+    }
     runtime = {
       ...runtime,
+      forceFieldActive: false,
       forceFieldHp: 0,
     };
   } else if (body.action === "force-field-regen") {
+    if (!runtime.forceFieldActive) {
+      return NextResponse.json({ error: "Force Field is not active" }, { status: 400 });
+    }
+    if (runtime.forceFieldHp >= FORCE_FIELD_MAX_HP) {
+      return NextResponse.json({ error: "Force Field is at full temp HP" }, { status: 400 });
+    }
     runtime = {
       ...runtime,
       forceFieldHp: Math.min(FORCE_FIELD_MAX_HP, runtime.forceFieldHp + 2),

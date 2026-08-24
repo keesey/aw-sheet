@@ -92,6 +92,8 @@ export type RuntimeState = {
   conditions: ActiveCondition[];
   forceFieldHp: number;
   forceFieldUsesUsed: number;
+  /** True from Activate until Deactivate; independent of current temp HP. */
+  forceFieldActive: boolean;
   meyelRerollUsed: boolean;
   consumables: Record<string, number>;
   batteries: { id: string; charges: number; max: number }[];
