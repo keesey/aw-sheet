@@ -13,7 +13,11 @@ const EMPTY_LOCKS: ConditionActionLocks = {
   disableReaction: false,
 };
 
-function ActionTitle({ action, combat }: { action: CharacterAction; combat: boolean }) {
+function isRollBonus(bonus?: string): bonus is string {
+  return !!bonus && !bonus.includes("AC");
+}
+
+function ActionTitle({ action }: { action: CharacterAction }) {
   const name =
     action.id === "fly" ? (
       <span className="speed-fly-label">{action.name}</span>
@@ -27,14 +31,22 @@ function ActionTitle({ action, combat }: { action: CharacterAction; combat: bool
       action.name
     );
 
+  return name;
+}
+
+function ActionRollBonus({ action, combat }: { action: CharacterAction; combat: boolean }) {
+  const rollBonus = isRollBonus(action.bonus) ? action.bonus : null;
+  const combatBonus = combat && action.combatBonus ? action.combatBonus : null;
+
+  if (!rollBonus && !combatBonus) {
+    return null;
+  }
+
   return (
-    <>
-      {name}
-      {action.bonus ? ` ${action.bonus}` : ""}
-      {combat && action.combatBonus ? (
-        <span className="action-combat-bonus"> {action.combatBonus}</span>
-      ) : null}
-    </>
+    <span className="action-name__bonus">
+      {rollBonus}
+      {combatBonus ? <span className="action-combat-bonus"> {combatBonus}</span> : null}
+    </span>
   );
 }
 
@@ -77,7 +89,10 @@ export function ActionRow({
   const content = (
     <>
       <div className="action-name">
-        <ActionTitle action={action} combat={combat} />
+        <span className="action-name__title">
+          <ActionTitle action={action} />
+        </span>
+        <ActionRollBonus action={action} combat={combat} />
       </div>
       <ActionDescription text={action.description} />
       {action.traits && <div className="action-traits">{action.traits.join(" · ")}</div>}

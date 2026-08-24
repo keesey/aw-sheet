@@ -132,6 +132,38 @@ function signed(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
 }
 
+export function formatMapAttacks(first: number, agile: boolean): string {
+  const secondPenalty = agile ? 4 : 5;
+  const thirdPenalty = agile ? 8 : 10;
+  return [first, first - secondPenalty, first - thirdPenalty].map(signed).join(" / ");
+}
+
+function parseFirstMapValue(attack: string): number | null {
+  const match = attack.match(/^([+-]?\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+export function bestWeaponMapBonus(weapons: WeaponStrike[]): string | undefined {
+  let bestValue = Number.NEGATIVE_INFINITY;
+  let bestAgile = false;
+
+  for (const weapon of weapons) {
+    const value = parseFirstMapValue(weapon.attack);
+    if (value == null || value <= bestValue) continue;
+    bestValue = value;
+    bestAgile = weapon.traits.includes("Agile");
+  }
+
+  if (!Number.isFinite(bestValue)) return undefined;
+  return formatMapAttacks(bestValue, bestAgile);
+}
+
+export function formatSkillAttackMapBonus(bonus: string): string {
+  const match = bonus.match(/^([+-]?\d+)/);
+  if (!match) return bonus;
+  return formatMapAttacks(parseInt(match[1], 10), false);
+}
+
 function attackAttribute(strike: StrikeDefinition): AbilityKey {
   if (strike.ranged || strike.finesse) return "DEX";
   return "STR";
@@ -174,12 +206,6 @@ function usesPreciseStrike(strike: StrikeDefinition): boolean {
 function attackBonus(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: ProficiencyRank): number {
   const attribute = snapshot.abilities[attackAttribute(strike)];
   return attribute + proficiencyBonus(rank, snapshot.level) + strike.tracking;
-}
-
-function formatMapAttacks(first: number, agile: boolean): string {
-  const secondPenalty = agile ? 4 : 5;
-  const thirdPenalty = agile ? 8 : 10;
-  return [first, first - secondPenalty, first - thirdPenalty].map(signed).join(" / ");
 }
 
 /**

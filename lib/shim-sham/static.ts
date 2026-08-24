@@ -15,7 +15,7 @@ import {
   getSkillKeyAbilities,
   skillBonusByName,
 } from "@/lib/shim-sham/skills";
-import { buildWeaponStrikes } from "@/lib/shim-sham/strikes";
+import { buildWeaponStrikes, formatSkillAttackMapBonus } from "@/lib/shim-sham/strikes";
 
 const AON = "https://2e.aonsrd.com";
 const AONP = "https://2e.aonprd.com";
@@ -81,11 +81,16 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
     bonus: skill.bonus + (effects.skillDelta[skill.name] ?? 0),
   }));
   const skillBonus = (name: string) => formatSignedBonus(skillBonusByName(allSkills, name));
+  const attackMapBonus = (bonus: string) => formatSkillAttackMapBonus(bonus);
+  const weapons = buildWeaponStrikes(level, {
+    attackDelta: (strike) => attackDeltaForStrike(effects, strike),
+    strDamageDelta: effects.strDamage,
+  });
   const armor = getWornArmor(level.level);
   const allActions: CharacterAction[] = [
         {
           id: "cardiac-accelerator",
-          name: "Activate Cardiac Accelerator",
+          name: "Activate — Cardiac Accelerator",
           cost: "free",
           description: actionDescription("cardiac-accelerator"),
           traits: ["Tech"],
@@ -101,7 +106,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "meyel-reroll",
-          name: "Meyel's Chosen — Reroll Save",
+          name: "Reroll Save — Meyel's Chosen Pahtra",
           cost: "free",
           description: actionDescription("meyel-reroll"),
           traits: ["Fortune"],
@@ -117,7 +122,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "force-field",
-          name: "Activate Force Field",
+          name: "Activate — Force Field",
           cost: "single",
           description: actionDescription("force-field"),
           traits: ["Manipulate"],
@@ -125,7 +130,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "jetpack",
-          name: "Activate Jetpack",
+          name: "Activate — Jetpack",
           cost: "single",
           description: actionDescription("jetpack"),
           traits: ["Manipulate", "Move"],
@@ -138,14 +143,6 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("area-fire-grenade"),
           traits: ["Area", "Attack"],
           url: `${AON}/actions/17-area-fire`,
-        },
-        {
-          id: "climb",
-          name: "Climb",
-          cost: "single",
-          description: actionDescription("climb"),
-          traits: ["Move"],
-          url: `${AON}/actions/62-climb`,
         },
         {
           id: "confident-finisher",
@@ -162,7 +159,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("dirty-trick"),
           traits: ["Attack", "Manipulate", "Skill"],
           url: `${AONP}/Feats.aspx?ID=6472`,
-          bonus: skillBonus("Thievery"),
+          bonus: attackMapBonus(skillBonus("Thievery")),
         },
         {
           id: "dueling-parry",
@@ -170,7 +167,6 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           cost: "single",
           description: actionDescription("dueling-parry"),
           url: `${AONP}/Feats.aspx?ID=4781`,
-          bonus: "+2 AC",
         },
         {
           id: "fly",
@@ -187,7 +183,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("grapple"),
           traits: ["Attack"],
           url: `${AON}/actions/64-grapple`,
-          bonus: skillBonus("Athletics"),
+          bonus: attackMapBonus(skillBonus("Athletics")),
         },
         {
           id: "leading-dance",
@@ -205,11 +201,10 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           cost: "single",
           description: actionDescription("baton-parry"),
           url: `${AON}/traits/137-parry`,
-          bonus: "+1 AC",
         },
         {
           id: "perform",
-          name: "Perform / Fascinating Performance",
+          name: "Perform — Fascinating Performance",
           cost: "single",
           description: actionDescription("perform"),
           traits: ["Bravado", "Concentrate", "Incapacitation"],
@@ -224,6 +219,13 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("stride"),
           traits: ["Move"],
           url: `${AON}/actions/14-stride`,
+        },
+        {
+          id: "take-cover",
+          name: "Take Cover",
+          cost: "single",
+          description: actionDescription("take-cover"),
+          url: `${AONP}/Actions.aspx?ID=2307`,
         },
         {
           id: "tumble-through",
@@ -272,10 +274,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       },
       resistances: ["Reroll crit fail on save 1×/day (Meyel's Chosen)"],
       skills: allSkills.filter((skill) => skill.proficiency !== "U"),
-      weapons: buildWeaponStrikes(level, {
-        attackDelta: (strike) => attackDeltaForStrike(effects, strike),
-        strDamageDelta: effects.strDamage,
-      }),
+      weapons,
       actions: allActions.filter((action) => level.level >= (action.minLevel ?? 1)),
       inventory: SHIM_SHAM_INVENTORY,
       consumableCatalog: [

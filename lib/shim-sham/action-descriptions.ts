@@ -12,7 +12,6 @@ export const ACTION_DESCRIPTIONS: Record<string, string> = {
   jetpack: "Gain a fly Speed of 20 feet for 1 minute or until you Dismiss the effect.",
   "area-fire-grenade":
     "Hit creatures in the area with a basic Reflex save against your class DC plus the weapon's tracking value.",
-  climb: "Attempt an Athletics check to move up to 5 feet along an incline.",
   "confident-finisher":
     "Make a Strike that deals half your precise strike damage to the target on a failure.",
   "dirty-trick": "Attempt a Thievery check against the target's Reflex DC.",
@@ -24,6 +23,10 @@ export const ACTION_DESCRIPTIONS: Record<string, string> = {
   "baton-parry": "Gain a +1 circumstance bonus to AC until the start of your next turn.",
   perform: "Attempt a Performance check to fascinate observers.",
   stride: "Move up to your Speed.",
+  strike:
+    "Attack with a weapon you're wielding or an unarmed attack, rolling against the target's AC.",
+  "take-cover":
+    "Gain standard cover (+2 AC) or greater cover (+4 AC) until you move, attack, become unconscious, or end the effect.",
   "tumble-through":
     "Stride up to your Speed and attempt an Acrobatics check to move through an enemy's space.",
   "group-coercion":
