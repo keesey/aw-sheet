@@ -3,6 +3,12 @@ import { getLevelSnapshot } from "@/lib/shim-sham/progression";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
 import { syncEncumberedFromBulk, totalBulk } from "@/lib/shim-sham/bulk";
 import { SHIM_SHAM_INVENTORY } from "@/lib/shim-sham/inventory";
+import { getWornArmor } from "@/lib/shim-sham/armor";
+import {
+  buildSkillEntries,
+  formatSignedBonus,
+  skillBonusByName,
+} from "@/lib/shim-sham/skills";
 
 const AON = "https://2e.aonsrd.com";
 const AONP = "https://2e.aonprd.com";
@@ -55,6 +61,9 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
 export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   const normalizedRuntime = normalizeRuntimeState(runtime);
   const level = getLevelSnapshot(normalizedRuntime.level)!;
+  const allSkills = buildSkillEntries(level);
+  const skillBonus = (name: string) => formatSignedBonus(skillBonusByName(allSkills, name));
+  const armor = getWornArmor(level.level);
 
   return {
     static: {
@@ -77,33 +86,14 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       senses: [{ name: "Darkvision", url: `${AON}/rules/459-darkvision-and-greater-darkvision` }],
       anathema: ["Look clumsy (never do)", "Reveal secretive Pahtra names"],
       armor: {
-        name: "Tempweave (Advanced)",
-        url: `${AON}/equipment/armor/11-tempweave`,
-        acBonus: 2,
-        notes: "Resilient +1, Jetpack, Force Field",
+        name: armor.name,
+        url: armor.url,
+        acBonus: armor.acBonus,
+        notes: armor.notes,
       },
       resistances: ["Reroll crit fail on save 1×/day (Meyel's Chosen)"],
-      skills: [
-        { name: "Acrobatics", bonus: 14, proficiency: "E", url: `${AON}/skills/1-acrobatics` },
-        { name: "Athletics", bonus: 10, proficiency: "T", url: `${AON}/skills/3-athletics` },
-        { name: "Diplomacy", bonus: 12, proficiency: "T", url: `${AON}/skills/7-diplomacy` },
-        { name: "Intimidation", bonus: 12, proficiency: "T", url: `${AON}/skills/8-intimidation` },
-        { name: "Lore (Piracy)", bonus: 8, proficiency: "T", url: `${AON}/skills/9-lore` },
-        { name: "Performance", bonus: 14, proficiency: "E", url: `${AON}/skills/13-performance` },
-        { name: "Piloting", bonus: 12, proficiency: "T", url: `${AON}/skills/14-piloting` },
-        { name: "Stealth", bonus: 12, proficiency: "T", url: `${AON}/skills/17-stealth` },
-        { name: "Thievery", bonus: 12, proficiency: "T", url: `${AON}/skills/19-thievery` },
-      ],
+      skills: allSkills.filter((skill) => skill.proficiency !== "U"),
       weapons: [
-        {
-          id: "battle-ribbon",
-          name: "Battle Ribbon",
-          attack: "+14 / +9 / +4",
-          damage: "1d4+2 S +3 precision (+3d6 finisher)",
-          traits: ["Flail", "Finesse", "Nonlethal", "Reach", "Trip"],
-          url: `${AON}/actions/15-strike`,
-          weaponUrl: `${AON}/equipment/weapons/9-battle-ribbon`,
-        },
         {
           id: "baton",
           name: "Baton (Tactical)",
@@ -112,6 +102,15 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           traits: ["Club", "Finesse", "Nonlethal", "Parry"],
           url: `${AON}/actions/15-strike`,
           weaponUrl: `${AON}/equipment/weapons/2-baton`,
+        },
+        {
+          id: "battle-ribbon",
+          name: "Battle Ribbon",
+          attack: "+14 / +9 / +4",
+          damage: "1d4+2 S +3 precision (+3d6 finisher)",
+          traits: ["Flail", "Finesse", "Nonlethal", "Reach", "Trip"],
+          url: `${AON}/actions/15-strike`,
+          weaponUrl: `${AON}/equipment/weapons/9-battle-ribbon`,
         },
         {
           id: "jaws",
@@ -169,19 +168,19 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           url: `${AON}/treasure/130`,
         },
         {
+          id: "exemplary-finisher",
+          name: "Exemplary Finisher (Step)",
+          cost: "free",
+          summary: "Step after a finisher.",
+          url: `${AONP}/Styles.aspx?ID=7`,
+        },
+        {
           id: "meyel-reroll",
           name: "Meyel's Chosen — Reroll Save",
           cost: "free",
           summary: "Reroll a critical failure on a saving throw (1×/day).",
           traits: ["Fortune"],
           url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
-        },
-        {
-          id: "exemplary-finisher",
-          name: "Exemplary Finisher (Step)",
-          cost: "free",
-          summary: "Step after a finisher.",
-          url: `${AONP}/Styles.aspx?ID=7`,
         },
         {
           id: "opportune-riposte",
@@ -239,7 +238,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Skill attack.",
           traits: ["Attack", "Manipulate", "Skill"],
           url: `${AONP}/Feats.aspx?ID=6472`,
-          bonus: "+12",
+          bonus: skillBonus("Thievery"),
         },
         {
           id: "dueling-parry",
@@ -264,7 +263,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Athletics vs. Fortitude DC.",
           traits: ["Attack"],
           url: `${AON}/actions/64-grapple`,
-          bonus: "+10",
+          bonus: skillBonus("Athletics"),
         },
         {
           id: "leading-dance",
@@ -273,7 +272,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Bravado move to reposition a foe.",
           traits: ["Bravado", "Move", "Swashbuckler"],
           url: `${AONP}/Feats.aspx?ID=6149`,
-          bonus: "+14",
+          bonus: skillBonus("Performance"),
           combatBonus: "+1",
         },
         {
@@ -291,7 +290,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Focused Fascination.",
           traits: ["Bravado", "Concentrate", "Incapacitation"],
           url: `${AONP}/Feats.aspx?ID=5147`,
-          bonus: "+14",
+          bonus: skillBonus("Performance"),
           combatBonus: "+1",
         },
         {
@@ -309,7 +308,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Acrobatics to move through a foe's space.",
           traits: ["Bravado", "Move"],
           url: `${AONP}/Actions.aspx?ID=2370`,
-          bonus: "+14",
+          bonus: skillBonus("Acrobatics"),
           combatBonus: "+1",
         },
         {

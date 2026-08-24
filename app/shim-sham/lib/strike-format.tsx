@@ -7,17 +7,24 @@ export function formatStrikeDamage(damage: string, finisherDice: string, panache
   }
 
   const base = damage.replace(STRIKE_FINISHER_RE, "").trimEnd();
-  const extra = match[1] ? `, ${match[1]}` : match[2] ? `; ${match[2]}` : "";
+  const extra = match[1] ?? match[2] ?? "";
+  const damageLine = panache ? (
+    <>
+      {base}
+      <span className="speed-panache"> (+{finisherDice} finisher)</span>
+    </>
+  ) : (
+    base
+  );
 
-  if (!panache) {
-    return `${base}${extra}`;
+  if (!extra) {
+    return damageLine;
   }
 
   return (
     <>
-      {base}
-      <span className="speed-panache"> (+{finisherDice} finisher)</span>
-      {extra}
+      {damageLine}
+      <span className="strike-crit">{extra}</span>
     </>
   );
 }

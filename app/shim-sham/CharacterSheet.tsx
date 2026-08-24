@@ -82,11 +82,13 @@ export default function CharacterSheet() {
       : null,
   ].filter((entry): entry is SpeedEntry => entry != null);
 
+  const byActionName = (a: { name: string }, b: { name: string }) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
   const actionsByCost = {
-    free: data.actions.filter((a) => a.cost === "free"),
-    reaction: data.actions.filter((a) => a.cost === "reaction"),
-    single: data.actions.filter((a) => a.cost === "single"),
-    minute: data.actions.filter((a) => a.cost === "minute"),
+    free: data.actions.filter((a) => a.cost === "free").sort(byActionName),
+    reaction: data.actions.filter((a) => a.cost === "reaction").sort(byActionName),
+    single: data.actions.filter((a) => a.cost === "single").sort(byActionName),
+    minute: data.actions.filter((a) => a.cost === "minute").sort(byActionName),
   };
   const duelingParryAction = data.actions.find((a) => a.id === "dueling-parry");
   const displayAc = level.ac + (runtime.duelingParry ? 2 : 0);

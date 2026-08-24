@@ -1,15 +1,17 @@
 import type { LevelSnapshot } from "@/lib/types";
+import { armorClass } from "@/lib/shim-sham/armor";
+import { savingThrows } from "@/lib/shim-sham/saves";
 
-/** Level progression from https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530 */
-export const PROGRESSION: LevelSnapshot[] = [
+type LevelProgression = Omit<LevelSnapshot, "ac" | "fort" | "reflex" | "will">;
+
+/** Level progression from https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530
+ *  Gist vs calculated values: data/progression-gist-issues.md
+ */
+export const PROGRESSION: LevelProgression[] = [
   {
     level: 1,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 18,
-    ac: 18,
-    fort: 3,
-    reflex: 9,
-    will: 6,
     perception: 7,
     classDc: 18,
     landSpeed: 25,
@@ -21,10 +23,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 2,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 28,
-    ac: 19,
-    fort: 4,
-    reflex: 10,
-    will: 7,
     perception: 8,
     classDc: 19,
     landSpeed: 25,
@@ -36,10 +34,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 3,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 41,
-    ac: 21,
-    fort: 8,
-    reflex: 12,
-    will: 9,
     perception: 10,
     classDc: 20,
     landSpeed: 35,
@@ -60,10 +54,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 4,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     maxHp: 52,
-    ac: 22,
-    fort: 9,
-    reflex: 13,
-    will: 10,
     perception: 11,
     classDc: 21,
     landSpeed: 35,
@@ -76,10 +66,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 5,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 68,
-    ac: 23,
-    fort: 11,
-    reflex: 14,
-    will: 11,
     perception: 12,
     classDc: 22,
     landSpeed: 35,
@@ -93,10 +79,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 6,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 80,
-    ac: 24,
-    fort: 12,
-    reflex: 15,
-    will: 12,
     perception: 11,
     classDc: 22,
     landSpeed: 30,
@@ -110,10 +92,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 7,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 92,
-    ac: 25,
-    fort: 13,
-    reflex: 18,
-    will: 13,
     perception: 13,
     classDc: 23,
     landSpeed: 35,
@@ -134,10 +112,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 8,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 104,
-    ac: 26,
-    fort: 14,
-    reflex: 19,
-    will: 14,
     perception: 14,
     classDc: 24,
     landSpeed: 35,
@@ -151,10 +125,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 9,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 116,
-    ac: 27,
-    fort: 15,
-    reflex: 20,
-    will: 15,
     perception: 15,
     classDc: 25,
     landSpeed: 35,
@@ -168,10 +138,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 10,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 138,
-    ac: 29,
-    fort: 17,
-    reflex: 22,
-    will: 16,
     perception: 16,
     classDc: 26,
     landSpeed: 40,
@@ -185,10 +151,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 11,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 151,
-    ac: 30,
-    fort: 18,
-    reflex: 23,
-    will: 17,
     perception: 19,
     classDc: 27,
     landSpeed: 45,
@@ -196,16 +158,18 @@ export const PROGRESSION: LevelSnapshot[] = [
     climbSpeed: 45,
     preciseStrike: 4,
     finisherDice: "4d6",
-    notes: ["Continuous Flair", "Incredible Scout", "Perception Mastery", "Vivacious Speed +20"],
+    notes: [
+      "Continuous Flair",
+      "Incredible Scout",
+      "Perception Mastery",
+      "Thievery Expert",
+      "Vivacious Speed +20",
+    ],
   },
   {
     level: 12,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 164,
-    ac: 31,
-    fort: 19,
-    reflex: 24,
-    will: 18,
     perception: 20,
     classDc: 28,
     landSpeed: 45,
@@ -219,10 +183,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 13,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 177,
-    ac: 34,
-    fort: 20,
-    reflex: 27,
-    will: 19,
     perception: 21,
     classDc: 29,
     landSpeed: 45,
@@ -242,10 +202,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 14,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 190,
-    ac: 35,
-    fort: 21,
-    reflex: 28,
-    will: 20,
     perception: 22,
     classDc: 30,
     landSpeed: 45,
@@ -259,10 +215,6 @@ export const PROGRESSION: LevelSnapshot[] = [
     level: 15,
     abilities: { STR: 4, DEX: 5, CON: 3, INT: 1, WIS: 1, CHA: 5 },
     maxHp: 218,
-    ac: 36,
-    fort: 23,
-    reflex: 29,
-    will: 22,
     perception: 23,
     classDc: 31,
     landSpeed: 50,
@@ -282,10 +234,20 @@ export const PROGRESSION: LevelSnapshot[] = [
   },
 ];
 
+function withDerivedStats(entry: LevelProgression): LevelSnapshot {
+  return {
+    ...entry,
+    ac: armorClass(entry.abilities.DEX, entry.level),
+    ...savingThrows(entry.abilities, entry.level),
+  };
+}
+
 export function getLevelSnapshot(level: number): LevelSnapshot | undefined {
-  return PROGRESSION.find((entry) => entry.level === level);
+  const entry = PROGRESSION.find((item) => item.level === level);
+  return entry ? withDerivedStats(entry) : undefined;
 }
 
 export function getNextLevelSnapshot(level: number): LevelSnapshot | undefined {
-  return PROGRESSION.find((entry) => entry.level === level + 1);
+  const entry = PROGRESSION.find((item) => item.level === level + 1);
+  return entry ? withDerivedStats(entry) : undefined;
 }

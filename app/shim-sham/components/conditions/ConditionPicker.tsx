@@ -66,10 +66,11 @@ export function ConditionPicker({
               ) : (
                 <button
                   type="button"
-                  className="btn condition-picker__add"
+                  className="btn btn-icon condition-picker__add"
                   onClick={() => onChange(toggleCondition(activeConditions, c.id))}
+                  aria-label={`Add ${c.name}`}
                 >
-                  Add
+                  +
                 </button>
               )}
             </div>

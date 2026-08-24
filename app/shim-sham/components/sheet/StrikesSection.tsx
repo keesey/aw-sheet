@@ -3,7 +3,7 @@ import { formatStrikeDamage } from "../../lib/strike-format";
 import { AonLink } from "../AonLink";
 
 export function StrikesSection({
-  weapons,
+  weapons: unsortedWeapons,
   finisherDice,
   panache,
 }: {
@@ -11,6 +11,10 @@ export function StrikesSection({
   finisherDice: string;
   panache: boolean;
 }) {
+  const weapons = [...unsortedWeapons].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+  );
+
   return (
     <div className="stat-card sheet-section">
       <div className="stat-label" style={{ marginBottom: "0.5rem" }}>

@@ -18,10 +18,14 @@ export type WeaponStrike = {
   weaponUrl?: string;
 };
 
+export type ProficiencyRank = "U" | "T" | "E" | "M" | "L";
+
+export type AbilityKey = "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
+
 export type SkillEntry = {
   name: string;
   bonus: number;
-  proficiency: "U" | "T" | "E" | "M" | "L";
+  proficiency: ProficiencyRank;
   url: string;
 };
 
@@ -57,7 +61,7 @@ export type InventoryItem = {
 
 export type LevelSnapshot = {
   level: number;
-  abilities: Record<"STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA", number>;
+  abilities: Record<AbilityKey, number>;
   maxHp: number;
   ac: number;
   fort: number;
