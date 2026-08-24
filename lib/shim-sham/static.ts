@@ -1,5 +1,8 @@
 import type { CharacterSheet, RuntimeState } from "@/lib/types";
 import { getLevelSnapshot } from "@/lib/shim-sham/progression";
+import { normalizeConditions } from "@/lib/shim-sham/conditions";
+import { syncEncumberedFromBulk, totalBulk } from "@/lib/shim-sham/bulk";
+import { SHIM_SHAM_INVENTORY } from "@/lib/shim-sham/inventory";
 
 const AON = "https://2e.aonsrd.com";
 const AONP = "https://2e.aonprd.com";
@@ -17,6 +20,7 @@ export function createDefaultRuntime(level = 6): RuntimeState {
     accelerate: false,
     jetpack: false,
     combat: false,
+    duelingParry: false,
     credits: 1280,
     conditions: [],
     forceFieldHp: 0,
@@ -27,6 +31,7 @@ export function createDefaultRuntime(level = 6): RuntimeState {
       "medpatch-commercial": 0,
       "resist-energy": 0,
       "celebrity-serum": 0,
+      "incendiary-grenade": 0,
     },
     batteries: [
       { id: "battery-1", charges: 10, max: 10 },
@@ -37,8 +42,19 @@ export function createDefaultRuntime(level = 6): RuntimeState {
   };
 }
 
-export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
+export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   const level = getLevelSnapshot(runtime.level)!;
+  const conditions = syncEncumberedFromBulk(
+    normalizeConditions(runtime.conditions),
+    totalBulk(SHIM_SHAM_INVENTORY),
+    level.abilities.STR,
+  );
+  return { ...runtime, conditions };
+}
+
+export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
+  const normalizedRuntime = normalizeRuntimeState(runtime);
+  const level = getLevelSnapshot(normalizedRuntime.level)!;
 
   return {
     static: {
@@ -61,7 +77,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       senses: [{ name: "Darkvision", url: `${AON}/rules/459-darkvision-and-greater-darkvision` }],
       anathema: ["Look clumsy (never do)", "Reveal secretive Pahtra names"],
       armor: {
-        name: "Tempweave, Advanced",
+        name: "Tempweave (Advanced)",
         url: `${AON}/equipment/armor/11-tempweave`,
         acBonus: 2,
         notes: "Resilient +1, Jetpack, Force Field",
@@ -90,7 +106,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "baton",
-          name: "Baton, Tactical",
+          name: "Baton (Tactical)",
           attack: "+15 / +10 / +5",
           damage: "1d6+2 B +3 precision (+3d6 finisher)",
           traits: ["Club", "Finesse", "Nonlethal", "Parry"],
@@ -108,7 +124,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "rapier",
-          name: "Nano-Edge Rapier, Advanced",
+          name: "Nano-Edge Rapier (Advanced)",
           attack: "+15 / +10 / +5",
           damage: "2d6+2 P +3 precision (+3d6 finisher, +1d8 deadly on crit)",
           traits: ["Sword", "Deadly d8", "Disarm", "Finesse"],
@@ -117,7 +133,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "tailblade",
-          name: "Tailblade, Advanced",
+          name: "Tailblade (Advanced)",
           attack: "+15 / +11 / +7",
           damage: "2d4+2 S +3 precision (+3d6 finisher; frightened 1 on crit)",
           traits: ["Knife", "Agile", "Finesse", "Free-hand"],
@@ -135,7 +151,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "zero-pistol",
-          name: "Zero Pistol, Advanced",
+          name: "Zero Pistol (Advanced)",
           attack: "+15 / +10 / +5",
           damage: "2d6 C (Expend 2)",
           traits: ["Tech"],
@@ -191,6 +207,14 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           summary: "Lasts 1 minute. Fly speed (see Fly).",
           traits: ["Manipulate", "Move"],
           url: `${AON}/treasure/59-jetpack`,
+        },
+        {
+          id: "area-fire-grenade",
+          name: "Area Fire (Grenade)",
+          cost: "single",
+          summary: "Throw grenade (70 ft); basic Reflex vs. class DC + tracking.",
+          traits: ["Area", "Attack"],
+          url: `${AON}/actions/17-area-fire`,
         },
         {
           id: "climb",
@@ -254,7 +278,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
         {
           id: "baton-parry",
-          name: "Parry (Tactical Baton)",
+          name: "Parry — Baton (Tactical)",
           cost: "single",
           summary: "+1 AC (see Dueling Parry).",
           url: `${AON}/traits/137-parry`,
@@ -296,89 +320,25 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           url: `${AON}/feats/811-group-coercion`,
         },
       ],
-      inventory: [
-        {
-          id: "tempweave",
-          name: "Tempweave, Advanced",
-          bulk: "1",
-          url: `${AON}/equipment/armor/11-tempweave`,
-          invested: true,
-        },
-        { id: "jetpack", name: "Jetpack", bulk: "L", url: `${AON}/treasure/59-jetpack` },
-        { id: "force-field", name: "Force Field", bulk: "—", url: `${AON}/treasure/57` },
-        {
-          id: "tailblade-item",
-          name: "Tailblade, Advanced",
-          bulk: "L",
-          url: `${AON}/equipment/weapons/29-tailblade`,
-        },
-        {
-          id: "rapier-item",
-          name: "Nano-Edge Rapier, Advanced",
-          bulk: "1",
-          url: `${AON}/equipment/weapons/17-nano-edge-rapier`,
-        },
-        {
-          id: "baton-item",
-          name: "Baton, Tactical",
-          bulk: "L",
-          url: `${AON}/equipment/weapons/2-baton`,
-        },
-        {
-          id: "zero-pistol-item",
-          name: "Zero Pistol, Advanced",
-          bulk: "L",
-          url: `${AON}/equipment/weapons/48-zero-pistol`,
-        },
-        {
-          id: "battle-ribbon-item",
-          name: "Battle Ribbon",
-          bulk: "L",
-          url: `${AON}/equipment/weapons/9-battle-ribbon`,
-        },
-        {
-          id: "incendiary-grenade",
-          name: "Incendiary Grenade",
-          bulk: "L",
-          url: `${AON}/equipment/weapons/16-incendiary-grenade`,
-        },
-        {
-          id: "infiltrator-tools",
-          name: "Infiltrator's Tools",
-          bulk: "L",
-          url: `${AON}/equipment/28-infiltrators-tools`,
-        },
-        {
-          id: "adaptine-gel",
-          name: "Adaptine Weapon Gel",
-          bulk: "—",
-          notes: "Valuable",
-        },
-        {
-          id: "thermal-dynafan",
-          name: "Thermal Dynafan",
-          bulk: "—",
-          notes: "Valuable",
-        },
-      ],
+      inventory: SHIM_SHAM_INVENTORY,
       consumableCatalog: [
         {
           id: "medpatch-tactical",
-          name: "Medpatch, Tactical",
+          name: "Medpatch (Tactical)",
           url: `${AON}/treasure/35-medpatch`,
           quantity: 1,
           used: 0,
         },
         {
           id: "medpatch-commercial",
-          name: "Medpatch, Commercial",
+          name: "Medpatch (Commercial)",
           url: `${AON}/treasure/35-medpatch`,
           quantity: 3,
           used: 0,
         },
         {
           id: "resist-energy",
-          name: "Resist Energy Spell Ampoule, Commercial",
+          name: "Resist Energy Spell Ampoule (Commercial)",
           url: `${AON}/treasure/117`,
           quantity: 1,
           used: 0,
@@ -390,11 +350,18 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           quantity: 5,
           used: 0,
         },
+        {
+          id: "incendiary-grenade",
+          name: "Incendiary Grenade (Commercial)",
+          url: `${AON}/treasure/104-incendiary-grenade`,
+          quantity: 1,
+          used: 0,
+        },
       ],
       planUrl: "https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530",
       playbookUrl: "https://gist.github.com/keesey/2c6a5bb30f1ccc30e4d4b7fe3e1c7e78",
     },
     level,
-    runtime,
+    runtime: normalizedRuntime,
   };
 }

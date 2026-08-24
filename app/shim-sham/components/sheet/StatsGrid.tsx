@@ -1,0 +1,162 @@
+import type { CharacterAction, CharacterSheet } from "@/lib/types";
+import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
+import type { SaveFn, SpeedEntry } from "../../types";
+import { AonLink } from "../AonLink";
+
+export function StatsGrid({
+  data,
+  level,
+  runtime,
+  speedEntries,
+  displayAc,
+  duelingParryAction,
+  creditInput,
+  onCreditInputChange,
+  save,
+}: {
+  data: CharacterSheet["static"];
+  level: CharacterSheet["level"];
+  runtime: CharacterSheet["runtime"];
+  speedEntries: SpeedEntry[];
+  displayAc: number;
+  duelingParryAction?: CharacterAction;
+  creditInput: string;
+  onCreditInputChange: (value: string) => void;
+  save: SaveFn;
+}) {
+  return (
+    <div className="sheet-grid">
+      <div className="stat-card">
+        <div className="stat-label">Armor Class</div>
+        <div className="ac-row">
+          <div className="stat-value">{displayAc}</div>
+          {duelingParryAction && (
+            <label className="ac-parry">
+              <input
+                type="checkbox"
+                checked={runtime.duelingParry}
+                onChange={(e) => void save({ duelingParry: e.target.checked })}
+              />
+              <AonLink href={duelingParryAction.url}>Dueling Parry</AonLink>
+            </label>
+          )}
+        </div>
+        <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.25rem" }}>
+          <AonLink href={data.armor.url}>{data.armor.name}</AonLink>
+        </div>
+      </div>
+
+      <div className="stat-card">
+        <div className="stat-label">Perception</div>
+        <div className="stat-value">+{level.perception}</div>
+        <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.35rem", lineHeight: 1.4 }}>
+          {data.senses.map((s, i) => (
+            <span key={s.name}>
+              {i > 0 && " · "}
+              <AonLink href={s.url}>{s.name}</AonLink>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="stat-card">
+        <div className="stat-label">Class DC</div>
+        <div className="stat-value">{level.classDc}</div>
+      </div>
+
+      <div className="stat-card">
+        <div className="saves-grid">
+          <span className="stat-label">Fort</span>
+          <span className="stat-label">Ref</span>
+          <span className="stat-label">Will</span>
+          <span className="stat-value" style={{ fontSize: "1.35rem" }}>
+            +{level.fort}
+          </span>
+          <span className="stat-value" style={{ fontSize: "1.35rem" }}>
+            +{level.reflex}
+          </span>
+          <span className="stat-value" style={{ fontSize: "1.35rem" }}>
+            +{level.will}
+          </span>
+        </div>
+      </div>
+
+      <div className="stat-card stat-card--wide">
+        <div className="stat-label">Speed</div>
+        <div style={{ fontSize: "1rem", fontWeight: 600, marginTop: "0.35rem", lineHeight: 1.5 }}>
+          {speedEntries.map((speed, index) => {
+            const speedClass = getSpeedClassName(speed, runtime.panache, runtime.accelerate);
+            const displayValue = getSpeedDisplayValue(speed, runtime.panache, runtime.accelerate);
+            return (
+              <span key={speed.label}>
+                {index > 0 && " · "}
+                {speed.label === "Fly" ? (
+                  <span className="speed-fly-label">{speed.label}</span>
+                ) : (
+                  speed.label
+                )}{" "}
+                <span className={speedClass}>{displayValue}′</span>
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="stat-card">
+        <div className="stat-label">Daily</div>
+        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", fontSize: "0.9rem" }}>
+          <input
+            type="checkbox"
+            checked={runtime.meyelRerollUsed}
+            onChange={(e) => void save({ meyelRerollUsed: e.target.checked })}
+          />
+          <AonLink href={data.heritage.url}>
+            <em>{data.heritage.name}</em> reroll used
+          </AonLink>
+        </label>
+      </div>
+
+      <div className="stat-card">
+        <div className="stat-label">Credits</div>
+        <div className="stat-value" style={{ fontSize: "1.5rem" }}>
+          {runtime.credits.toLocaleString()}
+        </div>
+        <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.5rem" }}>
+          <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits - 10 })}>
+            −
+          </button>
+          <button type="button" className="btn btn-icon" onClick={() => void save({ credits: runtime.credits + 10 })}>
+            +
+          </button>
+          <form
+            style={{ display: "flex", flex: 1 }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              const n = parseInt(creditInput, 10);
+              if (!Number.isNaN(n)) {
+                void save({ credits: Math.max(0, runtime.credits + n) });
+                onCreditInputChange("");
+              }
+            }}
+          >
+            <input
+              type="number"
+              placeholder="Amount"
+              value={creditInput}
+              onChange={(e) => onCreditInputChange(e.target.value)}
+              style={{
+                width: "100%",
+                minHeight: 44,
+                borderRadius: 10,
+                border: "1px solid var(--border)",
+                background: "var(--surface-2)",
+                color: "var(--text)",
+                padding: "0 0.5rem",
+              }}
+            />
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

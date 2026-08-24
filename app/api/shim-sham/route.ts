@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { loadRuntimeState, saveRuntimeState, isKvConfigured } from "@/lib/kv";
-import { buildCharacterSheet } from "@/lib/shim-sham/static";
+import { buildCharacterSheet, normalizeRuntimeState } from "@/lib/shim-sham/static";
+import { normalizeConditions } from "@/lib/shim-sham/conditions";
 import { getLevelSnapshot, getNextLevelSnapshot } from "@/lib/shim-sham/progression";
 import type { RuntimeState } from "@/lib/types";
 import {
   FORCE_FIELD_DAILY_USES,
   FORCE_FIELD_MAX_HP,
 } from "@/lib/shim-sham/static";
+
+function normalizeRuntime(runtime: RuntimeState): RuntimeState {
+  return normalizeRuntimeState(runtime);
+}
 
 function mergeClientRuntime(
   server: RuntimeState,
@@ -50,7 +55,7 @@ export async function PATCH(request: Request) {
       accelerate: false,
       jetpack: false,
       combat: false,
-      conditions: conditions.filter((c) => c !== "fatigued"),
+      conditions: normalizeConditions(conditions).filter((c) => c.id !== "fatigued"),
     };
   } else if (body.action === "level-up") {
     const next = getNextLevelSnapshot(runtime.level);
@@ -126,6 +131,8 @@ export async function PATCH(request: Request) {
   if (!runtime.combat) {
     runtime.panache = false;
   }
+
+  runtime = normalizeRuntime(runtime);
 
   await saveRuntimeState(runtime);
   const sheet = buildCharacterSheet(runtime);

@@ -1,3 +1,8 @@
+export type ActiveCondition = {
+  id: string;
+  value?: number;
+};
+
 export type AonLink = {
   name: string;
   url: string;
@@ -44,8 +49,10 @@ export type InventoryItem = {
   name: string;
   bulk: string;
   url?: string;
-  invested?: boolean;
+  traits?: string[];
   notes?: string;
+  equipmentGroup?: "armor" | "weapon" | "other";
+  indented?: boolean;
 };
 
 export type LevelSnapshot = {
@@ -74,8 +81,9 @@ export type RuntimeState = {
   accelerate: boolean;
   jetpack: boolean;
   combat: boolean;
+  duelingParry: boolean;
   credits: number;
-  conditions: string[];
+  conditions: ActiveCondition[];
   forceFieldHp: number;
   forceFieldUsesUsed: number;
   meyelRerollUsed: boolean;
