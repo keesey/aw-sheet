@@ -26,6 +26,7 @@ import { SheetHeader } from "./components/sheet/SheetHeader";
 import { SkillsSection } from "./components/sheet/SkillsSection";
 import { StatsGrid } from "./components/sheet/StatsGrid";
 import { StrikesSection } from "./components/sheet/StrikesSection";
+import { ExploreSection } from "./components/sheet/ExploreSection";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
 import type { Panel, SpeedEntry } from "./types";
 
@@ -94,7 +95,6 @@ export default function CharacterSheet() {
     free: data.actions.filter((a) => a.cost === "free").sort(byActionName),
     reaction: data.actions.filter((a) => a.cost === "reaction").sort(byActionName),
     single: data.actions.filter((a) => a.cost === "single").sort(byActionName),
-    minute: data.actions.filter((a) => a.cost === "minute").sort(byActionName),
   };
   const duelingParryAction = data.actions.find((a) => a.id === "dueling-parry");
   const duelingParryBonus = runtime.duelingParry ? 2 : 0;
@@ -162,13 +162,22 @@ export default function CharacterSheet() {
         </div>
 
         <div className="sheet-column sheet-column--strikes">
-          <StrikesSection
-            weapons={data.weapons}
-            finisherDice={level.finisherDice}
-            panache={runtime.panache}
-            attackDelta={effects.finesseMeleeAttack}
-            damagePenalized={effects.strDamage < 0}
-          />
+          {runtime.combat ? (
+            <StrikesSection
+              weapons={data.weapons}
+              finisherDice={level.finisherDice}
+              panache={runtime.panache}
+              attackDelta={effects.finesseMeleeAttack}
+              damagePenalized={effects.strDamage < 0}
+            />
+          ) : (
+            <ExploreSection
+              skills={data.skills}
+              skillDelta={effects.skillDelta}
+              perception={level.perception + effects.perception}
+              perceptionDelta={effects.perception}
+            />
+          )}
         </div>
 
         <div className="sheet-column sheet-column--skills">

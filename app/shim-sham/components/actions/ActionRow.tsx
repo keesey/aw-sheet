@@ -113,33 +113,3 @@ export function ActionRow({
     </AonLink>
   );
 }
-
-export function MinuteActionRow({
-  action,
-  locks = EMPTY_LOCKS,
-}: {
-  action: CharacterAction;
-  locks?: ConditionActionLocks;
-}) {
-  const disabled = locks.disableAllActions;
-  const content = (
-    <>
-      <div className="action-name">{action.name}</div>
-      <ActionDescription text={action.description} />
-    </>
-  );
-
-  if (disabled) {
-    return (
-      <div className="action-row action-row--disabled" aria-disabled="true">
-        {content}
-      </div>
-    );
-  }
-
-  return (
-    <AonLink href={action.url} className="action-row">
-      {content}
-    </AonLink>
-  );
-}

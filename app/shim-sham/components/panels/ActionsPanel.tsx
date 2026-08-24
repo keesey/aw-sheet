@@ -1,6 +1,6 @@
 import type { CharacterAction, CharacterSheet } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
-import { ActionRow, MinuteActionRow } from "../actions/ActionRow";
+import { ActionRow } from "../actions/ActionRow";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
 
@@ -17,7 +17,6 @@ export function ActionsPanel({
     free: CharacterAction[];
     reaction: CharacterAction[];
     single: CharacterAction[];
-    minute: CharacterAction[];
   };
   locks: ConditionActionLocks;
   onClose: () => void;
@@ -41,10 +40,6 @@ export function ActionsPanel({
           <div className="action-group-title">Reaction</div>
           {actionsByCost.reaction.map((a) => (
             <ActionRow key={a.id} action={a} {...actionProps} />
-          ))}
-          <div className="action-group-title">One Minute</div>
-          {actionsByCost.minute.map((a) => (
-            <MinuteActionRow key={a.id} action={a} locks={locks} />
           ))}
         </div>
         <div className="actions-single-section">

@@ -237,13 +237,6 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           bonus: skillBonus("Acrobatics"),
           combatBonus: "+1",
         },
-        {
-          id: "group-coercion",
-          name: "Group Coercion",
-          cost: "minute",
-          description: actionDescription("group-coercion"),
-          url: `${AON}/feats/811-group-coercion`,
-        },
   ];
 
   return {

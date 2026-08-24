@@ -112,6 +112,29 @@ body {
   font-weight: 500;
 }
 
+.explore-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 1.2rem;
+}
+
+.explore-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.explore-entry a {
+  min-width: 0;
+  font-weight: 500;
+}
+
+.explore-entry--indented {
+  padding-left: 1rem;
+}
+
 .strike-entry {
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--border);
