@@ -3,6 +3,7 @@
 import type { CharacterSheet } from "@/lib/types";
 import type { SaveFn } from "../../types";
 import { useRoll } from "../../context/RollContext";
+import { D20Icon } from "../icons/D20Icon";
 import { AonLink } from "../AonLink";
 
 export function SheetHeader({
@@ -60,7 +61,7 @@ export function SheetHeader({
             onClick={() => openRoll("Flat check", 0)}
             aria-label="Roll flat d20 check"
           >
-            d20
+            <D20Icon className="d20-icon" />
           </button>
         </div>
       </div>
