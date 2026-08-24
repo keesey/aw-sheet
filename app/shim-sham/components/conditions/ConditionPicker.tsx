@@ -76,16 +76,19 @@ export function ConditionPicker({
           );
         }
 
+        const isActive = !!active;
+
         return (
           <button
             key={c.id}
             type="button"
-            className={`btn condition-picker__toggle ${active ? "condition-picker__toggle--active" : ""}`}
+            className={`btn condition-picker__toggle ${isActive ? "condition-picker__toggle--active" : ""}`}
+            aria-pressed={isActive}
             onClick={() => {
-              if (locked && active) return;
+              if (locked && isActive) return;
               onChange(toggleCondition(activeConditions, c.id));
             }}
-            disabled={locked && !!active}
+            disabled={locked && isActive}
           >
             {c.name}
           </button>
