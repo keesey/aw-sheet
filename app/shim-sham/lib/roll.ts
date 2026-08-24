@@ -41,6 +41,24 @@ export function rollCheck(label: string, bonus: number): CheckRollResult {
   return { kind: "check", label, d20, bonus, total: d20 + bonus };
 }
 
+function formatD20Breakdown(d20: number, bonus: number): string {
+  if (bonus === 0) return String(d20);
+  const bonusText = bonus < 0 ? ` - ${Math.abs(bonus)}` : ` + ${bonus}`;
+  return `${d20}${bonusText}`;
+}
+
+/** One-line summary for session notes. */
+export function formatRollSummary(result: RollResult): string {
+  if (result.kind === "check") {
+    return `${result.label}: ${result.total} (${formatD20Breakdown(result.d20, result.bonus)})`;
+  }
+
+  const mapSuffix = result.mapIndex > 0 ? ` (MAP ${result.mapIndex + 1})` : "";
+  const outcome =
+    result.isCrit ? ", crit" : result.isFumble ? ", fumble" : "";
+  return `${result.label}${mapSuffix}: attack ${result.total} (${formatD20Breakdown(result.d20, result.bonus)}), damage ${result.damageTotal}${outcome}`;
+}
+
 /** Parse the first numeric bonus from strings like "+12" or "+15/+10/+5". */
 export function parseRollBonusString(bonus: string): number {
   const match = bonus.match(/([+-]?\d+)/);

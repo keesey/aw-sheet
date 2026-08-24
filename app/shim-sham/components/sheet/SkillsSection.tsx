@@ -48,14 +48,14 @@ export function SkillsSection({
       </div>
 
       <div className="stat-card sheet-section sheet-notes-card">
-        <label className="stat-label" htmlFor="sheet-notes">
-          Notes
+        <label className="stat-label" htmlFor="sheet-session-notes">
+          Session Notes
         </label>
         <textarea
-          id="sheet-notes"
+          id="sheet-session-notes"
           className="sheet-notes"
           value={notesDraft}
-          placeholder="Session notes, reminders…"
+          placeholder="Roll log, reminders…"
           onFocus={() => {
             notesFocusedRef.current = true;
           }}

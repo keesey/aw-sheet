@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FORCE_FIELD_DAILY_USES,
   FORCE_FIELD_MAX_HP,
@@ -34,6 +34,7 @@ import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
 import { buildSpeedEntries } from "./lib/speed";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
 import { RollProvider } from "./context/RollContext";
+import { formatRollSummary, type RollResult } from "./lib/roll";
 import type { StrikeDamageMode } from "./lib/strike-format";
 import type { Panel } from "./types";
 
@@ -47,18 +48,54 @@ export default function CharacterSheet() {
   const [creditInput, setCreditInput] = useState("");
   const [notesDraft, setNotesDraft] = useState("");
   const notesFocused = useRef(false);
+  const notesDraftRef = useRef(notesDraft);
+  const runtimeNotesRef = useRef("");
 
   useEffect(() => {
-    if (!notesFocused.current) {
-      setNotesDraft(sheet?.runtime.notes ?? "");
+    notesDraftRef.current = notesDraft;
+  }, [notesDraft]);
+
+  useEffect(() => {
+    const runtimeNotes = sheet?.runtime.notes ?? "";
+    const previousRuntimeNotes = runtimeNotesRef.current;
+    runtimeNotesRef.current = runtimeNotes;
+
+    if (!notesFocused.current && notesDraftRef.current === previousRuntimeNotes) {
+      setNotesDraft(runtimeNotes);
     }
   }, [sheet?.runtime.notes]);
+
+  const saveSheet = useCallback(
+    async (body: Record<string, unknown>) => {
+      await save({ ...body, notes: notesDraftRef.current });
+    },
+    [save],
+  );
+
+  const appendSessionNote = useCallback(
+    (line: string) => {
+      const base = notesFocused.current ? notesDraftRef.current : runtimeNotesRef.current;
+      const next = base ? `${base}\n${line}` : line;
+      runtimeNotesRef.current = next;
+      setNotesDraft(next);
+      notesDraftRef.current = next;
+      void saveSheet({ notes: next });
+    },
+    [saveSheet],
+  );
+
+  const handleRollResult = useCallback(
+    (result: RollResult) => {
+      appendSessionNote(formatRollSummary(result));
+    },
+    [appendSessionNote],
+  );
 
   const applyHpDelta = (sign: -1 | 1, currentHp: number, forceFieldHp: number) => {
     const trimmed = hpDeltaInput.trim();
     const parsed = parseInt(trimmed, 10);
     const amount = trimmed === "" || Number.isNaN(parsed) || parsed <= 0 ? 1 : parsed;
-    void save({ action: "hp-delta", delta: sign * amount, currentHp, forceFieldHp });
+    void saveSheet({ action: "hp-delta", delta: sign * amount, currentHp, forceFieldHp });
     setHpDeltaInput("");
   };
 
@@ -112,7 +149,7 @@ export default function CharacterSheet() {
   const speedEntries = buildSpeedEntries(level, runtime.jetpack);
 
   return (
-    <RollProvider>
+    <RollProvider onRollResult={handleRollResult}>
     <main className="sheet-page">
       {!kvConfigured && (
         <div className="save-banner">
@@ -128,7 +165,7 @@ export default function CharacterSheet() {
         </div>
       )}
 
-      <SheetHeader data={data} runtime={runtime} save={save} />
+      <SheetHeader data={data} runtime={runtime} save={saveSheet} />
 
       <section className="sheet-content">
         <div className="sheet-column sheet-column--combat">
@@ -142,7 +179,7 @@ export default function CharacterSheet() {
             hpDeltaInput={hpDeltaInput}
             onHpDeltaInputChange={setHpDeltaInput}
             onApplyHpDelta={(sign) => applyHpDelta(sign, currentHp, runtime.forceFieldHp)}
-            save={save}
+            save={saveSheet}
           />
 
           <StatsGrid
@@ -157,13 +194,13 @@ export default function CharacterSheet() {
             speedEntries={speedEntries}
             creditInput={creditInput}
             onCreditInputChange={setCreditInput}
-            save={save}
+            save={saveSheet}
           />
 
           <ConditionTags
             conditions={runtime.conditions}
             lockedConditionIds={lockedConditionIds}
-            save={save}
+            save={saveSheet}
           />
         </div>
 
@@ -176,7 +213,7 @@ export default function CharacterSheet() {
               speedDelta={effects.speedDelta}
               runtime={runtime}
               ffUsesLeft={ffUsesLeft}
-              save={save}
+              save={saveSheet}
               onOpenStrikes={(mode) => {
                 setStrikesDamageMode(mode);
                 setStrikesOpen(true);
@@ -206,7 +243,7 @@ export default function CharacterSheet() {
             onNotesDraftChange={setNotesDraft}
             runtimeNotes={runtime.notes}
             notesFocusedRef={notesFocused}
-            save={save}
+            save={saveSheet}
           />
         </div>
       </section>
@@ -232,7 +269,7 @@ export default function CharacterSheet() {
           inventoryBulkMax={inventoryBulkMax}
           bulkBarPct={bulkBarPct}
           bulkBarFillColor={bulkBarFillColor}
-          save={save}
+          save={saveSheet}
           onClose={() => setPanel(null)}
         />
       )}
@@ -241,13 +278,13 @@ export default function CharacterSheet() {
         <ConditionsPanel
           conditions={runtime.conditions}
           lockedConditionIds={lockedConditionIds}
-          save={save}
+          save={saveSheet}
           onClose={() => setPanel(null)}
         />
       )}
 
       {panel === "manage" && (
-        <ManagePanel data={data} runtime={runtime} save={save} onClose={() => setPanel(null)} />
+        <ManagePanel data={data} runtime={runtime} save={saveSheet} onClose={() => setPanel(null)} />
       )}
 
       {strikesOpen && runtime.combat && (

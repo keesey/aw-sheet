@@ -39,14 +39,25 @@ function executeRoll(request: RollRequest): RollResult {
   );
 }
 
-export function RollProvider({ children }: { children: ReactNode }) {
+export function RollProvider({
+  children,
+  onRollResult,
+}: {
+  children: ReactNode;
+  onRollResult?: (result: RollResult) => void;
+}) {
   const requestRef = useRef<RollRequest | null>(null);
   const [result, setResult] = useState<RollResult | null>(null);
 
-  const storeRequest = useCallback((request: RollRequest) => {
-    requestRef.current = request;
-    setResult(executeRoll(request));
-  }, []);
+  const storeRequest = useCallback(
+    (request: RollRequest) => {
+      requestRef.current = request;
+      const next = executeRoll(request);
+      setResult(next);
+      onRollResult?.(next);
+    },
+    [onRollResult],
+  );
 
   const openRoll = useCallback(
     (label: string, bonus: number) => {
@@ -69,8 +80,10 @@ export function RollProvider({ children }: { children: ReactNode }) {
 
   const reroll = useCallback(() => {
     if (!requestRef.current) return;
-    setResult(executeRoll(requestRef.current));
-  }, []);
+    const next = executeRoll(requestRef.current);
+    setResult(next);
+    onRollResult?.(next);
+  }, [onRollResult]);
 
   return (
     <RollContext.Provider value={{ openRoll, openStrikeRoll }}>
