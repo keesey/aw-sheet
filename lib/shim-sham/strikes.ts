@@ -132,15 +132,14 @@ function signed(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
 }
 
-export function formatMapAttacks(first: number, agile: boolean): string {
+export function mapAttackValues(first: number, agile: boolean): [number, number, number] {
   const secondPenalty = agile ? 4 : 5;
   const thirdPenalty = agile ? 8 : 10;
-  return [first, first - secondPenalty, first - thirdPenalty].map(signed).join(" / ");
+  return [first, first - secondPenalty, first - thirdPenalty];
 }
 
-function parseFirstMapValue(attack: string): number | null {
-  const match = attack.match(/^([+-]?\d+)/);
-  return match ? parseInt(match[1], 10) : null;
+export function formatMapAttacks(first: number, agile: boolean): string {
+  return mapAttackValues(first, agile).map(signed).join(" / ");
 }
 
 export function bestWeaponMapBonus(weapons: WeaponStrike[]): string | undefined {
@@ -148,8 +147,8 @@ export function bestWeaponMapBonus(weapons: WeaponStrike[]): string | undefined 
   let bestAgile = false;
 
   for (const weapon of weapons) {
-    const value = parseFirstMapValue(weapon.attack);
-    if (value == null || value <= bestValue) continue;
+    const value = weapon.mapAttacks[0];
+    if (value <= bestValue) continue;
     bestValue = value;
     bestAgile = weapon.traits.includes("Agile");
   }
@@ -246,15 +245,21 @@ export function buildWeaponStrikes(
   const rank = weaponRank(snapshot.level);
   const attackDelta = extras.attackDelta ?? (() => 0);
   const strDamageDelta = extras.strDamageDelta ?? 0;
-  return SHIM_SHAM_STRIKES.map((strike) => ({
+  return SHIM_SHAM_STRIKES.map((strike) => {
+    const first = attackBonus(strike, snapshot, rank) + attackDelta(strike);
+    const agile = strike.agile === true;
+    const mapAttacks = mapAttackValues(first, agile);
+    return {
     id: strike.id,
     name: strike.name,
-    attack: formatMapAttacks(attackBonus(strike, snapshot, rank) + attackDelta(strike), strike.agile === true),
+    attack: formatMapAttacks(first, agile),
+    mapAttacks,
     damage: formatDamage(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),
     critNote: strike.critNote,
     traits: [...strike.traits],
     url: strike.url,
     weaponUrl: strike.weaponUrl,
     ranged: strike.ranged,
-  }));
+  };
+  });
 }

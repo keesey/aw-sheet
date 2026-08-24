@@ -139,6 +139,20 @@ body {
   white-space: nowrap;
 }
 
+.map-roll-btns {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.map-roll-btn {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .strike-damage-row {
   display: flex;
   justify-content: space-between;

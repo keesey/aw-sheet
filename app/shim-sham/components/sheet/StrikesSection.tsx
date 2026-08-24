@@ -1,6 +1,7 @@
 import type { CharacterSheet } from "@/lib/types";
 import { formatStrikeDamage, type StrikeDamageMode } from "../../lib/strike-format";
 import { statModClass } from "../../lib/format";
+import { MapRollButtons } from "../MapRollButtons";
 import { AonLink } from "../AonLink";
 
 export function StrikesSection({
@@ -26,7 +27,11 @@ export function StrikesSection({
     <div key={w.id} className="strike-entry">
       <div className="strike-header">
         <AonLink href={w.weaponUrl ?? w.url}>{w.name}</AonLink>
-        <span className={`strike-attack ${statModClass(attackDelta) ?? ""}`.trim()}>{w.attack}</span>
+        <MapRollButtons
+          label={w.name}
+          values={w.mapAttacks}
+          className={statModClass(attackDelta) ?? undefined}
+        />
       </div>
       <div className="strike-damage-row">
         <div className={`strike-damage ${damagePenalized && !w.ranged ? "stat-penalized" : ""}`.trim()}>

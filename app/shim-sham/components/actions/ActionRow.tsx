@@ -1,8 +1,9 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import type { StrikeDamageMode } from "../../lib/strike-format";
-import { parseRollBonusString } from "../../lib/roll";
+import { parseMapAttackValues, parseRollBonusString } from "../../lib/roll";
 import type { SaveFn } from "../../types";
+import { MapRollButtons } from "../MapRollButtons";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 import { ActionDescription } from "./ActionDescription";
@@ -44,20 +45,34 @@ function ActionTitle({ action }: { action: CharacterAction }) {
 
 function ActionRollBonus({ action, combat }: { action: CharacterAction; combat: boolean }) {
   const rollBonus = isRollBonus(action.bonus) ? action.bonus : null;
-  const combatBonus = combat && action.combatBonus ? action.combatBonus : null;
+  const combatBonus =
+    combat && action.combatBonus ? parseRollBonusString(action.combatBonus) : 0;
 
   if (!rollBonus && !combatBonus) {
     return null;
   }
 
+  const mapValues = rollBonus ? parseMapAttackValues(rollBonus) : null;
+  if (mapValues) {
+    return (
+      <MapRollButtons
+        label={action.name}
+        values={mapValues}
+        className="action-name__bonus"
+        combatBonus={combatBonus}
+      />
+    );
+  }
+
   const numericBonus =
-    (rollBonus ? parseRollBonusString(rollBonus) : 0) +
-    (combatBonus ? parseRollBonusString(combatBonus) : 0);
+    (rollBonus ? parseRollBonusString(rollBonus) : 0) + combatBonus;
 
   return (
     <RollBonusButton label={action.name} bonus={numericBonus} className="action-name__bonus">
       {rollBonus}
-      {combatBonus ? <span className="action-combat-bonus"> {combatBonus}</span> : null}
+      {combat && action.combatBonus ? (
+        <span className="action-combat-bonus"> {action.combatBonus}</span>
+      ) : null}
     </RollBonusButton>
   );
 }

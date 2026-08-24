@@ -132,6 +132,26 @@ export function expandImpliedConditions(conditions: ActiveCondition[]): ActiveCo
   return [...map.values()];
 }
 
+/** Tags for conditions implied by another active condition (e.g. Grabbed hides Off-Guard). */
+export function conditionsHiddenByOthers(conditions: ActiveCondition[]): Set<string> {
+  const hidden = new Set<string>();
+  for (const condition of conditions) {
+    for (const parent of conditions) {
+      if (parent.id === condition.id) continue;
+      if (expandImpliedConditions([parent]).some((implied) => implied.id === condition.id)) {
+        hidden.add(condition.id);
+        break;
+      }
+    }
+  }
+  return hidden;
+}
+
+export function visibleConditionTags(conditions: ActiveCondition[]): ActiveCondition[] {
+  const hidden = conditionsHiddenByOthers(conditions);
+  return conditions.filter((condition) => !hidden.has(condition.id));
+}
+
 export function drainedHpReduction(conditions: ActiveCondition[], level: number): number {
   const drained = conditionValue(conditions, "drained");
   if (drained <= 0) return 0;

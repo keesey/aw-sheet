@@ -19,3 +19,12 @@ export function parseRollBonusString(bonus: string): number {
   const match = bonus.match(/([+-]?\d+)/);
   return match ? parseInt(match[1], 10) : 0;
 }
+
+/** Parse a three-part MAP bonus string like "+15 / +10 / +5". */
+export function parseMapAttackValues(bonus: string): [number, number, number] | null {
+  if (!bonus.includes("/")) return null;
+  const parts = bonus.split("/").map((part) => part.trim());
+  if (parts.length !== 3) return null;
+  const values = parts.map((part) => parseRollBonusString(part));
+  return values.every((value) => !Number.isNaN(value)) ? values as [number, number, number] : null;
+}

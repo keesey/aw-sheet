@@ -12,6 +12,7 @@ export type WeaponStrike = {
   id: string;
   name: string;
   attack: string;
+  mapAttacks: [number, number, number];
   damage: string;
   /** Shown on its own line, e.g. "+1d8 deadly on crit". */
   critNote?: string;

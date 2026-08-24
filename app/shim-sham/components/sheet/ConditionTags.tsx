@@ -1,4 +1,5 @@
 import type { ActiveCondition } from "@/lib/types";
+import { visibleConditionTags } from "@/lib/shim-sham/condition-effects";
 import { removeCondition } from "@/lib/shim-sham/conditions";
 import type { SaveFn } from "../../types";
 import { ConditionChip } from "../conditions/ConditionChip";
@@ -12,11 +13,12 @@ export function ConditionTags({
   lockedConditionIds: string[];
   save: SaveFn;
 }) {
-  if (conditions.length === 0) return null;
+  const visible = visibleConditionTags(conditions);
+  if (visible.length === 0) return null;
 
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-      {conditions.map((active) => (
+      {visible.map((active) => (
         <ConditionChip
           key={active.id}
           active={active}
