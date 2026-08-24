@@ -70,7 +70,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         { name: "Intimidation", bonus: 12, proficiency: "T", url: `${AON}/skills/8-intimidation` },
         { name: "Lore (Piracy)", bonus: 8, proficiency: "T", url: `${AON}/skills/9-lore` },
         { name: "Performance", bonus: 14, proficiency: "E", url: `${AON}/skills/13-performance` },
-        { name: "Pilot", bonus: 12, proficiency: "T", url: `${AON}/skills/14-piloting` },
+        { name: "Piloting", bonus: 12, proficiency: "T", url: `${AON}/skills/14-piloting` },
         { name: "Stealth", bonus: 12, proficiency: "T", url: `${AON}/skills/17-stealth` },
         { name: "Thievery", bonus: 12, proficiency: "T", url: `${AON}/skills/19-thievery` },
       ],
@@ -261,7 +261,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           cost: "single",
           summary: "Performance +14 (+1 circumstance). Focused Fascination.",
           traits: ["Bravado", "Concentrate", "Incapacitation"],
-          url: `${AON}/actions/91-perform`,
+          url: `${AONP}/Feats.aspx?ID=5147`,
           bonus: "+14",
         },
         {

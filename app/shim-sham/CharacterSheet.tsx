@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CharacterSheet } from "@/lib/types";
 import { CONDITIONS, findCondition } from "@/lib/shim-sham/conditions";
 import {
@@ -10,8 +10,40 @@ import {
 import { getNextLevelSnapshot } from "@/lib/shim-sham/progression";
 
 const LOCAL_KEY = "shim-sham-runtime";
+const PANACHE_SPEED_BONUS = 5;
 
-type Panel = "actions" | "inventory" | "conditions" | "manage" | null;
+type Panel = "actions" | "abilities" | "inventory" | "conditions" | "manage" | null;
+
+const PHYSICAL_ABILITIES = ["STR", "DEX", "CON"] as const;
+const MENTAL_ABILITIES = ["INT", "WIS", "CHA"] as const;
+
+function formatAbilityMod(value: number) {
+  return value >= 0 ? `+${value}` : `${value}`;
+}
+
+const STRIKE_FINISHER_RE = /\s*\(\+\d+d\d+ finisher(?:,\s*([^)]+)|;\s*([^)]+))?\)/;
+
+function formatStrikeDamage(damage: string, finisherDice: string, panache: boolean) {
+  const match = damage.match(STRIKE_FINISHER_RE);
+  if (!match) {
+    return damage;
+  }
+
+  const base = damage.replace(STRIKE_FINISHER_RE, "").trimEnd();
+  const extra = match[1] ? `, ${match[1]}` : match[2] ? `; ${match[2]}` : "";
+
+  if (!panache) {
+    return `${base}${extra}`;
+  }
+
+  return (
+    <>
+      {base}
+      <span className="speed-panache"> (+{finisherDice} finisher)</span>
+      {extra}
+    </>
+  );
+}
 
 async function patchSheet(body: Record<string, unknown>) {
   const res = await fetch("/api/shim-sham", {
@@ -46,15 +78,21 @@ function BottomPanel({
   title,
   onClose,
   children,
+  fullScreen = false,
 }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  fullScreen?: boolean;
 }) {
   return (
     <>
       <div className="panel-overlay" onClick={onClose} aria-hidden />
-      <div className="panel-sheet" role="dialog" aria-label={title}>
+      <div
+        className={`panel-sheet${fullScreen ? " panel-sheet--fullscreen" : ""}`}
+        role="dialog"
+        aria-label={title}
+      >
         <div className="panel-header">
           <strong>{title}</strong>
           <button type="button" className="btn btn-icon" onClick={onClose} aria-label="Close">
@@ -75,6 +113,11 @@ export default function CharacterSheet() {
   const [creditInput, setCreditInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const sheetRef = useRef<CharacterSheet | null>(null);
+
+  useEffect(() => {
+    sheetRef.current = sheet;
+  }, [sheet]);
 
   const load = useCallback(async () => {
     try {
@@ -107,7 +150,11 @@ export default function CharacterSheet() {
     async (body: Record<string, unknown>) => {
       try {
         setError(null);
-        const data = await patchSheet(body);
+        const payload =
+          !kvConfigured && sheetRef.current
+            ? { ...sheetRef.current.runtime, ...body }
+            : body;
+        const data = await patchSheet(payload);
         setSheet(data.sheet);
         setKvConfigured(data.kvConfigured);
         if (!data.kvConfigured) {
@@ -117,18 +164,16 @@ export default function CharacterSheet() {
         setError(e instanceof Error ? e.message : "Save failed");
       }
     },
-    [],
+    [kvConfigured],
   );
 
-  const applyHpDelta = useCallback(
-    (sign: -1 | 1) => {
-      const n = parseInt(hpDeltaInput, 10);
-      const amount = !Number.isNaN(n) && n > 0 ? n : 1;
-      void save({ action: "hp-delta", delta: sign * amount });
-      setHpDeltaInput("");
-    },
-    [hpDeltaInput, save],
-  );
+  const applyHpDelta = (sign: -1 | 1, currentHp: number, forceFieldHp: number) => {
+    const trimmed = hpDeltaInput.trim();
+    const parsed = parseInt(trimmed, 10);
+    const amount = trimmed === "" || Number.isNaN(parsed) || parsed <= 0 ? 1 : parsed;
+    void save({ action: "hp-delta", delta: sign * amount, currentHp, forceFieldHp });
+    setHpDeltaInput("");
+  };
 
   if (loading) {
     return (
@@ -152,12 +197,12 @@ export default function CharacterSheet() {
   const ffUsesLeft = FORCE_FIELD_DAILY_USES - runtime.forceFieldUsesUsed;
   const nextLevel = getNextLevelSnapshot(runtime.level);
 
-  const speedParts = [
-    `Land ${level.landSpeed} ft`,
-    level.flySpeed ? `Fly ${level.flySpeed} ft` : null,
-    level.climbSpeed ? `Climb ${level.climbSpeed} ft` : null,
-    level.swimSpeed ? `Swim ${level.swimSpeed} ft` : null,
-  ].filter(Boolean);
+  const speedEntries = [
+    { label: "Land", value: level.landSpeed, panacheBoost: true },
+    level.flySpeed != null ? { label: "Fly", value: level.flySpeed, panacheBoost: true } : null,
+    level.climbSpeed != null ? { label: "Climb", value: level.climbSpeed, panacheBoost: true } : null,
+    level.swimSpeed != null ? { label: "Swim", value: level.swimSpeed, panacheBoost: false } : null,
+  ].filter((entry): entry is { label: string; value: number; panacheBoost: boolean } => entry != null);
 
   const actionsByCost = {
     free: data.actions.filter((a) => a.cost === "free"),
@@ -184,7 +229,12 @@ export default function CharacterSheet() {
           <div>
             <h1 className="sheet-title">{data.name}</h1>
             <p className="sheet-subtitle">
-              “{data.nickname}” · Level {runtime.level}{" "}
+              “{data.nickname}” ·{" "}
+              <AonLink href={data.ancestry.url}>{data.ancestry.name}</AonLink>
+              {" · "}
+              <AonLink href={data.background.url}>{data.background.name}</AonLink>
+              {" · Level "}
+              {runtime.level}{" "}
               <AonLink href={data.class.url}>{data.class.name.replace(/\d+/, "").trim()}</AonLink>
               {" · "}
               <AonLink href={data.style.url}>{data.style.name}</AonLink>
@@ -215,12 +265,12 @@ export default function CharacterSheet() {
               <div className={`hp-bar-fill ${hpPct <= 25 ? "low" : ""}`} style={{ width: `${hpPct}%` }} />
             </div>
             <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
-              <button type="button" className="btn btn-danger btn-icon" onClick={() => applyHpDelta(-1)} aria-label="Apply damage">−</button>
+              <button type="button" className="btn btn-danger btn-icon" onClick={() => applyHpDelta(-1, runtime.currentHp, runtime.forceFieldHp)} aria-label="Apply damage">−</button>
               <input
                 type="number"
                 inputMode="numeric"
                 min={1}
-                placeholder="Amt"
+                placeholder="Amount"
                 value={hpDeltaInput}
                 onChange={(e) => setHpDeltaInput(e.target.value)}
                 aria-label="HP change amount"
@@ -235,7 +285,7 @@ export default function CharacterSheet() {
                   padding: "0 0.75rem",
                 }}
               />
-              <button type="button" className="btn btn-success btn-icon" onClick={() => applyHpDelta(1)} aria-label="Apply healing">+</button>
+              <button type="button" className="btn btn-success btn-icon" onClick={() => applyHpDelta(1, runtime.currentHp, runtime.forceFieldHp)} aria-label="Apply healing">+</button>
               <button type="button" className="btn" onClick={() => void save({ currentHp: level.maxHp })}>Full</button>
             </div>
 
@@ -245,7 +295,7 @@ export default function CharacterSheet() {
                   <AonLink href="https://2e.aonsrd.com/treasure/57">Force Field</AonLink> Temp HP
                 </span>
                 <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
-                  {ffUsesLeft}/{FORCE_FIELD_DAILY_USES} raises today
+                  {runtime.forceFieldUsesUsed}/{FORCE_FIELD_DAILY_USES} raises used
                 </span>
               </div>
               <div className="stat-value stat-value--ff" style={{ fontSize: "1.75rem", color: "var(--accent)" }}>
@@ -259,7 +309,7 @@ export default function CharacterSheet() {
                 <button type="button" className="btn btn-primary" onClick={() => void save({ action: "activate-force-field" })} disabled={ffUsesLeft <= 0}>
                   Activate
                 </button>
-                <button type="button" className="btn" onClick={() => void save({ action: "force-field-regen" })} disabled={runtime.forceFieldHp >= FORCE_FIELD_MAX_HP}>
+                <button type="button" className="btn" onClick={() => void save({ action: "force-field-regen" })} disabled={runtime.forceFieldHp <= 0 || runtime.forceFieldHp >= FORCE_FIELD_MAX_HP}>
                   +2 (turn)
                 </button>
                 <button type="button" className="btn btn-danger" onClick={() => void save({ action: "deactivate-force-field" })}>Deactivate</button>
@@ -279,6 +329,14 @@ export default function CharacterSheet() {
             <div className="stat-card">
               <div className="stat-label">Perception</div>
               <div className="stat-value">+{level.perception}</div>
+              <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.35rem", lineHeight: 1.4 }}>
+                {data.senses.map((s, i) => (
+                  <span key={s.name}>
+                    {i > 0 && " · "}
+                    <AonLink href={s.url}>{s.name}</AonLink>
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div className="stat-card">
@@ -296,28 +354,20 @@ export default function CharacterSheet() {
             <div className="stat-card stat-card--wide">
               <div className="stat-label">Speed</div>
               <div style={{ fontSize: "1rem", fontWeight: 600, marginTop: "0.35rem", lineHeight: 1.5 }}>
-                {speedParts.join(" · ")}
-                {runtime.panache && (
-                  <span style={{ color: "var(--panache)", display: "block", fontSize: "0.85rem" }}>
-                    +5 ft land/climb/swim with panache
-                  </span>
-                )}
+                {speedEntries.map((speed, index) => {
+                  const boosted = runtime.panache && speed.panacheBoost;
+                  const displayValue = speed.value + (boosted ? PANACHE_SPEED_BONUS : 0);
+                  return (
+                    <span key={speed.label}>
+                      {index > 0 && " · "}
+                      {speed.label}{" "}
+                      <span className={boosted ? "speed-panache" : undefined}>
+                        {displayValue}′
+                      </span>
+                    </span>
+                  );
+                })}
               </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-label">Senses</div>
-              <div style={{ marginTop: "0.35rem" }}>
-                {data.senses.map((s) => (
-                  <AonLink key={s.name} href={s.url}>{s.name}</AonLink>
-                ))}
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-label">Precise Strike</div>
-              <div className="stat-value">+{level.preciseStrike}</div>
-              <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>Finisher {level.finisherDice}</div>
             </div>
           </div>
 
@@ -340,13 +390,15 @@ export default function CharacterSheet() {
           <div className="stat-card sheet-section">
             <div className="stat-label" style={{ marginBottom: "0.5rem" }}>Strikes</div>
             {data.weapons.map((w) => (
-              <div key={w.id} style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 600 }}>
+              <div key={w.id} className="strike-entry">
+                <div className="strike-header">
                   <AonLink href={w.weaponUrl ?? w.url}>{w.name}</AonLink>
+                  <span className="strike-attack">{w.attack}</span>
                 </div>
-                <div style={{ fontSize: "0.9rem" }}>{w.attack}</div>
-                <div style={{ fontSize: "0.85rem", color: "var(--muted)" }}>{w.damage}</div>
-                <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "0.15rem" }}>{w.traits.join(" · ")}</div>
+                <div className="strike-damage">
+                  {formatStrikeDamage(w.damage, level.finisherDice, runtime.panache)}
+                </div>
+                <div className="strike-traits">{w.traits.join(" · ")}</div>
               </div>
             ))}
           </div>
@@ -396,7 +448,7 @@ export default function CharacterSheet() {
               >
                 <input
                   type="number"
-                  placeholder="±"
+                  placeholder="Amount"
                   value={creditInput}
                   onChange={(e) => setCreditInput(e.target.value)}
                   style={{
@@ -419,57 +471,88 @@ export default function CharacterSheet() {
 
       <nav className="bottom-nav" aria-label="Sheet panels">
         <button type="button" className="btn" onClick={() => setPanel("actions")}>Actions</button>
+        <button type="button" className="btn" onClick={() => setPanel("abilities")}>Abilities</button>
         <button type="button" className="btn" onClick={() => setPanel("inventory")}>Inventory</button>
         <button type="button" className="btn" onClick={() => setPanel("conditions")}>Conditions</button>
         <button type="button" className="btn" onClick={() => setPanel("manage")}>Rest / Level</button>
       </nav>
 
       {panel === "actions" && (
-        <BottomPanel title="Actions" onClose={() => setPanel(null)}>
-          <p style={{ fontSize: "0.85rem", color: "var(--muted)", marginTop: 0 }}>
-            From your Notes · tap any action for AoN details
-          </p>
-          <div className="action-group-title">Free Action</div>
-          {actionsByCost.free.map((a) => (
-            <AonLink key={a.id} href={a.url} className="action-row">
-              <div className="action-name">
-                {a.name}{a.bonus ? ` ${a.bonus}` : ""}
+        <BottomPanel title="Actions" onClose={() => setPanel(null)} fullScreen>
+          <div className="actions-layout">
+            <div className="actions-other-column">
+              <div className="action-group-title">Free Action</div>
+              {actionsByCost.free.map((a) => (
+                <AonLink key={a.id} href={a.url} className="action-row">
+                  <div className="action-name">
+                    {a.name}{a.bonus ? ` ${a.bonus}` : ""}
+                  </div>
+                  <div className="action-summary">{a.summary}</div>
+                  {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
+                </AonLink>
+              ))}
+              <div className="action-group-title">Reaction</div>
+              {actionsByCost.reaction.map((a) => (
+                <AonLink key={a.id} href={a.url} className="action-row">
+                  <div className="action-name">
+                    {a.name}{a.bonus ? ` ${a.bonus}` : ""}
+                  </div>
+                  <div className="action-summary">{a.summary}</div>
+                  {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
+                </AonLink>
+              ))}
+              <div className="action-group-title">Minute</div>
+              {actionsByCost.minute.map((a) => (
+                <AonLink key={a.id} href={a.url} className="action-row">
+                  <div className="action-name">{a.name}</div>
+                  <div className="action-summary">{a.summary}</div>
+                </AonLink>
+              ))}
+            </div>
+            <div className="actions-single-section">
+              <div className="action-group-title">Single Action</div>
+              <div className="actions-single-grid">
+                {actionsByCost.single.map((a) => (
+                  <AonLink key={a.id} href={a.url} className="action-row">
+                    <div className="action-name">
+                      {a.name}{a.bonus ? ` ${a.bonus}` : ""}
+                    </div>
+                    <div className="action-summary">{a.summary}</div>
+                    {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
+                  </AonLink>
+                ))}
               </div>
-              <div className="action-summary">{a.summary}</div>
-              {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
-            </AonLink>
-          ))}
-          <div className="action-group-title">Reaction</div>
-          {actionsByCost.reaction.map((a) => (
-            <AonLink key={a.id} href={a.url} className="action-row">
-              <div className="action-name">
-                {a.name}{a.bonus ? ` ${a.bonus}` : ""}
-              </div>
-              <div className="action-summary">{a.summary}</div>
-              {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
-            </AonLink>
-          ))}
-          <div className="action-group-title">Single Action</div>
-          {actionsByCost.single.map((a) => (
-            <AonLink key={a.id} href={a.url} className="action-row">
-              <div className="action-name">
-                {a.name}{a.bonus ? ` ${a.bonus}` : ""}
-              </div>
-              <div className="action-summary">{a.summary}</div>
-              {a.traits && <div className="action-summary">{a.traits.join(" · ")}</div>}
-            </AonLink>
-          ))}
-          <div className="action-group-title">Minute</div>
-          {actionsByCost.minute.map((a) => (
-            <AonLink key={a.id} href={a.url} className="action-row">
-              <div className="action-name">{a.name}</div>
-              <div className="action-summary">{a.summary}</div>
-            </AonLink>
-          ))}
+            </div>
+          </div>
           <div style={{ marginTop: "1rem", fontSize: "0.85rem" }}>
             <AonLink href={data.playbookUrl}>Combat Playbook</AonLink>
             {" · "}
             <AonLink href={data.planUrl}>Level Plan</AonLink>
+          </div>
+        </BottomPanel>
+      )}
+
+      {panel === "abilities" && (
+        <BottomPanel title="Ability Stats" onClose={() => setPanel(null)}>
+          <div className="ability-grid">
+            <div className="ability-column">
+              <div className="action-group-title">Physical</div>
+              {PHYSICAL_ABILITIES.map((key) => (
+                <div key={key} className="ability-row">
+                  <span className="ability-name">{key}</span>
+                  <strong className="ability-mod">{formatAbilityMod(level.abilities[key])}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="ability-column">
+              <div className="action-group-title">Mental</div>
+              {MENTAL_ABILITIES.map((key) => (
+                <div key={key} className="ability-row">
+                  <span className="ability-name">{key}</span>
+                  <strong className="ability-mod">{formatAbilityMod(level.abilities[key])}</strong>
+                </div>
+              ))}
+            </div>
           </div>
         </BottomPanel>
       )}
@@ -579,9 +662,18 @@ export default function CharacterSheet() {
             className="btn btn-primary"
             style={{ width: "100%", marginBottom: "1rem" }}
             onClick={() => {
-              if (confirm("Rest for 8 hours? Heals CON×level HP, resets daily abilities, and clears panache.")) {
-                void save({ action: "rest" });
+              if (!confirm("Rest for 8 hours? Heals CON×level HP, resets daily abilities, and clears panache.")) {
+                return;
               }
+              void save({
+                action: "rest",
+                currentHp: runtime.currentHp,
+                conditions: runtime.conditions,
+                forceFieldUsesUsed: 0,
+                forceFieldHp: 0,
+                meyelRerollUsed: false,
+                panache: false,
+              }).then(() => setPanel(null));
             }}
           >
             Rest (8 hours)
