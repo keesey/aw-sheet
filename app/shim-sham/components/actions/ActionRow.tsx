@@ -1,6 +1,7 @@
 import type { CharacterAction } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import { AonLink } from "../AonLink";
+import { ActionDescription } from "./ActionDescription";
 
 const PANACHE_ACTION_IDS = new Set(["exemplary-finisher", "confident-finisher"]);
 const EMPTY_LOCKS: ConditionActionLocks = {
@@ -78,7 +79,7 @@ export function ActionRow({
       <div className="action-name">
         <ActionTitle action={action} combat={combat} />
       </div>
-      <div className="action-summary">{action.summary}</div>
+      <ActionDescription text={action.description} />
       {action.traits && <div className="action-traits">{action.traits.join(" · ")}</div>}
     </>
   );
@@ -109,7 +110,7 @@ export function MinuteActionRow({
   const content = (
     <>
       <div className="action-name">{action.name}</div>
-      <div className="action-summary">{action.summary}</div>
+      <ActionDescription text={action.description} />
     </>
   );
 

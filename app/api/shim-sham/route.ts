@@ -131,6 +131,7 @@ export async function PATCH(request: Request) {
       runtime = {
         ...runtime,
         forceFieldHp,
+        forceFieldActive: forceFieldHp > 0 && runtime.forceFieldActive,
         currentHp,
       };
     } else if (body.delta > 0) {

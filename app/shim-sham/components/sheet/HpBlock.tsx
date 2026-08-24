@@ -61,16 +61,7 @@ export function HpBlock({
           value={hpDeltaInput}
           onChange={(e) => onHpDeltaInputChange(e.target.value)}
           aria-label="HP change amount"
-          style={{
-            flex: 1,
-            minWidth: 72,
-            minHeight: 44,
-            borderRadius: 10,
-            border: "1px solid var(--border)",
-            background: "var(--surface-2)",
-            color: "var(--text)",
-            padding: "0 0.75rem",
-          }}
+          className="amount-input hp-amount-input"
         />
         <button
           type="button"

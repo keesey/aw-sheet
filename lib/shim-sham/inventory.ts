@@ -106,6 +106,6 @@ export function getEquipmentGroups(items: InventoryItem[]) {
     label: EQUIPMENT_GROUP_LABELS[group],
     items: items
       .filter((item) => item.equipmentGroup === group)
-      .sort((a, b) => Number(a.indented ?? false) - Number(b.indented ?? false)),
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" })),
   })).filter((group) => group.items.length > 0);
 }

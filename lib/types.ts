@@ -36,7 +36,7 @@ export type CharacterAction = {
   id: string;
   name: string;
   cost: "free" | "single" | "minute" | "reaction";
-  summary: string;
+  description: string;
   traits?: string[];
   url: string;
   bonus?: string;

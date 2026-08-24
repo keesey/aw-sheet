@@ -63,7 +63,9 @@ export function InventoryPanel({
 
         <div className="inventory-column">
           <div className="action-group-title">Consumables</div>
-          {data.consumableCatalog.map((c) => {
+          {[...data.consumableCatalog]
+            .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
+            .map((c) => {
             const used = runtime.consumables[c.id] ?? 0;
             const remaining = c.quantity - used;
             return (

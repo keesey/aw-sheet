@@ -129,49 +129,42 @@ export function StatsGrid({
         </div>
       </div>
 
-      <div className="stat-card">
+      <div className="stat-card stat-card--wide">
         <div className="stat-label">Credits</div>
-        <div className="stat-value" style={{ fontSize: "1.5rem" }}>
-          {runtime.credits.toLocaleString()}
-        </div>
-        <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.5rem" }}>
-          <button
-            type="button"
-            className="btn btn-icon"
-            onClick={() => applyCredits(-1)}
-            disabled={!creditsAmount}
-            aria-label="Subtract credits"
-          >
-            −
-          </button>
-          <input
-            type="number"
-            inputMode="numeric"
-            min={1}
-            placeholder="Amount"
-            value={creditInput}
-            onChange={(e) => onCreditInputChange(e.target.value)}
-            aria-label="Credit change amount"
-            style={{
-              flex: 1,
-              minWidth: 72,
-              minHeight: 44,
-              borderRadius: 10,
-              border: "1px solid var(--border)",
-              background: "var(--surface-2)",
-              color: "var(--text)",
-              padding: "0 0.5rem",
-            }}
-          />
-          <button
-            type="button"
-            className="btn btn-icon"
-            onClick={() => applyCredits(1)}
-            disabled={!creditsAmount}
-            aria-label="Add credits"
-          >
-            +
-          </button>
+        <div className="credits-row">
+          <div className="stat-value credits-amount">
+            {runtime.credits.toLocaleString()}
+          </div>
+          <div className="credits-controls">
+            <button
+              type="button"
+              className="btn btn-icon"
+              onClick={() => applyCredits(-1)}
+              disabled={!creditsAmount}
+              aria-label="Subtract credits"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              placeholder="Amount"
+              value={creditInput}
+              onChange={(e) => onCreditInputChange(e.target.value)}
+              aria-label="Credit change amount"
+              className="amount-input credits-input"
+            />
+            <button
+              type="button"
+              className="btn btn-icon"
+              onClick={() => applyCredits(1)}
+              disabled={!creditsAmount}
+              aria-label="Add credits"
+            >
+              +
+            </button>
+          </div>
         </div>
       </div>
     </div>

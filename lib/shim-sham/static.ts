@@ -1,4 +1,5 @@
 import type { CharacterAction, CharacterSheet, RuntimeState } from "@/lib/types";
+import { actionDescription } from "@/lib/shim-sham/action-descriptions";
 import { getLevelSnapshot } from "@/lib/shim-sham/progression";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
 import { syncEncumberedFromBulk, totalBulk } from "@/lib/shim-sham/bulk";
@@ -62,10 +63,8 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     totalBulk(SHIM_SHAM_INVENTORY),
     level.abilities.STR,
   );
-  const forceFieldActive =
-    runtime.forceFieldActive ?? runtime.forceFieldHp > 0;
-  const forceFieldHp =
-    forceFieldActive || runtime.forceFieldHp <= 0 ? runtime.forceFieldHp : 0;
+  const forceFieldHp = Math.max(0, runtime.forceFieldHp);
+  const forceFieldActive = runtime.forceFieldActive && forceFieldHp > 0;
   return { ...runtime, forceFieldActive, forceFieldHp, conditions };
 }
 
@@ -88,7 +87,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "cardiac-accelerator",
           name: "Activate Cardiac Accelerator",
           cost: "free",
-          summary: "+20 ft to a Speed for 1 action/10 minutes. Trigger: Climb, Stride, or Swim.",
+          description: actionDescription("cardiac-accelerator"),
           traits: ["Tech"],
           url: `${AON}/treasure/130`,
         },
@@ -96,7 +95,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "exemplary-finisher",
           name: "Exemplary Finisher (Step)",
           cost: "free",
-          summary: "Step after a finisher.",
+          description: actionDescription("exemplary-finisher"),
           url: `${AONP}/Styles.aspx?ID=7`,
           minLevel: 9,
         },
@@ -104,7 +103,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "meyel-reroll",
           name: "Meyel's Chosen — Reroll Save",
           cost: "free",
-          summary: "Reroll a critical failure on a saving throw (1×/day).",
+          description: actionDescription("meyel-reroll"),
           traits: ["Fortune"],
           url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
         },
@@ -112,8 +111,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "opportune-riposte",
           name: "Opportune Riposte",
           cost: "reaction",
-          summary:
-            "Trigger: An enemy within reach critically fails a Strike against you.",
+          description: actionDescription("opportune-riposte"),
           traits: ["Bravado", "Swashbuckler"],
           url: `${AONP}/Actions.aspx?ID=2819`,
         },
@@ -121,7 +119,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "force-field",
           name: "Activate Force Field",
           cost: "single",
-          summary: "Lasts 1 minute. 6 temp HP, +2 HP/turn. 3×/day.",
+          description: actionDescription("force-field"),
           traits: ["Manipulate"],
           url: `${AON}/treasure/57`,
         },
@@ -129,7 +127,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "jetpack",
           name: "Activate Jetpack",
           cost: "single",
-          summary: "Lasts 1 minute. Fly speed (see Fly).",
+          description: actionDescription("jetpack"),
           traits: ["Manipulate", "Move"],
           url: `${AON}/treasure/59-jetpack`,
         },
@@ -137,7 +135,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "area-fire-grenade",
           name: "Area Fire (Grenade)",
           cost: "single",
-          summary: "Throw grenade (70 ft); basic Reflex vs. class DC + tracking.",
+          description: actionDescription("area-fire-grenade"),
           traits: ["Area", "Attack"],
           url: `${AON}/actions/17-area-fire`,
         },
@@ -145,7 +143,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "climb",
           name: "Climb",
           cost: "single",
-          summary: "Move 30' (35' with panache). See Cardiac Accelerator.",
+          description: actionDescription("climb"),
           traits: ["Move"],
           url: `${AON}/actions/62-climb`,
         },
@@ -153,15 +151,15 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "confident-finisher",
           name: "Confident Finisher",
           cost: "single",
-          summary: "Strike and deal half precision damage on failure.",
+          description: actionDescription("confident-finisher"),
           traits: ["Finisher", "Swashbuckler"],
-          url: `${AONP}/Classes.aspx?ID=63`,
+          url: `${AONP}/Actions.aspx?ID=2818`,
         },
         {
           id: "dirty-trick",
           name: "Dirty Trick",
           cost: "single",
-          summary: "Skill attack.",
+          description: actionDescription("dirty-trick"),
           traits: ["Attack", "Manipulate", "Skill"],
           url: `${AONP}/Feats.aspx?ID=6472`,
           bonus: skillBonus("Thievery"),
@@ -170,7 +168,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "dueling-parry",
           name: "Dueling Parry",
           cost: "single",
-          summary: "+2 AC while wielding a single one-handed melee weapon.",
+          description: actionDescription("dueling-parry"),
           url: `${AONP}/Feats.aspx?ID=4781`,
           bonus: "+2 AC",
         },
@@ -178,7 +176,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "fly",
           name: "Fly",
           cost: "single",
-          summary: "Move 25' (30' with panache).",
+          description: actionDescription("fly"),
           traits: ["Move"],
           url: `${AON}/actions/23-fly`,
         },
@@ -186,7 +184,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "grapple",
           name: "Grapple",
           cost: "single",
-          summary: "Athletics vs. Fortitude DC.",
+          description: actionDescription("grapple"),
           traits: ["Attack"],
           url: `${AON}/actions/64-grapple`,
           bonus: skillBonus("Athletics"),
@@ -195,7 +193,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "leading-dance",
           name: "Leading Dance",
           cost: "single",
-          summary: "Bravado move to reposition a foe.",
+          description: actionDescription("leading-dance"),
           traits: ["Bravado", "Move", "Swashbuckler"],
           url: `${AONP}/Feats.aspx?ID=6149`,
           bonus: skillBonus("Performance"),
@@ -205,7 +203,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "baton-parry",
           name: "Parry — Baton (Tactical)",
           cost: "single",
-          summary: "+1 AC (see Dueling Parry).",
+          description: actionDescription("baton-parry"),
           url: `${AON}/traits/137-parry`,
           bonus: "+1 AC",
         },
@@ -213,7 +211,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "perform",
           name: "Perform / Fascinating Performance",
           cost: "single",
-          summary: "Focused Fascination.",
+          description: actionDescription("perform"),
           traits: ["Bravado", "Concentrate", "Incapacitation"],
           url: `${AONP}/Feats.aspx?ID=5147`,
           bonus: skillBonus("Performance"),
@@ -223,7 +221,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "stride",
           name: "Stride",
           cost: "single",
-          summary: "Move 30' (35' with panache). See Cardiac Accelerator.",
+          description: actionDescription("stride"),
           traits: ["Move"],
           url: `${AON}/actions/14-stride`,
         },
@@ -231,7 +229,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "tumble-through",
           name: "Tumble Through",
           cost: "single",
-          summary: "Acrobatics to move through a foe's space.",
+          description: actionDescription("tumble-through"),
           traits: ["Bravado", "Move"],
           url: `${AONP}/Actions.aspx?ID=2370`,
           bonus: skillBonus("Acrobatics"),
@@ -241,7 +239,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           id: "group-coercion",
           name: "Group Coercion",
           cost: "minute",
-          summary: "Coerce up to 5 targets.",
+          description: actionDescription("group-coercion"),
           url: `${AON}/feats/811-group-coercion`,
         },
   ];
