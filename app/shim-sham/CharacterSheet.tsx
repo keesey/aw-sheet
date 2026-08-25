@@ -14,7 +14,7 @@ import { inventoryTotalBulk } from "@/lib/shim-sham/inventory";
 import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { getSkillKeyAbilities } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
-import { AbilitiesPanel } from "./components/panels/AbilitiesPanel";
+import { AbilitiesSection } from "./components/sheet/AbilitiesSection";
 import { FeatsPanel } from "./components/panels/FeatsPanel";
 import { InventoryPanel } from "./components/panels/InventoryPanel";
 import { ConditionsPanel } from "./components/panels/ConditionsPanel";
@@ -212,6 +212,8 @@ export default function CharacterSheet() {
             save={saveSheet}
           />
 
+          <AbilitiesSection level={level} />
+
           <StatsGrid
             data={data}
             level={level}
@@ -281,10 +283,6 @@ export default function CharacterSheet() {
       <div className="sheet-spacer" />
 
       <BottomNav onSelect={setPanel} />
-
-      {panel === "abilities" && (
-        <AbilitiesPanel level={level} onClose={() => setPanel(null)} />
-      )}
 
       {panel === "feats" && (
         <FeatsPanel currentLevel={runtime.level} onClose={() => setPanel(null)} />

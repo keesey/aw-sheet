@@ -3,9 +3,6 @@ import type { Panel } from "../types";
 export function BottomNav({ onSelect }: { onSelect: (panel: Panel) => void }) {
   return (
     <nav className="bottom-nav" aria-label="Sheet panels">
-      <button type="button" className="btn" onClick={() => onSelect("abilities")}>
-        Abilities
-      </button>
       <button type="button" className="btn" onClick={() => onSelect("conditions")}>
         Conditions
       </button>
