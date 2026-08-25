@@ -156,3 +156,7 @@ export const FEATS_BY_LEVEL: LevelFeats[] = [
     ],
   },
 ];
+
+export function getFeatsForLevel(level: number): ProgressionFeat[] {
+  return FEATS_BY_LEVEL.find((item) => item.level === level)?.entries ?? [];
+}

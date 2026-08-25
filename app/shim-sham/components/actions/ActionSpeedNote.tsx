@@ -1,5 +1,10 @@
 import type { LevelSnapshot, RuntimeState } from "@/lib/types";
-import { climbingClawsSpeedEntry, getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
+import {
+  climbingClawsSpeedEntry,
+  getSpeedClassName,
+  getSpeedDisplayValue,
+  jetpackFlySpeedEntry,
+} from "../../lib/speed";
 import type { SpeedEntry } from "../../types";
 
 function SpeedValue({
@@ -95,10 +100,15 @@ export function ActionSpeedNote({
     );
   }
 
-  if (actionId === "fly" && runtime.jetpack && level.flySpeed != null) {
+  if (actionId === "fly") {
+    const fly = jetpackFlySpeedEntry(level.level, {
+      requireActive: true,
+      active: runtime.jetpack,
+    });
+    if (!fly) return null;
     return (
       <ActionSpeedList
-        speeds={[{ label: "Fly", value: level.flySpeed, stylishBoost: true, accelerateBoost: false }]}
+        speeds={[fly]}
         level={level.level}
         panache={runtime.panache}
         accelerate={runtime.accelerate}

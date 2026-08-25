@@ -1,4 +1,4 @@
-import { FEATS_BY_LEVEL } from "@/lib/shim-sham/feats";
+import { FEATS_BY_LEVEL, getFeatsForLevel } from "@/lib/shim-sham/feats";
 import type { ProgressionFeat } from "@/lib/shim-sham/feats";
 import { getNextLevelSnapshot } from "@/lib/shim-sham/progression";
 import type { CharacterSheet } from "@/lib/types";
@@ -38,6 +38,9 @@ export function LevelsPanel({
   onClose: () => void;
 }) {
   const nextLevel = getNextLevelSnapshot(runtime.level);
+  const nextLevelFeats = nextLevel ? getFeatsForLevel(nextLevel.level) : [];
+  const nextLevelFeatEntries = nextLevelFeats.filter((entry) => entry.kind === "feat");
+  const nextLevelClassFeatures = nextLevelFeats.filter((entry) => entry.kind === "class-feature");
 
   return (
     <BottomPanel title="Levels" onClose={onClose}>
@@ -74,10 +77,13 @@ export function LevelsPanel({
             <li>
               Fort/Ref/Will → +{nextLevel.fort}/+{nextLevel.reflex}/+{nextLevel.will}
             </li>
-            {nextLevel.notes.map((n) => (
-              <li key={n}>{n}</li>
-            ))}
           </ul>
+          {nextLevelFeats.length > 0 ? (
+            <div className="feat-level-columns" style={{ marginTop: "0.5rem" }}>
+              <FeatList entries={nextLevelFeatEntries} />
+              <FeatList entries={nextLevelClassFeatures} />
+            </div>
+          ) : null}
           <button
             type="button"
             className="btn btn-success"

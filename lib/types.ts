@@ -113,12 +113,9 @@ export type LevelSnapshot = {
   perception: number;
   classDc: number;
   landSpeed: number;
-  flySpeed?: number;
-  climbSpeed?: number;
   swimSpeed?: number;
   preciseStrike: number;
   finisherDice: string;
-  notes: string[];
 };
 
 export type RuntimeState = {
