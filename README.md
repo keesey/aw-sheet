@@ -78,18 +78,16 @@ Static data + computed level stats → buildCharacterSheet(runtime)
 | `lib/shim-sham/condition-effects.ts` | Condition math and runtime stat overrides |
 | `lib/shim-sham/conditions.ts` | Condition definitions with AoN URLs |
 | `lib/kv.ts` | Upstash Redis load/save |
-| `data/jenluwess-wivvashimmeh.md` | Notes export (actions, consumables reference) |
 
 ## Data sources
 
 | Source | Used for |
 |--------|----------|
 | [Level progression gist](https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530) | `lib/shim-sham/progression.ts` (feats, boosts) |
-| `data/jenluwess-wivvashimmeh.md` | Actions, consumables (`lib/shim-sham/static.ts`, `inventory.ts`) |
+| `lib/shim-sham/static.ts` | Actions, character identity, default runtime |
+| `lib/shim-sham/inventory.ts` | Equipment and consumables |
 | [Combat playbook gist](https://gist.github.com/keesey/2c6a5bb30f1ccc30e4d4b7fe3e1c7e78) | Reference only (not in UI) |
 | Paper sheet (`Scoured Stars/character sheet.png`) | Reference only (not in repo) |
-
-The shared iCloud Note URL does **not** work for automated fetching. Export to Markdown, update `data/jenluwess-wivvashimmeh.md`, then sync into `lib/shim-sham/static.ts` / `inventory.ts` as needed.
 
 Gist stat blocks list attributes, Fort/Ref/Will, AC, and HP — not Perception or Class DC. The sheet calculates those from AoN rules.
 
@@ -117,8 +115,8 @@ Partial runtime updates or actions:
 
 ## Known gaps
 
-- **Initial runtime vs. Notes checkboxes** — export shows consumables used and Force Field 2/3 raises; app defaults to fresh-after-rest at level 6.
+- **Default runtime** — starts fresh at level 6 (full HP, unused consumables/dailies); not synced to in-game session state.
 - **Inventory editing** — worn equipment is view-only; consumable tracking and ad hoc items only.
 - **Roll engine** — no Keen Flair (19→crit on attacks) or save degree upgrades.
 - **Offline** — web manifest for standalone install (`app/manifest.ts`); no service worker / offline cache.
-- **Data to verify** — swim speed (35′ with panache at level 6 in notes, not in progression); rapier grade (notes: Advanced).
+- **Data to verify** — swim speed (35′ with panache at level 6, not in progression); rapier grade (Advanced vs commercial in inventory).

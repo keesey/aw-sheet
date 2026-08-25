@@ -77,13 +77,13 @@ function total(mods: TypedMods): number {
   );
 }
 
-export function conditionValue(conditions: ActiveCondition[], id: string): number {
+function conditionValue(conditions: ActiveCondition[], id: string): number {
   const active = getActiveCondition(conditions, id);
   if (!active) return 0;
   return active.value ?? 1;
 }
 
-export function hasCondition(conditions: ActiveCondition[], id: string): boolean {
+function hasCondition(conditions: ActiveCondition[], id: string): boolean {
   return getActiveCondition(conditions, id) != null;
 }
 
@@ -91,7 +91,7 @@ export function hasCondition(conditions: ActiveCondition[], id: string): boolean
  * Nested conditions from AoN (Grabbed → Off-Guard + Immobilized, Encumbered → Clumsy 1, etc.).
  * @see https://2e.aonsrd.com/conditions
  */
-export function expandImpliedConditions(conditions: ActiveCondition[]): ActiveCondition[] {
+function expandImpliedConditions(conditions: ActiveCondition[]): ActiveCondition[] {
   const map = new Map<string, ActiveCondition>();
   for (const condition of conditions) {
     map.set(condition.id, { ...condition });
@@ -138,7 +138,7 @@ export function expandImpliedConditions(conditions: ActiveCondition[]): ActiveCo
 }
 
 /** Tags for conditions implied by another active condition (e.g. Grabbed hides Off-Guard). */
-export function conditionsHiddenByOthers(conditions: ActiveCondition[]): Set<string> {
+function conditionsHiddenByOthers(conditions: ActiveCondition[]): Set<string> {
   const hidden = new Set<string>();
   for (const condition of conditions) {
     for (const parent of conditions) {
@@ -157,7 +157,7 @@ export function visibleConditionTags(conditions: ActiveCondition[]): ActiveCondi
   return conditions.filter((condition) => !hidden.has(condition.id));
 }
 
-export function drainedHpReduction(conditions: ActiveCondition[], level: number): number {
+function drainedHpReduction(conditions: ActiveCondition[], level: number): number {
   const drained = conditionValue(conditions, "drained");
   if (drained <= 0) return 0;
   return Math.max(1, level) * drained;

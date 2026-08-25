@@ -81,5 +81,3 @@ export function buildAreaWeaponEntries(
     a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
   );
 }
-
-export const AREA_FIRE_URL = `${AON}/actions/17-area-fire`;

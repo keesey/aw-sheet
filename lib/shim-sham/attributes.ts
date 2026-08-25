@@ -18,7 +18,7 @@ function createState(): AttributeState {
  * @see https://2e.aonsrd.com/rules/69-step-2-start-building-attribute-modifiers
  * At +4 or higher, mark a partial boost; a later boost completes it (+1).
  */
-export function applyBoost(state: AttributeState, attribute: AttributeKey): void {
+function applyBoost(state: AttributeState, attribute: AttributeKey): void {
   const value = state.modifiers[attribute];
   if (value >= 4 && !state.partial.has(attribute)) {
     state.partial.add(attribute);
@@ -32,12 +32,12 @@ export function applyBoost(state: AttributeState, attribute: AttributeKey): void
   state.modifiers[attribute] += 1;
 }
 
-export function applyFlaw(state: AttributeState, attribute: AttributeKey): void {
+function applyFlaw(state: AttributeState, attribute: AttributeKey): void {
   state.modifiers[attribute] -= 1;
 }
 
 /** Boosts gained at the same time — each must target a different attribute. */
-export function applyBoostBatch(state: AttributeState, attributes: AttributeKey[]): void {
+function applyBoostBatch(state: AttributeState, attributes: AttributeKey[]): void {
   const unique = new Set(attributes);
   if (unique.size !== attributes.length) {
     throw new Error("Attribute boosts at the same time must target different attributes");
@@ -48,7 +48,7 @@ export function applyBoostBatch(state: AttributeState, attributes: AttributeKey[
 }
 
 /** Ancestry, background, and class attribute adjustments at 1st level. */
-export function applyBaseBuild(state: AttributeState): void {
+function applyBaseBuild(state: AttributeState): void {
   // Pahtra: CHA, DEX, free (WIS), flaw CON
   applyBoost(state, "CHA");
   applyBoost(state, "DEX");
@@ -61,7 +61,7 @@ export function applyBaseBuild(state: AttributeState): void {
   applyBoost(state, "DEX");
 }
 
-export type AttributeBoostEntry = {
+type AttributeBoostEntry = {
   level: number;
   attributeBoosts?: AttributeKey[];
 };

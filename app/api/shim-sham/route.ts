@@ -12,6 +12,7 @@ import type { RuntimeState } from "@/lib/types";
 import {
   FORCE_FIELD_DAILY_USES,
   FORCE_FIELD_MAX_HP,
+  FORCE_FIELD_REGEN_PER_TURN,
 } from "@/lib/shim-sham/static";
 
 function normalizeRuntime(runtime: RuntimeState): RuntimeState {
@@ -106,7 +107,10 @@ export async function PATCH(request: Request) {
     }
     runtime = {
       ...runtime,
-      forceFieldHp: Math.min(FORCE_FIELD_MAX_HP, runtime.forceFieldHp + 2),
+      forceFieldHp: Math.min(
+        FORCE_FIELD_MAX_HP,
+        runtime.forceFieldHp + FORCE_FIELD_REGEN_PER_TURN,
+      ),
     };
   } else if (body.action === "hp-delta" && typeof body.delta === "number") {
     const snapshot = getLevelSnapshot(runtime.level)!;

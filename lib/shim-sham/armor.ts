@@ -3,7 +3,7 @@ import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/profic
 
 const AON = "https://2e.aonsrd.com";
 
-export type WornArmor = {
+type WornArmor = {
   name: string;
   url: string;
   /** Item bonus to AC from the armor. */
@@ -51,7 +51,7 @@ export function getWornArmor(level: number): WornArmor {
   return armor;
 }
 
-export function lightArmorProficiency(level: number): ProficiencyRank {
+function lightArmorProficiency(level: number): ProficiencyRank {
   return proficiencyRankAtLevel(LIGHT_ARMOR_RANKS, level);
 }
 

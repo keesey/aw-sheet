@@ -18,7 +18,7 @@ function conditionValue(active: ActiveCondition | undefined): number | null {
   return active?.value ?? null;
 }
 
-export function sessionLogLinesForConditionChanges(
+function sessionLogLinesForConditionChanges(
   before: ActiveCondition[],
   after: ActiveCondition[],
 ): string[] {

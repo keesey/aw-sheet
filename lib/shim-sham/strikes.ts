@@ -140,29 +140,14 @@ export function rangeAttackPenalty(incrementsBeyondFirst: number): number {
   return incrementsBeyondFirst <= 0 ? 0 : -2 * incrementsBeyondFirst;
 }
 
-export function mapAttackValues(first: number, agile: boolean): [number, number, number] {
+function mapAttackValues(first: number, agile: boolean): [number, number, number] {
   const secondPenalty = agile ? 4 : 5;
   const thirdPenalty = agile ? 8 : 10;
   return [first, first - secondPenalty, first - thirdPenalty];
 }
 
-export function formatMapAttacks(first: number, agile: boolean): string {
+function formatMapAttacks(first: number, agile: boolean): string {
   return mapAttackValues(first, agile).map(signed).join(" / ");
-}
-
-export function bestWeaponMapBonus(weapons: WeaponStrike[]): string | undefined {
-  let bestValue = Number.NEGATIVE_INFINITY;
-  let bestAgile = false;
-
-  for (const weapon of weapons) {
-    const value = weapon.mapAttacks[0];
-    if (value <= bestValue) continue;
-    bestValue = value;
-    bestAgile = weapon.traits.includes("Agile");
-  }
-
-  if (!Number.isFinite(bestValue)) return undefined;
-  return formatMapAttacks(bestValue, bestAgile);
 }
 
 export function formatSkillAttackMapBonus(bonus: string): string {

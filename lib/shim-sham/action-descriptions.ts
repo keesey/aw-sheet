@@ -1,5 +1,5 @@
 /** One-sentence AoN rule summaries — see each action link for full text. */
-export const ACTION_DESCRIPTIONS: Record<string, string> = {
+const ACTION_DESCRIPTIONS: Record<string, string> = {
   "cardiac-accelerator":
     "Once per 10 minutes when you Climb, Stride, or Swim, increase your Speed by 20 feet for that action.",
   "exemplary-finisher": "Step as a free action immediately after a finisher.",
@@ -29,8 +29,6 @@ export const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Gain standard cover (+2 AC) or greater cover (+4 AC) until you move, attack, become unconscious, or end the effect.",
   "tumble-through":
     "Stride up to your Speed and attempt an Acrobatics check to move through an enemy's space.",
-  "group-coercion":
-    "When you Coerce, compare your Intimidation check to the Will DC of up to five targets.",
 };
 
 export function actionDescription(id: string): string {

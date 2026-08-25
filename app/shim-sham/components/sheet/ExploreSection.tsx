@@ -1,7 +1,7 @@
 import type { SkillEntry } from "@/lib/types";
 import { formatSignedBonus } from "@/lib/shim-sham/skills";
 import {
-  SHIM_SHAM_EXPLORATION,
+  EXPLORATION_ACTIVITIES,
   explorationActivityBonus,
   orderedExplorationActivities,
   type ExplorationActivity,
@@ -54,7 +54,7 @@ export function ExploreSection({
   perception: number;
   perceptionDelta: number;
 }) {
-  const activities = orderedExplorationActivities(SHIM_SHAM_EXPLORATION);
+  const activities = orderedExplorationActivities(EXPLORATION_ACTIVITIES);
 
   return (
     <div className="stat-card sheet-section actions-main-section">

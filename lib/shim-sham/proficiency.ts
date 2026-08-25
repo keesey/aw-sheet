@@ -8,7 +8,7 @@ const RANK_BONUS: Record<Exclude<ProficiencyRank, "U">, number> = {
   L: 8,
 };
 
-export type ProficiencyStep = { level: number; rank: ProficiencyRank };
+type ProficiencyStep = { level: number; rank: ProficiencyRank };
 
 /**
  * Highest rank whose `level` is at or below the character level.

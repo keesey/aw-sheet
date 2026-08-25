@@ -19,7 +19,7 @@ export type CheckRollResult = {
 
 export type RollResult = CheckRollResult | StrikeRollResult;
 
-export function rollD(sides: number): number {
+function rollD(sides: number): number {
   return Math.floor(Math.random() * sides) + 1;
 }
 

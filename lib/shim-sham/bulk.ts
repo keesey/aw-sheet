@@ -2,7 +2,7 @@
 import type { ActiveCondition, AdHocInventoryItem } from "@/lib/types";
 
 /** Normalize user bulk input per AoN rules (number, L, or —). */
-export function normalizeBulkValue(input: string): string | null {
+function normalizeBulkValue(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed) return null;
   if (trimmed === "—" || trimmed === "-") return "—";
@@ -72,7 +72,7 @@ export function formatBulkLabel(bulk: string): string {
 }
 
 /** Bulk at which Encumbered applies (AoN 2e: 5 + STR modifier). */
-export function encumberedBulkThreshold(strModifier: number): number {
+function encumberedBulkThreshold(strModifier: number): number {
   return 5 + strModifier;
 }
 

@@ -3,7 +3,7 @@ export type ActiveCondition = {
   value?: number;
 };
 
-export type AonLink = {
+type AonLink = {
   name: string;
   url: string;
 };
@@ -102,7 +102,7 @@ export type AdHocInventoryItem = {
   url?: string;
 };
 
-export type ProgressionEntryKind = "feat" | "class-feature";
+type ProgressionEntryKind = "feat" | "class-feature";
 
 export type ProgressionFeat = {
   name: string;

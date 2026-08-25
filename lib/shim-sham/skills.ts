@@ -101,7 +101,7 @@ const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
  * Other bonuses and penalties are currently 0 for every skill.
  * @see https://2e.aonsrd.com/rules/348-skill-checks
  */
-export function skillCheckBonus(
+function skillCheckBonus(
   keyAttributeModifier: number,
   rank: ProficiencyRank,
   level: number,

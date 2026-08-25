@@ -1,6 +1,6 @@
 import type { ActiveCondition } from "@/lib/types";
 
-export type ConditionEntry = {
+type ConditionEntry = {
   id: string;
   name: string;
   url: string;

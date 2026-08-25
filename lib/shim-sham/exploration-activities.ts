@@ -14,7 +14,7 @@ export type ExplorationActivity = {
  * Exploration activities Shim Sham can perform.
  * @see https://2e.aonsrd.com/rules/667-exploration-activities
  */
-export const SHIM_SHAM_EXPLORATION: readonly ExplorationActivity[] = [
+export const EXPLORATION_ACTIVITIES: readonly ExplorationActivity[] = [
   {
     id: "avoid-notice",
     name: "Avoid Notice",

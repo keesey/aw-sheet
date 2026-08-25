@@ -158,7 +158,7 @@ type InventoryRuntime = Pick<
 >;
 
 /** One bulk entry per carried item (equipment piece, remaining consumable, battery, chem tank, ad hoc). */
-export function inventoryBulkItems(
+function inventoryBulkItems(
   equipment: InventoryItem[],
   consumableCatalog: Consumable[],
   runtime: InventoryRuntime,
