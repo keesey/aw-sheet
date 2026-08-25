@@ -1,4 +1,4 @@
-export type Panel = "feats" | "inventory" | "conditions" | "manage" | null;
+export type Panel = "levels" | "inventory" | "conditions" | null;
 
 export type SpeedEntry = {
   label: string;

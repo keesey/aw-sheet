@@ -15,10 +15,9 @@ import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { getSkillKeyAbilities } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
 import { AbilitiesSection } from "./components/sheet/AbilitiesSection";
-import { FeatsPanel } from "./components/panels/FeatsPanel";
+import { LevelsPanel } from "./components/panels/LevelsPanel";
 import { InventoryPanel } from "./components/panels/InventoryPanel";
 import { ConditionsPanel } from "./components/panels/ConditionsPanel";
-import { ManagePanel } from "./components/panels/ManagePanel";
 import { ConditionTags } from "./components/sheet/ConditionTags";
 import { HpBlock } from "./components/sheet/HpBlock";
 import { SheetHeader } from "./components/sheet/SheetHeader";
@@ -282,10 +281,39 @@ export default function CharacterSheet() {
 
       <div className="sheet-spacer" />
 
-      <BottomNav onSelect={setPanel} />
+      <BottomNav
+        onSelect={setPanel}
+        onRest={() => {
+          if (
+            !confirm(
+              "Rest for 8 hours? Heals CON×level HP, resets daily abilities, and clears panache.",
+            )
+          ) {
+            return;
+          }
+          void saveSheet({
+            action: "rest",
+            currentHp: runtime.currentHp,
+            conditions: runtime.conditions,
+            forceFieldUsesUsed: 0,
+            forceFieldHp: 0,
+            forceFieldActive: false,
+            meyelRerollUsed: false,
+            panache: false,
+            accelerate: false,
+            jetpack: false,
+            combat: false,
+          });
+        }}
+      />
 
-      {panel === "feats" && (
-        <FeatsPanel currentLevel={runtime.level} onClose={() => setPanel(null)} />
+      {panel === "levels" && (
+        <LevelsPanel
+          data={data}
+          runtime={runtime}
+          save={saveSheet}
+          onClose={() => setPanel(null)}
+        />
       )}
 
       {panel === "inventory" && (
@@ -309,10 +337,6 @@ export default function CharacterSheet() {
           save={saveSheet}
           onClose={() => setPanel(null)}
         />
-      )}
-
-      {panel === "manage" && (
-        <ManagePanel data={data} runtime={runtime} save={saveSheet} onClose={() => setPanel(null)} />
       )}
 
       {strikesOpen && runtime.combat && (
