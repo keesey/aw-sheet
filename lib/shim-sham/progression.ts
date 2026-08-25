@@ -1,23 +1,23 @@
 import type { LevelSnapshot } from "@/lib/types";
 import { armorClass } from "@/lib/shim-sham/armor";
 import { classDc } from "@/lib/shim-sham/class-dc";
+import { maxHp } from "@/lib/shim-sham/max-hp";
 import { perception } from "@/lib/shim-sham/perception";
 import { savingThrows } from "@/lib/shim-sham/saves";
 
 type LevelProgression = Omit<
   LevelSnapshot,
-  "ac" | "fort" | "reflex" | "will" | "perception" | "classDc"
+  "ac" | "fort" | "reflex" | "will" | "perception" | "classDc" | "maxHp"
 >;
 
 /** Level progression from https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530
  *  Gist vs calculated values: data/progression-gist-issues.md
- *  Speeds exclude Stylish Combatant / Vivacious Speed (applied at runtime).
+ *  Land speed is Pahtra base 25 ft (Stylish Combatant / Vivacious Speed applied at runtime).
  */
 export const PROGRESSION: LevelProgression[] = [
   {
     level: 1,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
-    maxHp: 18,
     landSpeed: 25,
     preciseStrike: 2,
     finisherDice: "2d6",
@@ -26,7 +26,6 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 2,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
-    maxHp: 28,
     landSpeed: 25,
     preciseStrike: 2,
     finisherDice: "2d6",
@@ -35,9 +34,7 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 3,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
-    maxHp: 41,
-    landSpeed: 30,
-    climbSpeed: 25,
+    landSpeed: 25,
     preciseStrike: 2,
     finisherDice: "2d6",
     notes: [
@@ -53,9 +50,7 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 4,
     abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
-    maxHp: 52,
-    landSpeed: 30,
-    climbSpeed: 25,
+    landSpeed: 25,
     preciseStrike: 2,
     finisherDice: "2d6",
     notes: ["Slippery Prey", "Leading Dance", "Commercial Force Field"],
@@ -63,10 +58,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 5,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 68,
-    landSpeed: 30,
+    landSpeed: 25,
     flySpeed: 20,
-    climbSpeed: 25,
     preciseStrike: 3,
     finisherDice: "3d6",
     notes: ["Climbing Claws", "Weapon Expertise", "Athletics Trained"],
@@ -74,10 +67,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 6,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 80,
-    landSpeed: 30,
+    landSpeed: 25,
     flySpeed: 20,
-    climbSpeed: 25,
     preciseStrike: 3,
     finisherDice: "3d6",
     notes: ["Combat Climber", "Dueling Parry"],
@@ -85,10 +76,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 7,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 92,
-    landSpeed: 30,
+    landSpeed: 25,
     flySpeed: 25,
-    climbSpeed: 30,
     preciseStrike: 3,
     finisherDice: "3d6",
     notes: [
@@ -103,10 +92,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 8,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 104,
-    landSpeed: 30,
+    landSpeed: 25,
     flySpeed: 25,
-    climbSpeed: 30,
     preciseStrike: 3,
     finisherDice: "3d6",
     notes: ["Quick Jump", "Charmed Life"],
@@ -114,10 +101,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 9,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 116,
-    landSpeed: 30,
+    landSpeed: 25,
     flySpeed: 25,
-    climbSpeed: 30,
     preciseStrike: 4,
     finisherDice: "4d6",
     notes: ["Meyel's Melody", "Exemplary Finisher (Step)", "Intimidation Expert"],
@@ -125,10 +110,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 10,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 138,
-    landSpeed: 35,
+    landSpeed: 25,
     flySpeed: 30,
-    climbSpeed: 35,
     preciseStrike: 4,
     finisherDice: "4d6",
     notes: ["Intimidating Prowess", "Dueling Riposte"],
@@ -136,10 +119,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 11,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 151,
-    landSpeed: 35,
+    landSpeed: 25,
     flySpeed: 30,
-    climbSpeed: 35,
     preciseStrike: 4,
     finisherDice: "4d6",
     notes: [
@@ -153,10 +134,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 12,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 164,
-    landSpeed: 35,
+    landSpeed: 25,
     flySpeed: 30,
-    climbSpeed: 35,
     preciseStrike: 4,
     finisherDice: "4d6",
     notes: ["Tumbling Theft", "Mobile Finisher"],
@@ -164,10 +143,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 13,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 177,
-    landSpeed: 35,
+    landSpeed: 25,
     flySpeed: 30,
-    climbSpeed: 35,
     preciseStrike: 5,
     finisherDice: "5d6",
     notes: [
@@ -181,10 +158,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 14,
     abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
-    maxHp: 190,
-    landSpeed: 35,
+    landSpeed: 25,
     flySpeed: 30,
-    climbSpeed: 35,
     preciseStrike: 5,
     finisherDice: "5d6",
     notes: ["Virtuosic Performer", "Selfless Parry"],
@@ -192,10 +167,8 @@ export const PROGRESSION: LevelProgression[] = [
   {
     level: 15,
     abilities: { STR: 4, DEX: 5, CON: 3, INT: 1, WIS: 1, CHA: 5 },
-    maxHp: 218,
-    landSpeed: 40,
+    landSpeed: 25,
     flySpeed: 35,
-    climbSpeed: 40,
     preciseStrike: 5,
     finisherDice: "5d6",
     notes: [
@@ -213,6 +186,7 @@ export const PROGRESSION: LevelProgression[] = [
 function withDerivedStats(entry: LevelProgression): LevelSnapshot {
   return {
     ...entry,
+    maxHp: maxHp(entry.level, entry.abilities.CON),
     ac: armorClass(entry.abilities.DEX, entry.level),
     perception: perception(entry.abilities.WIS, entry.level),
     classDc: classDc(entry.abilities.DEX, entry.level),

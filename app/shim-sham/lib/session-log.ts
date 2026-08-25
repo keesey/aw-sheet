@@ -80,6 +80,12 @@ export function sessionLogLineForSave(
     return delta < 0 ? `HP ${delta}` : `HP +${delta}`;
   }
 
+  if (typeof body.credits === "number" && body.credits !== runtime.credits) {
+    const delta = body.credits - runtime.credits;
+    const formatted = Math.abs(delta).toLocaleString();
+    return delta < 0 ? `Credits -${formatted}` : `Credits +${formatted}`;
+  }
+
   if (typeof body.currentHp === "number" && body.currentHp === context.maxHp) {
     return `HP restored to ${context.maxHp}`;
   }

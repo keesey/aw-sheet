@@ -4,15 +4,26 @@ import type { SpeedEntry } from "../types";
 import type { LevelSnapshot } from "@/lib/types";
 import { modifiedSpeed } from "@/lib/shim-sham/condition-effects";
 
+/** Climbing Claws (Pahtra 5): climb Speed equals land Speed. */
+const CLIMBING_CLAWS_LEVEL = 5;
+
+export function climbingClawsSpeedEntry(level: LevelSnapshot): SpeedEntry | null {
+  if (level.level < CLIMBING_CLAWS_LEVEL) return null;
+  return {
+    label: "Climb",
+    value: level.landSpeed,
+    stylishBoost: true,
+    accelerateBoost: true,
+  };
+}
+
 export function buildSpeedEntries(level: LevelSnapshot, jetpack: boolean): SpeedEntry[] {
   return [
     { label: "Land", value: level.landSpeed, stylishBoost: true, accelerateBoost: true },
     level.flySpeed != null && jetpack
       ? { label: "Fly", value: level.flySpeed, stylishBoost: true, accelerateBoost: false }
       : null,
-    level.climbSpeed != null
-      ? { label: "Climb", value: level.climbSpeed, stylishBoost: true, accelerateBoost: true }
-      : null,
+    climbingClawsSpeedEntry(level),
     level.swimSpeed != null
       ? { label: "Swim", value: level.swimSpeed, stylishBoost: true, accelerateBoost: false }
       : null,

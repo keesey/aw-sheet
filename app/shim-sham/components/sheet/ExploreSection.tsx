@@ -59,7 +59,7 @@ export function ExploreSection({
   return (
     <div className="stat-card sheet-section actions-main-section">
       <div className="stat-label" style={{ marginBottom: "0.5rem" }}>
-        Explore
+        Activities
       </div>
       {activities.map((activity) => {
         const bonus = explorationActivityBonus(activity, skills, perception);

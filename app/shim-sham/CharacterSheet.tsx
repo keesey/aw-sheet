@@ -186,6 +186,29 @@ export default function CharacterSheet() {
   );
   const speedEntries = buildSpeedEntries(level, runtime.jetpack);
 
+  const handleRest = () => {
+    if (
+      !confirm(
+        "Rest for 8 hours? Heals CON×level HP, resets daily abilities, and clears panache.",
+      )
+    ) {
+      return;
+    }
+    void saveSheet({
+      action: "rest",
+      currentHp: runtime.currentHp,
+      conditions: runtime.conditions,
+      forceFieldUsesUsed: 0,
+      forceFieldHp: 0,
+      forceFieldActive: false,
+      meyelRerollUsed: false,
+      panache: false,
+      accelerate: false,
+      jetpack: false,
+      combat: false,
+    });
+  };
+
   return (
     <RollProvider onRollResult={handleRollResult}>
     <main className="sheet-page">
@@ -203,10 +226,12 @@ export default function CharacterSheet() {
         </div>
       )}
 
-      <SheetHeader data={data} runtime={runtime} save={saveSheet} />
+      <SheetHeader data={data} runtime={runtime} save={saveSheet} onRest={handleRest} />
 
       <section className="sheet-content">
         <div className="sheet-column sheet-column--combat">
+          <AbilitiesSection level={level} abilityDelta={effects.abilityDelta} />
+
           <HpBlock
             level={level}
             runtime={{ ...runtime, currentHp }}
@@ -219,8 +244,6 @@ export default function CharacterSheet() {
             onApplyHpDelta={(sign) => applyHpDelta(sign, currentHp, runtime.forceFieldHp)}
             save={saveSheet}
           />
-
-          <AbilitiesSection level={level} abilityDelta={effects.abilityDelta} />
 
           <StatsGrid
             data={data}
@@ -290,31 +313,7 @@ export default function CharacterSheet() {
 
       <div className="sheet-spacer" />
 
-      <BottomNav
-        onSelect={setPanel}
-        onRest={() => {
-          if (
-            !confirm(
-              "Rest for 8 hours? Heals CON×level HP, resets daily abilities, and clears panache.",
-            )
-          ) {
-            return;
-          }
-          void saveSheet({
-            action: "rest",
-            currentHp: runtime.currentHp,
-            conditions: runtime.conditions,
-            forceFieldUsesUsed: 0,
-            forceFieldHp: 0,
-            forceFieldActive: false,
-            meyelRerollUsed: false,
-            panache: false,
-            accelerate: false,
-            jetpack: false,
-            combat: false,
-          });
-        }}
-      />
+      <BottomNav onSelect={setPanel} />
 
       {panel === "levels" && (
         <LevelsPanel

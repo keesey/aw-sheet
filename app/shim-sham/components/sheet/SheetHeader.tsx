@@ -10,10 +10,12 @@ export function SheetHeader({
   data,
   runtime,
   save,
+  onRest,
 }: {
   data: CharacterSheet["static"];
   runtime: CharacterSheet["runtime"];
   save: SaveFn;
+  onRest: () => void;
 }) {
   const { openRoll } = useRoll();
 
@@ -21,9 +23,11 @@ export function SheetHeader({
     <header className="sheet-header">
       <div className="sheet-header-row">
         <div>
-          <h1 className="sheet-title">{data.name}</h1>
+          <h1 className="sheet-title">
+            {data.name}
+            <span className="sheet-title-nickname"> “{data.nickname}”</span>
+          </h1>
           <p className="sheet-subtitle">
-            “{data.nickname}” ·{" "}
             <AonLink href={data.ancestry.url}>{data.ancestry.name}</AonLink>
             {" · "}
             <AonLink href={data.background.url}>{data.background.name}</AonLink>
@@ -74,6 +78,9 @@ export function SheetHeader({
             aria-label="Roll flat d20 check"
           >
             <D20Icon className="d20-icon" />
+          </button>
+          <button type="button" className="btn" onClick={onRest}>
+            Rest
           </button>
         </div>
       </div>

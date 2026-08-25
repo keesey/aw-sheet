@@ -1,5 +1,5 @@
 import type { LevelSnapshot, RuntimeState } from "@/lib/types";
-import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
+import { climbingClawsSpeedEntry, getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
 import type { SpeedEntry } from "../../types";
 
 function SpeedValue({
@@ -79,11 +79,10 @@ export function ActionSpeedNote({
   speedDelta: number;
 }) {
   if (actionId === "stride") {
+    const climb = climbingClawsSpeedEntry(level);
     const speeds: SpeedEntry[] = [
       { label: "Land", value: level.landSpeed, stylishBoost: true, accelerateBoost: true },
-      ...(level.climbSpeed != null
-        ? [{ label: "Climb", value: level.climbSpeed, stylishBoost: true, accelerateBoost: true }]
-        : []),
+      ...(climb ? [climb] : []),
     ];
     return (
       <ActionSpeedList
