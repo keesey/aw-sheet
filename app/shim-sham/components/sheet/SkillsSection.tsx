@@ -48,9 +48,33 @@ export function SkillsSection({
       </div>
 
       <div className="stat-card sheet-section sheet-notes-card">
-        <label className="stat-label" htmlFor="sheet-session-log">
-          Session Log
-        </label>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <label className="stat-label" htmlFor="sheet-session-log">
+            Session Log
+          </label>
+          <button
+            type="button"
+            className="btn"
+            disabled={!notesDraft}
+            onClick={() => {
+              if (!confirm("Clear the session log?")) {
+                return;
+              }
+              notesFocusedRef.current = false;
+              onNotesDraftChange("");
+              void save({ notes: "" });
+            }}
+          >
+            Clear
+          </button>
+        </div>
         <textarea
           id="sheet-session-log"
           className="sheet-notes"

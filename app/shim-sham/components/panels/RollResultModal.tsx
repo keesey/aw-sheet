@@ -10,16 +10,14 @@ function natClass(d20: number): string | undefined {
 }
 
 function AttackRollBreakdown({ d20, bonus }: { d20: number; bonus: number }) {
+  if (bonus === 0) return null;
+
   const nat = natClass(d20);
-  const bonusText = bonus < 0 ? bonus : Math.abs(bonus);
+  const operatorText = bonus < 0 ? ` - ${Math.abs(bonus)}` : ` + ${bonus}`;
   return (
     <div className="roll-result__breakdown">
       <span className={`roll-result__die${nat ? ` ${nat}` : ""}`}>{d20}</span>
-      {bonus !== 0 ? (
-        <span className="roll-result__operator">{` + ${bonusText}`}</span>
-      ) : (
-        <span className="roll-result__label">d20</span>
-      )}
+      <span className="roll-result__operator">{operatorText}</span>
     </div>
   );
 }

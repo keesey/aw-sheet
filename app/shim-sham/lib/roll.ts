@@ -41,8 +41,8 @@ export function rollCheck(label: string, bonus: number): CheckRollResult {
   return { kind: "check", label, d20, bonus, total: d20 + bonus };
 }
 
-function formatD20Breakdown(d20: number, bonus: number): string {
-  if (bonus === 0) return String(d20);
+function formatD20Breakdown(d20: number, bonus: number): string | null {
+  if (bonus === 0) return null;
   const bonusText = bonus < 0 ? ` - ${Math.abs(bonus)}` : ` + ${bonus}`;
   return `${d20}${bonusText}`;
 }
@@ -50,13 +50,20 @@ function formatD20Breakdown(d20: number, bonus: number): string {
 /** One-line summary for session notes. */
 export function formatRollSummary(result: RollResult): string {
   if (result.kind === "check") {
-    return `${result.label}: ${result.total} (${formatD20Breakdown(result.d20, result.bonus)})`;
+    const breakdown = formatD20Breakdown(result.d20, result.bonus);
+    return breakdown
+      ? `${result.label}: ${result.total} (${breakdown})`
+      : `${result.label}: ${result.total}`;
   }
 
   const mapSuffix = result.mapIndex > 0 ? ` (MAP ${result.mapIndex + 1})` : "";
   const outcome =
     result.isCrit ? ", crit" : result.isFumble ? ", fumble" : "";
-  return `${result.label}${mapSuffix}: attack ${result.total} (${formatD20Breakdown(result.d20, result.bonus)}), damage ${result.damageTotal}${outcome}`;
+  const breakdown = formatD20Breakdown(result.d20, result.bonus);
+  const attack = breakdown
+    ? `attack ${result.total} (${breakdown})`
+    : `attack ${result.total}`;
+  return `${result.label}${mapSuffix}: ${attack}, damage ${result.damageTotal}${outcome}`;
 }
 
 /** Parse the first numeric bonus from strings like "+12" or "+15/+10/+5". */
