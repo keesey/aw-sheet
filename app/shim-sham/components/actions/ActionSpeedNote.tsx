@@ -1,4 +1,5 @@
 import type { LevelSnapshot, RuntimeState } from "@/lib/types";
+import { PAHTRA_LAND_SPEED } from "@/lib/shim-sham/ancestry";
 import {
   climbingClawsSpeedEntry,
   getSpeedClassName,
@@ -86,7 +87,7 @@ export function ActionSpeedNote({
   if (actionId === "stride") {
     const climb = climbingClawsSpeedEntry(level);
     const speeds: SpeedEntry[] = [
-      { label: "Land", value: level.landSpeed, stylishBoost: true, accelerateBoost: true },
+      { label: "Land", value: PAHTRA_LAND_SPEED, stylishBoost: true, accelerateBoost: true },
       ...(climb ? [climb] : []),
     ];
     return (

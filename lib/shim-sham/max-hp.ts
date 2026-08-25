@@ -1,7 +1,5 @@
+import { PAHTRA_ANCESTRY_HP } from "@/lib/shim-sham/ancestry";
 import { FEATS_BY_LEVEL } from "@/lib/shim-sham/feats";
-
-/** @see https://2e.aonsrd.com/ancestries/12-pahtra */
-export const PAHTRA_ANCESTRY_HP = 8;
 
 /** Swashbuckler HP per level includes Constitution modifier each level. */
 export const SWASHBUCKLER_HP_PER_LEVEL = 10;

@@ -112,7 +112,6 @@ export type LevelSnapshot = {
   will: number;
   perception: number;
   classDc: number;
-  landSpeed: number;
   swimSpeed?: number;
   preciseStrike: number;
   finisherDice: string;

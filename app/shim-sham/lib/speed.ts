@@ -1,4 +1,5 @@
 import { ACCELERATE_SPEED_BONUS } from "./constants";
+import { PAHTRA_LAND_SPEED } from "@/lib/shim-sham/ancestry";
 import {
   COMMERCIAL_JETPACK_FLY_SPEED,
   hasJetpackInstalled,
@@ -15,7 +16,7 @@ export function climbingClawsSpeedEntry(level: LevelSnapshot): SpeedEntry | null
   if (level.level < CLIMBING_CLAWS_LEVEL) return null;
   return {
     label: "Climb",
-    value: level.landSpeed,
+    value: PAHTRA_LAND_SPEED,
     stylishBoost: true,
     accelerateBoost: true,
   };
@@ -37,7 +38,7 @@ export function jetpackFlySpeedEntry(
 
 export function buildSpeedEntries(level: LevelSnapshot): SpeedEntry[] {
   return [
-    { label: "Land", value: level.landSpeed, stylishBoost: true, accelerateBoost: true },
+    { label: "Land", value: PAHTRA_LAND_SPEED, stylishBoost: true, accelerateBoost: true },
     jetpackFlySpeedEntry(level.level),
     climbingClawsSpeedEntry(level),
     level.swimSpeed != null
