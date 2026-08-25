@@ -104,22 +104,21 @@ export default function CharacterSheet() {
     [save],
   );
 
-  const appendSessionLog = useCallback(
-    (line: string) => {
-      const next = appendSessionLogLine(notesDraftRef.current, line);
-      notesDraftRef.current = next;
-      runtimeNotesRef.current = next;
-      setNotesDraft(next);
-      void saveSheet({ notes: next });
-    },
-    [saveSheet],
-  );
-
   const handleRollResult = useCallback(
     (result: RollResult) => {
-      appendSessionLog(formatRollSummary(result));
+      const logLine = formatRollSummary(result);
+      const nextNotes = appendSessionLogLine(notesDraftRef.current, logLine);
+      notesDraftRef.current = nextNotes;
+      runtimeNotesRef.current = nextNotes;
+      setNotesDraft(nextNotes);
+
+      const body: Record<string, unknown> = { notes: nextNotes };
+      if (result.kind === "strike" && result.damageMode === "finisher") {
+        body.panache = false;
+      }
+      void saveSheet(body);
     },
-    [appendSessionLog],
+    [saveSheet],
   );
 
   const applyHpDelta = (sign: -1 | 1, currentHp: number, forceFieldHp: number) => {

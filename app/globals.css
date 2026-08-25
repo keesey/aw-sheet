@@ -385,6 +385,13 @@ button {
   line-height: 1.1;
 }
 
+.stat-card__note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
 .stat-penalized {
   color: var(--condition);
 }
@@ -1370,6 +1377,7 @@ button {
 .roll-bonus-btn--stat {
   display: block;
   width: fit-content;
+  line-height: 1.1;
 }
 
 .roll-result-modal {

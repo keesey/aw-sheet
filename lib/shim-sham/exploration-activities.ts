@@ -34,12 +34,6 @@ export const SHIM_SHAM_EXPLORATION: readonly ExplorationActivity[] = [
     bonusSource: "Intimidation",
   },
   {
-    id: "decipher-writing",
-    name: "Decipher Writing",
-    url: `${AON}/actions/46-decipher-writing`,
-    bonusSource: "Lore (Piracy)",
-  },
-  {
     id: "follow-the-expert",
     name: "Follow the Expert",
     url: `${AON}/actions/35-follow-the-expert`,

@@ -9,6 +9,7 @@ export type StrikeRollResult = {
   d20: number;
   bonus: number;
   total: number;
+  damageMode: StrikeDamageMode;
   damageLines: DamageRollLine[];
   damageTotal: number;
   critNote?: string;
@@ -82,6 +83,7 @@ export function rollStrikeAttack(
     d20,
     bonus,
     total: d20 + bonus,
+    damageMode,
     damageLines,
     damageTotal,
     critNote: damage.critNote,

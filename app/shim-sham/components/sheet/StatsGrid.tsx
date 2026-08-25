@@ -48,10 +48,8 @@ export function StatsGrid({
     <div className="sheet-grid">
       <div className="stat-card">
         <div className="stat-label">Armor Class</div>
-        <div className="ac-row">
-          <div className={`stat-value ${statModClass(acDelta) ?? ""}`.trim()}>{displayAc}</div>
-        </div>
-        <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.25rem" }}>
+        <div className={`stat-value ${statModClass(acDelta) ?? ""}`.trim()}>{displayAc}</div>
+        <div className="stat-card__note">
           <AonLink href={data.armor.url}>{data.armor.name}</AonLink>
         </div>
       </div>
@@ -65,7 +63,7 @@ export function StatsGrid({
         >
           {formatSigned(level.perception + effects.perception)}
         </RollBonusButton>
-        <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.35rem", lineHeight: 1.4 }}>
+        <div className="stat-card__note">
           {data.senses.map((s, i) => (
             <span key={s.name} className={effects.sensesDisabled ? "stat-penalized" : undefined} style={effects.sensesDisabled ? { textDecoration: "line-through" } : undefined}>
               {i > 0 && " · "}
