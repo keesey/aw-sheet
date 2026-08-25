@@ -1,14 +1,14 @@
 import { PAHTRA_ANCESTRY_HP } from "@/lib/shim-sham/ancestry";
-import { FEATS_BY_LEVEL } from "@/lib/shim-sham/feats";
+import { PROGRESSION } from "@/lib/shim-sham/progression";
 
 /** Swashbuckler HP per level includes Constitution modifier each level. */
 export const SWASHBUCKLER_HP_PER_LEVEL = 10;
 
 function hasToughness(level: number): boolean {
-  return FEATS_BY_LEVEL.some(
+  return PROGRESSION.some(
     (entry) =>
       entry.level <= level &&
-      entry.entries.some((feat) => feat.name === "Toughness"),
+      entry.feats.some((item) => item.name === "Toughness"),
   );
 }
 

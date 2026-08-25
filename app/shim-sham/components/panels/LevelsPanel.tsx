@@ -1,7 +1,5 @@
-import { FEATS_BY_LEVEL, getFeatsForLevel } from "@/lib/shim-sham/feats";
-import type { ProgressionFeat } from "@/lib/shim-sham/feats";
-import { getNextLevelSnapshot } from "@/lib/shim-sham/progression";
-import type { CharacterSheet } from "@/lib/types";
+import { PROGRESSION, getNextLevelSnapshot } from "@/lib/shim-sham/progression";
+import type { CharacterSheet, ProgressionFeat } from "@/lib/types";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
@@ -38,7 +36,7 @@ export function LevelsPanel({
   onClose: () => void;
 }) {
   const nextLevel = getNextLevelSnapshot(runtime.level);
-  const nextLevelFeats = nextLevel ? getFeatsForLevel(nextLevel.level) : [];
+  const nextLevelFeats = nextLevel?.feats ?? [];
   const nextLevelFeatEntries = nextLevelFeats.filter((entry) => entry.kind === "feat");
   const nextLevelClassFeatures = nextLevelFeats.filter((entry) => entry.kind === "class-feature");
 
@@ -49,9 +47,9 @@ export function LevelsPanel({
           <div className="feat-column-title">Feats</div>
           <div className="feat-column-title">Class Features</div>
         </div>
-        {FEATS_BY_LEVEL.map(({ level, entries }) => {
-          const feats = entries.filter((entry) => entry.kind === "feat");
-          const classFeatures = entries.filter((entry) => entry.kind === "class-feature");
+        {PROGRESSION.map(({ level, feats }) => {
+          const featEntries = feats.filter((entry) => entry.kind === "feat");
+          const classFeatures = feats.filter((entry) => entry.kind === "class-feature");
 
           return (
             <section
@@ -60,7 +58,7 @@ export function LevelsPanel({
             >
               <div className="action-group-title">Level {level}</div>
               <div className="feat-level-columns">
-                <FeatList entries={feats} />
+                <FeatList entries={featEntries} />
                 <FeatList entries={classFeatures} />
               </div>
             </section>

@@ -102,6 +102,14 @@ export type AdHocInventoryItem = {
   url?: string;
 };
 
+export type ProgressionEntryKind = "feat" | "class-feature";
+
+export type ProgressionFeat = {
+  name: string;
+  url: string;
+  kind: ProgressionEntryKind;
+};
+
 export type LevelSnapshot = {
   level: number;
   abilities: Record<AbilityKey, number>;
@@ -115,6 +123,7 @@ export type LevelSnapshot = {
   swimSpeed?: number;
   preciseStrike: number;
   finisherDice: string;
+  feats: ProgressionFeat[];
 };
 
 export type RuntimeState = {
