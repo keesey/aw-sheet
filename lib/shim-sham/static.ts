@@ -11,6 +11,8 @@ import {
 import { getWornArmor } from "@/lib/shim-sham/armor";
 import {
   attackDeltaForStrike,
+  effectiveAbilities,
+  effectiveAbilityModifier,
   resolveConditionEffects,
 } from "@/lib/shim-sham/condition-effects";
 import {
@@ -67,10 +69,20 @@ export function createDefaultRuntime(level = 6): RuntimeState {
 
 export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   const level = getLevelSnapshot(runtime.level)!;
-  const conditions = syncEncumberedFromBulk(
-    normalizeConditions(runtime.conditions),
-    inventoryTotalBulk(SHIM_SHAM_INVENTORY, SHIM_SHAM_CONSUMABLES, runtime),
+  const normalizedConditions = normalizeConditions(runtime.conditions);
+  const effects = resolveConditionEffects(
+    normalizedConditions,
+    level,
+    getSkillKeyAbilities(),
+  );
+  const effectiveStr = effectiveAbilityModifier(
     level.abilities.STR,
+    effects.abilityDelta.STR,
+  );
+  const conditions = syncEncumberedFromBulk(
+    normalizedConditions,
+    inventoryTotalBulk(SHIM_SHAM_INVENTORY, SHIM_SHAM_CONSUMABLES, runtime),
+    effectiveStr,
   );
   const forceFieldHp = Math.max(0, runtime.forceFieldHp);
   const forceFieldActive = runtime.forceFieldActive && forceFieldHp > 0;
@@ -93,15 +105,18 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
     level,
     getSkillKeyAbilities(),
   );
-  const allSkills = buildSkillEntries(level).map((skill) => ({
+  const effectiveLevel = {
+    ...level,
+    abilities: effectiveAbilities(level.abilities, effects.abilityDelta),
+  };
+  const allSkills = buildSkillEntries(effectiveLevel).map((skill) => ({
     ...skill,
     bonus: skill.bonus + (effects.skillDelta[skill.name] ?? 0),
   }));
   const skillBonus = (name: string) => formatSignedBonus(skillBonusByName(allSkills, name));
   const attackMapBonus = (bonus: string) => formatSkillAttackMapBonus(bonus);
-  const weapons = buildWeaponStrikes(level, {
+  const weapons = buildWeaponStrikes(effectiveLevel, {
     attackDelta: (strike) => attackDeltaForStrike(effects, strike),
-    strDamageDelta: effects.strDamage,
   });
   const armor = getWornArmor(level.level);
   const stylishBonus = formatStylishCombatantBonus(level.level);

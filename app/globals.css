@@ -1261,31 +1261,22 @@ button {
   font-style: italic;
 }
 
-.abilities-compact {
+.abilities-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.35rem 0.75rem;
+  column-gap: 0.75rem;
+  row-gap: 0.35rem;
 }
 
-.ability-compact-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+.ability-stat {
+  display: grid;
+  grid-template-columns: 2.25rem max-content;
+  column-gap: 0.35rem;
+  align-items: baseline;
 }
 
-.ability-name {
-  font-weight: 700;
-  letter-spacing: 0.06em;
-}
-
-.ability-mod {
-  font-size: 1.1rem;
-  font-weight: 700;
+.abilities-grid .stat-value {
+  font-size: 1.35rem;
 }
 
 .feats-panel {
@@ -1393,6 +1384,14 @@ button {
   display: block;
   width: fit-content;
   line-height: 1.1;
+}
+
+.roll-bonus-btn.stat-penalized {
+  color: var(--condition);
+}
+
+.roll-bonus-btn.stat-boosted {
+  color: var(--success);
 }
 
 .roll-result-modal {

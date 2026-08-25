@@ -1,5 +1,6 @@
 import type { CharacterSheet } from "@/lib/types";
 import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
+import { runtimeDerivedStats } from "@/lib/shim-sham/condition-effects";
 import { formatSigned, statModClass } from "../../lib/format";
 import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
 import type { SaveFn, SpeedEntry } from "../../types";
@@ -33,6 +34,7 @@ export function StatsGrid({
   onCreditInputChange: (value: string) => void;
   save: SaveFn;
 }) {
+  const derived = runtimeDerivedStats(level, effects);
   const creditsAmount = (() => {
     const parsed = parseInt(creditInput.trim(), 10);
     return creditInput.trim() === "" || Number.isNaN(parsed) || parsed <= 0 ? 0 : parsed;
@@ -58,10 +60,10 @@ export function StatsGrid({
         <div className="stat-label">Perception</div>
         <RollBonusButton
           label="Perception"
-          bonus={level.perception + effects.perception}
-          className={`stat-value roll-bonus-btn--stat ${statModClass(effects.perception) ?? ""}`.trim()}
+          bonus={derived.perception}
+          className={`stat-value roll-bonus-btn--stat ${statModClass(derived.perception - level.perception) ?? ""}`.trim()}
         >
-          {formatSigned(level.perception + effects.perception)}
+          {formatSigned(derived.perception)}
         </RollBonusButton>
         <div className="stat-card__note">
           {data.senses.map((s, i) => (
@@ -75,8 +77,8 @@ export function StatsGrid({
 
       <div className="stat-card">
         <div className="stat-label">Class DC</div>
-        <div className={`stat-value ${statModClass(effects.classDc) ?? ""}`.trim()}>
-          {level.classDc + effects.classDc}
+        <div className={`stat-value ${statModClass(derived.classDc - level.classDc) ?? ""}`.trim()}>
+          {derived.classDc}
         </div>
       </div>
 
@@ -87,24 +89,24 @@ export function StatsGrid({
           <span className="stat-label">Will</span>
           <RollBonusButton
             label="Fortitude"
-            bonus={level.fort + effects.fort}
-            className={`stat-value ${statModClass(effects.fort) ?? ""}`.trim()}
+            bonus={derived.fort}
+            className={`stat-value ${statModClass(derived.fort - level.fort) ?? ""}`.trim()}
           >
-            {formatSigned(level.fort + effects.fort)}
+            {formatSigned(derived.fort)}
           </RollBonusButton>
           <RollBonusButton
             label="Reflex"
-            bonus={level.reflex + effects.reflex}
-            className={`stat-value ${statModClass(effects.reflex) ?? ""}`.trim()}
+            bonus={derived.reflex}
+            className={`stat-value ${statModClass(derived.reflex - level.reflex) ?? ""}`.trim()}
           >
-            {formatSigned(level.reflex + effects.reflex)}
+            {formatSigned(derived.reflex)}
           </RollBonusButton>
           <RollBonusButton
             label="Will"
-            bonus={level.will + effects.will}
-            className={`stat-value ${statModClass(effects.will) ?? ""}`.trim()}
+            bonus={derived.will}
+            className={`stat-value ${statModClass(derived.will - level.will) ?? ""}`.trim()}
           >
-            {formatSigned(level.will + effects.will)}
+            {formatSigned(derived.will)}
           </RollBonusButton>
         </div>
       </div>

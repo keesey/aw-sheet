@@ -1,29 +1,38 @@
 import type { AbilityKey, CharacterSheet } from "@/lib/types";
+import { effectiveAbilityModifier } from "@/lib/shim-sham/condition-effects";
 import { MENTAL_ABILITIES, PHYSICAL_ABILITIES } from "../../lib/constants";
-import { formatAbilityMod } from "../../lib/format";
+import { formatAbilityMod, statModClass } from "../../lib/format";
 import { RollBonusButton } from "../RollBonusButton";
 
 const ABILITY_ORDER: AbilityKey[] = [...PHYSICAL_ABILITIES, ...MENTAL_ABILITIES];
 
-export function AbilitiesSection({ level }: { level: CharacterSheet["level"] }) {
+export function AbilitiesSection({
+  level,
+  abilityDelta,
+}: {
+  level: CharacterSheet["level"];
+  abilityDelta: Record<AbilityKey, number>;
+}) {
   return (
     <div className="stat-card sheet-section">
-      <div className="stat-label" style={{ marginBottom: "0.5rem" }}>
-        Abilities
-      </div>
-      <div className="abilities-compact">
-        {ABILITY_ORDER.map((key) => (
-          <div key={key} className="ability-compact-item">
-            <span className="ability-name">{key}</span>
-            <RollBonusButton
-              label={`${key} check`}
-              bonus={level.abilities[key]}
-              className="ability-mod"
-            >
-              {formatAbilityMod(level.abilities[key])}
-            </RollBonusButton>
-          </div>
-        ))}
+      <div className="abilities-grid">
+        {ABILITY_ORDER.map((key) => {
+          const delta = abilityDelta[key] ?? 0;
+          const effective = effectiveAbilityModifier(level.abilities[key], delta);
+
+          return (
+            <div key={key} className="ability-stat">
+              <span className="stat-label">{key}</span>
+              <RollBonusButton
+                label={`${key} check`}
+                bonus={effective}
+                className={`stat-value ${statModClass(delta) ?? ""}`.trim()}
+              >
+                {formatAbilityMod(effective)}
+              </RollBonusButton>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

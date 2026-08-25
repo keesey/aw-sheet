@@ -1,5 +1,9 @@
 import type { AbilityKey, ActiveCondition, LevelSnapshot } from "@/lib/types";
+import { armorClass } from "@/lib/shim-sham/armor";
+import { classDc } from "@/lib/shim-sham/class-dc";
 import { getActiveCondition, isValuedCondition } from "@/lib/shim-sham/conditions";
+import { perception } from "@/lib/shim-sham/perception";
+import { savingThrows } from "@/lib/shim-sham/saves";
 
 type PenaltyType = "status" | "circumstance" | "untyped";
 
@@ -29,11 +33,11 @@ export type ConditionEffects = ConditionActionLocks & {
   classDc: number;
   maxHpDelta: number;
   speedDelta: number;
+  abilityDelta: Record<AbilityKey, number>;
   skillDelta: Record<string, number>;
   finesseMeleeAttack: number;
   rangedAttack: number;
   strMeleeAttack: number;
-  strDamage: number;
   sensesDisabled: boolean;
   dyingMax: number;
 };
@@ -198,6 +202,43 @@ function allCheckPenalty(conditions: ActiveCondition[]): number {
   return Math.min(-conditionValue(conditions, "frightened"), -conditionValue(conditions, "sickened"), 0);
 }
 
+/** Effective ability modifier after condition-based reductions (enfeebled, clumsy, stupefied). */
+export function effectiveAbilityModifier(base: number, delta: number): number {
+  return base + delta;
+}
+
+export function effectiveAbilities(
+  base: Record<AbilityKey, number>,
+  abilityDelta: Record<AbilityKey, number>,
+): Record<AbilityKey, number> {
+  return {
+    STR: effectiveAbilityModifier(base.STR, abilityDelta.STR),
+    DEX: effectiveAbilityModifier(base.DEX, abilityDelta.DEX),
+    CON: effectiveAbilityModifier(base.CON, abilityDelta.CON),
+    INT: effectiveAbilityModifier(base.INT, abilityDelta.INT),
+    WIS: effectiveAbilityModifier(base.WIS, abilityDelta.WIS),
+    CHA: effectiveAbilityModifier(base.CHA, abilityDelta.CHA),
+  };
+}
+
+/** Sheet stats rebuilt from effective ability modifiers plus non-ability condition penalties. */
+export function runtimeDerivedStats(
+  snapshot: Pick<LevelSnapshot, "level" | "abilities" | "ac" | "fort" | "reflex" | "will" | "perception" | "classDc">,
+  effects: ConditionEffects,
+) {
+  const abilities = effectiveAbilities(snapshot.abilities, effects.abilityDelta);
+  const saves = savingThrows(abilities, snapshot.level);
+
+  return {
+    ac: armorClass(abilities.DEX, snapshot.level) + effects.ac,
+    perception: perception(abilities.WIS, snapshot.level) + effects.perception,
+    classDc: classDc(abilities.DEX, snapshot.level) + effects.classDc,
+    fort: saves.fort + effects.fort,
+    reflex: saves.reflex + effects.reflex,
+    will: saves.will + effects.will,
+  };
+}
+
 /**
  * Numeric and action effects that can be shown on the sheet.
  * Status/circumstance penalties of the same type do not stack (worst applies).
@@ -224,7 +265,6 @@ export function resolveConditionEffects(
 
   const ac = newTyped();
   addPenalty(ac, "status", allChecks);
-  addPenalty(ac, "status", clumsy);
   addPenalty(ac, "status", fatigued);
   addPenalty(ac, "status", unconsciousDefenses);
   if (has("off-guard")) addPenalty(ac, "circumstance", -2);
@@ -236,53 +276,50 @@ export function resolveConditionEffects(
 
   const reflex = newTyped();
   addPenalty(reflex, "status", allChecks);
-  addPenalty(reflex, "status", clumsy);
   addPenalty(reflex, "status", fatigued);
   addPenalty(reflex, "status", unconsciousDefenses);
 
   const will = newTyped();
   addPenalty(will, "status", allChecks);
-  addPenalty(will, "status", stupefied);
   addPenalty(will, "status", fatigued);
 
-  const perception = newTyped();
-  addPenalty(perception, "status", allChecks);
-  addPenalty(perception, "status", stupefied);
-  addPenalty(perception, "status", fascinated);
-  addPenalty(perception, "status", blindedPerception);
-  addPenalty(perception, "status", deafenedPerception);
-  addPenalty(perception, "status", unconsciousDefenses);
+  const perceptionMods = newTyped();
+  addPenalty(perceptionMods, "status", allChecks);
+  addPenalty(perceptionMods, "status", fascinated);
+  addPenalty(perceptionMods, "status", blindedPerception);
+  addPenalty(perceptionMods, "status", deafenedPerception);
+  addPenalty(perceptionMods, "status", unconsciousDefenses);
 
-  const classDc = newTyped();
-  addPenalty(classDc, "status", allChecks);
-  addPenalty(classDc, "status", clumsy);
+  const classDcMods = newTyped();
+  addPenalty(classDcMods, "status", allChecks);
 
   const finesseMeleeAttack = newTyped();
   addPenalty(finesseMeleeAttack, "status", allChecks);
-  addPenalty(finesseMeleeAttack, "status", clumsy);
   if (has("prone")) addPenalty(finesseMeleeAttack, "circumstance", -2);
 
   const rangedAttack = newTyped();
   addPenalty(rangedAttack, "status", allChecks);
-  addPenalty(rangedAttack, "status", clumsy);
   if (has("prone")) addPenalty(rangedAttack, "circumstance", -2);
 
   const strMeleeAttack = newTyped();
   addPenalty(strMeleeAttack, "status", allChecks);
-  addPenalty(strMeleeAttack, "status", enfeebled);
   if (has("prone")) addPenalty(strMeleeAttack, "circumstance", -2);
+
+  const abilityDelta: Record<AbilityKey, number> = {
+    STR: enfeebled,
+    DEX: clumsy,
+    CON: 0,
+    INT: stupefied,
+    WIS: stupefied,
+    CHA: stupefied,
+  };
 
   const skillDelta: Record<string, number> = {};
   for (const [name, ability] of Object.entries(skillAbilities)) {
     const skill = newTyped();
     addPenalty(skill, "status", allChecks);
     addPenalty(skill, "status", fascinated);
-    if (ability === "DEX") addPenalty(skill, "status", clumsy);
-    if (ability === "STR") addPenalty(skill, "status", enfeebled);
     if (ability === "CON") addPenalty(skill, "status", -value("drained"));
-    if (ability === "INT" || ability === "WIS" || ability === "CHA") {
-      addPenalty(skill, "status", stupefied);
-    }
     skillDelta[name] = total(skill);
   }
 
@@ -295,15 +332,15 @@ export function resolveConditionEffects(
     fort: total(fort),
     reflex: total(reflex),
     will: total(will),
-    perception: total(perception),
-    classDc: total(classDc),
+    perception: total(perceptionMods),
+    classDc: total(classDcMods),
     maxHpDelta: -drainedHpReduction(conditions, snapshot.level),
     speedDelta: has("encumbered") ? -10 : 0,
+    abilityDelta,
     skillDelta,
     finesseMeleeAttack: total(finesseMeleeAttack),
     rangedAttack: total(rangedAttack),
     strMeleeAttack: total(strMeleeAttack),
-    strDamage: enfeebled,
     sensesDisabled: has("blinded"),
     dyingMax: Math.max(0, 4 - value("doomed")),
     disableAllActions: cannotAct,

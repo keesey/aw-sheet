@@ -11,8 +11,8 @@ import {
   maxBulkCapacity,
 } from "@/lib/shim-sham/bulk";
 import { inventoryTotalBulk } from "@/lib/shim-sham/inventory";
-import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
-import { getSkillKeyAbilities } from "@/lib/shim-sham/skills";
+import { resolveConditionEffects, runtimeDerivedStats } from "@/lib/shim-sham/condition-effects";
+import { buildSkillEntries, getSkillKeyAbilities } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
 import { AbilitiesSection } from "./components/sheet/AbilitiesSection";
 import { LevelsPanel } from "./components/panels/LevelsPanel";
@@ -146,6 +146,14 @@ export default function CharacterSheet() {
 
   const { static: data, level, runtime } = sheet;
   const effects = resolveConditionEffects(runtime.conditions, level, getSkillKeyAbilities());
+  const derived = runtimeDerivedStats(level, effects);
+  const baseSkills = buildSkillEntries(level);
+  const skillConditionDelta = Object.fromEntries(
+    data.skills.map((skill) => {
+      const base = baseSkills.find((entry) => entry.name === skill.name);
+      return [skill.name, base ? skill.bonus - base.bonus : 0];
+    }),
+  );
   const maxHp = Math.max(1, level.maxHp + effects.maxHpDelta);
   const currentHp = Math.min(runtime.currentHp, maxHp);
   const hpPct = Math.round((currentHp / maxHp) * 100);
@@ -161,14 +169,15 @@ export default function CharacterSheet() {
     double: data.actions.filter((a) => a.cost === "double").sort(byActionName),
   };
   const circumstanceBonus = circumstanceAcBonus(runtime);
-  const displayAc = level.ac + circumstanceBonus + effects.ac;
-  const acDelta = circumstanceBonus + effects.ac;
+  const displayAc = derived.ac + circumstanceBonus;
+  const acDelta = derived.ac - level.ac + circumstanceBonus;
   const inventoryBulk = inventoryTotalBulk(data.inventory, data.consumableCatalog, runtime);
-  const inventoryBulkMax = maxBulkCapacity(level.abilities.STR);
-  const encumberedFromBulk = isEncumberedByBulk(inventoryBulk, level.abilities.STR);
+  const effectiveStr = level.abilities.STR + effects.abilityDelta.STR;
+  const inventoryBulkMax = maxBulkCapacity(effectiveStr);
+  const encumberedFromBulk = isEncumberedByBulk(inventoryBulk, effectiveStr);
   const lockedConditionIds = encumberedFromBulk ? ["encumbered"] : [];
   const bulkBarPct = Math.min(100, (inventoryBulk / inventoryBulkMax) * 100);
-  const bulkBarFillColor = bulkBarColor(inventoryBulk, level.abilities.STR);
+  const bulkBarFillColor = bulkBarColor(inventoryBulk, effectiveStr);
   const strikeAction = buildStrikeAction();
   const areaWeapons = buildAreaWeaponEntries(
     data.weapons,
@@ -211,7 +220,7 @@ export default function CharacterSheet() {
             save={saveSheet}
           />
 
-          <AbilitiesSection level={level} />
+          <AbilitiesSection level={level} abilityDelta={effects.abilityDelta} />
 
           <StatsGrid
             data={data}
@@ -259,9 +268,9 @@ export default function CharacterSheet() {
           ) : (
             <ExploreSection
               skills={data.skills}
-              skillDelta={effects.skillDelta}
-              perception={level.perception + effects.perception}
-              perceptionDelta={effects.perception}
+              skillDelta={skillConditionDelta}
+              perception={derived.perception}
+              perceptionDelta={derived.perception - level.perception}
             />
           )}
         </div>
@@ -269,7 +278,7 @@ export default function CharacterSheet() {
         <div className="sheet-column sheet-column--skills">
           <SkillsSection
             skills={data.skills}
-            skillDelta={effects.skillDelta}
+            skillDelta={skillConditionDelta}
             notesDraft={notesDraft}
             onNotesDraftChange={setNotesDraft}
             runtimeNotes={runtime.notes}
@@ -320,7 +329,7 @@ export default function CharacterSheet() {
         <InventoryPanel
           data={data}
           runtime={runtime}
-          level={level}
+          strModifier={effectiveStr}
           inventoryBulk={inventoryBulk}
           inventoryBulkMax={inventoryBulkMax}
           bulkBarPct={bulkBarPct}
@@ -345,7 +354,7 @@ export default function CharacterSheet() {
           finisherDice={level.finisherDice}
           damageMode={strikesDamageMode}
           attackDelta={effects.finesseMeleeAttack}
-          damagePenalized={effects.strDamage < 0}
+          damagePenalized={effects.abilityDelta.STR < 0}
           onClose={() => setStrikesOpen(false)}
         />
       )}

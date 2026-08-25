@@ -31,7 +31,7 @@ function InventorySection({
 export function InventoryPanel({
   data,
   runtime,
-  level,
+  strModifier,
   inventoryBulk,
   inventoryBulkMax,
   bulkBarPct,
@@ -41,7 +41,7 @@ export function InventoryPanel({
 }: {
   data: CharacterSheet["static"];
   runtime: CharacterSheet["runtime"];
-  level: CharacterSheet["level"];
+  strModifier: number;
   inventoryBulk: number;
   inventoryBulkMax: number;
   bulkBarPct: number;
@@ -159,7 +159,7 @@ export function InventoryPanel({
     </>
   );
 
-  const overburdened = isOverburdenedByBulk(inventoryBulk, level.abilities.STR);
+  const overburdened = isOverburdenedByBulk(inventoryBulk, strModifier);
 
   const sections = [
     ...(runtime.adHocItems.length > 0
@@ -199,7 +199,7 @@ export function InventoryPanel({
               Bulk {formatBulkUnits(inventoryBulk)} / {inventoryBulkMax}
             </span>
             <span className="inventory-bulk__note">
-              Encumbered at {5 + level.abilities.STR}+ · Max {inventoryBulkMax}
+              Encumbered at {5 + strModifier}+ · Max {inventoryBulkMax}
             </span>
           </div>
           {overburdened ? (
