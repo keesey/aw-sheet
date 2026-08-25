@@ -1,45 +1,124 @@
 # AW Sheet
 
-Interactive character sheets for Starfinder 2e, hosted on Vercel.
+Interactive, iPad-friendly character sheet for **Jenluwess "Shim Sham" Wivvashimmeh** (Starfinder 2e Swashbuckler / Battledancer). Tailored to this character only — not a generic sheet.
 
-## Shim Sham
+Live: [`/shim-sham`](https://aw-sheet.vercel.app/shim-sham)
 
-Jenluwess "Shim Sham" Wivvashimmeh — Swashbuckler (Battledancer) at [`/shim-sham`](http://localhost:3000/shim-sham).
+Rules reference: [Archives of Nethys (Starfinder 2e)](https://2e.aonsrd.com).
 
-### Features
+## Features
 
-- HP / Force Field temp HP with quick damage & healing
-- AC, saves, skills, weapons, senses, panache
-- Actions panel (from your Notes export)
-- Inventory, consumables, batteries, chem tank
-- Conditions with AoN links
-- Credits adjustment
-- Rest (heal, reset dailies) and level-up through 15 (from your progression gist)
+- **Combat & exploration** — Encounter / Explore modes, panache, cover, dueling/baton parry toggles
+- **HP & Force Field** — damage/healing, temp HP (absorbs first), Raise (3×/day), +2 HP/turn regen
+- **Stats** — attributes (with condition highlighting), AC, saves, Perception, Class DC, speeds (land, fly from jetpack, climb), senses
+- **Strikes & area weapons** — level-scaling attacks, MAP, crit doubling, Deadly on crit, Zero Pistol range-increment penalties
+- **Skills & actions** — AoN links, Stylish Combatant (+1 / +2 at 9+) and Continuous Flair (exploration at 11+), bravado actions
+- **Conditions** — AoN-accurate effects (e.g. fatigued → AC/saves only; enfeebled/clumsy/stupefied via attribute deltas)
+- **Inventory** — equipment view, consumable use tracking, batteries, chem tank, ad hoc items, bulk/encumbrance warnings
+- **Progression** — level up through 15 (Levels panel: feats, class features, attribute boosts)
+- **Rest** — header button; CON×level heal, reset dailies, tick doomed/drained down
+- **Notes** — editable runtime notes with automatic session log entries
+- **Credits** — ± adjustment
 
-### Local development
+## Local development
 
-Requires **Node.js 24+** (see `.nvmrc`). Uses **Yarn** for package management.
+Requires **Node.js 24+** (see `.nvmrc`). Uses **Yarn**.
 
 ```bash
 cd ~/Documents/workspace/aw-sheet
 nvm use          # if using nvm
 yarn install
-yarn dev
+yarn dev           # → http://localhost:3000/shim-sham
+yarn build         # production build
 ```
 
-Without Redis configured, state persists in the browser's localStorage only (banner shown at top).
+Copy `.env.example` to `.env.local` and set Upstash Redis vars for server-side persistence during local dev.
 
-### Vercel deployment
+Without Redis configured, the API still computes state changes but only the client persists them — `localStorage` key `shim-sham-runtime`, with a yellow banner: *"Vercel Redis not configured — saving to this browser only."*
 
-1. Push this repo to GitHub and import in [Vercel](https://vercel.com)
-2. In the project **Storage** tab, add **Upstash Redis** (Marketplace)
+Default runtime starts at **level 6**, full HP, fresh consumables/dailies (`createDefaultRuntime` in `lib/shim-sham/static.ts`).
+
+## Deployment
+
+Host on **Vercel** with **Upstash Redis** (Vercel Storage / Marketplace). No custom domain required.
+
+1. Push to GitHub and import in [Vercel](https://vercel.com)
+2. Project **Storage** tab → add **Upstash Redis**
 3. Env vars are injected automatically (`KV_REST_API_URL`, `KV_REST_API_TOKEN`)
-4. Deploy — the free tier is plenty for a single-user private sheet
+4. Deploy — free tier is plenty for a single-user private sheet
 
-No custom domain required; use the default `*.vercel.app` URL.
+## Architecture
 
-### Data sources
+```
+Browser (CharacterSheet.tsx)
+  ↕ fetch GET/PATCH /api/shim-sham
+API route (app/api/shim-sham/route.ts)
+  ↕ load/save RuntimeState
+Upstash Redis (or localStorage fallback on client)
+  +
+Static data + computed level stats → buildCharacterSheet(runtime)
+```
 
-- `data/jenluwess-wivvashimmeh.md` — Notes export (actions, consumables)
-- Paper character sheet scan
-- [Level progression gist](https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530)
+**Runtime state** (mutable): level, HP, panache, combat/explore toggles, jetpack, parry/cover, credits, conditions, Force Field, consumables, batteries, chem tank, Meyel reroll, notes, ad hoc items.
+
+**Static data** (in code): weapons, skills, actions, inventory, ancestry/class links.
+
+**Computed per level** (from `progression.ts` feats/attribute boosts + rank tables): attributes (`attributes.ts`), AC (`armor.ts`), saves, Perception, Class DC, max HP, strikes, skills.
+
+### Key paths
+
+| Path | Purpose |
+|------|---------|
+| `app/shim-sham/CharacterSheet.tsx` | Main UI |
+| `app/shim-sham/components/panels/` | Conditions, Inventory, Levels panels |
+| `app/api/shim-sham/route.ts` | GET/PATCH API |
+| `lib/shim-sham/static.ts` | Static data, default runtime, `buildCharacterSheet()` |
+| `lib/shim-sham/progression.ts` | Level 1–15 feats, class features, attribute boosts |
+| `lib/shim-sham/attributes.ts` | Attribute calculation (ancestry/background/class + level boosts) |
+| `lib/shim-sham/condition-effects.ts` | Condition math and runtime stat overrides |
+| `lib/shim-sham/conditions.ts` | Condition definitions with AoN URLs |
+| `lib/kv.ts` | Upstash Redis load/save |
+| `data/jenluwess-wivvashimmeh.md` | Notes export (actions, consumables reference) |
+
+## Data sources
+
+| Source | Used for |
+|--------|----------|
+| [Level progression gist](https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530) | `lib/shim-sham/progression.ts` (feats, boosts) |
+| `data/jenluwess-wivvashimmeh.md` | Actions, consumables (`lib/shim-sham/static.ts`, `inventory.ts`) |
+| [Combat playbook gist](https://gist.github.com/keesey/2c6a5bb30f1ccc30e4d4b7fe3e1c7e78) | Reference only (not in UI) |
+| Paper sheet (`Scoured Stars/character sheet.png`) | Reference only (not in repo) |
+
+The shared iCloud Note URL does **not** work for automated fetching. Export to Markdown, update `data/jenluwess-wivvashimmeh.md`, then sync into `lib/shim-sham/static.ts` / `inventory.ts` as needed.
+
+Gist stat blocks list attributes, Fort/Ref/Will, AC, and HP — not Perception or Class DC. The sheet calculates those from AoN rules.
+
+## API
+
+### `GET /api/shim-sham`
+
+Returns `{ sheet: CharacterSheet, kvConfigured: boolean }`.
+
+### `PATCH /api/shim-sham`
+
+Partial runtime updates or actions:
+
+```json
+{ "panache": true }
+{ "action": "hp-delta", "delta": -7 }
+{ "action": "activate-force-field" }
+{ "action": "deactivate-force-field" }
+{ "action": "force-field-regen" }
+{ "action": "rest" }
+{ "action": "level-up" }
+{ "credits": 1500 }
+{ "conditions": [{ "id": "frightened", "value": 1 }] }
+```
+
+## Known gaps
+
+- **Initial runtime vs. Notes checkboxes** — export shows consumables used and Force Field 2/3 raises; app defaults to fresh-after-rest at level 6.
+- **Inventory editing** — worn equipment is view-only; consumable tracking and ad hoc items only.
+- **Roll engine** — no Keen Flair (19→crit on attacks) or save degree upgrades.
+- **Offline** — web manifest for standalone install (`app/manifest.ts`); no service worker / offline cache.
+- **Data to verify** — swim speed (35′ with panache at level 6 in notes, not in progression); rapier grade (notes: Advanced).
