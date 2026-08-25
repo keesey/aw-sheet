@@ -39,7 +39,7 @@ export type StrikeDamageProfile = {
 
 export type ProficiencyRank = "U" | "T" | "E" | "M" | "L";
 
-export type AbilityKey = "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
+export type AttributeKey = "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
 
 export type SkillEntry = {
   name: string;
@@ -112,7 +112,7 @@ export type ProgressionFeat = {
 
 export type LevelSnapshot = {
   level: number;
-  abilities: Record<AbilityKey, number>;
+  attributes: Record<AttributeKey, number>;
   maxHp: number;
   ac: number;
   fort: number;

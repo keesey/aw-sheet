@@ -1,4 +1,5 @@
-import type { LevelSnapshot, ProgressionFeat } from "@/lib/types";
+import type { AttributeKey, LevelSnapshot, ProgressionFeat } from "@/lib/types";
+import { attributesFromProgression } from "@/lib/shim-sham/attributes";
 import { armorClass } from "@/lib/shim-sham/armor";
 import { classDc } from "@/lib/shim-sham/class-dc";
 import { maxHp } from "@/lib/shim-sham/max-hp";
@@ -7,8 +8,10 @@ import { savingThrows } from "@/lib/shim-sham/saves";
 
 type LevelProgression = Omit<
   LevelSnapshot,
-  "ac" | "fort" | "reflex" | "will" | "perception" | "classDc" | "maxHp"
->;
+  "attributes" | "ac" | "fort" | "reflex" | "will" | "perception" | "classDc" | "maxHp"
+> & {
+  attributeBoosts?: AttributeKey[];
+};
 
 const AON = "https://2e.aonsrd.com";
 const AONP = "https://2e.aonprd.com";
@@ -24,12 +27,13 @@ const classFeature = (name: string, url: string): ProgressionFeat => ({
 
 /** Level progression from https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530
  *  Gist vs calculated values: data/progression-gist-issues.md
+ *  Attributes: lib/shim-sham/attributes.ts (base build + attributeBoosts on this table).
  *  Land speed: lib/shim-sham/ancestry.ts (Stylish Combatant / Vivacious Speed at runtime).
  */
 export const PROGRESSION: LevelProgression[] = [
   {
     level: 1,
-    abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
+    attributeBoosts: ["CHA", "CHA", "DEX", "STR"],
     preciseStrike: 2,
     finisherDice: "2d6",
     feats: [
@@ -47,7 +51,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 2,
-    abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     preciseStrike: 2,
     finisherDice: "2d6",
     feats: [
@@ -58,7 +61,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 3,
-    abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     preciseStrike: 2,
     finisherDice: "2d6",
     feats: [
@@ -71,7 +73,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 4,
-    abilities: { STR: 1, DEX: 4, CON: 0, INT: 0, WIS: 1, CHA: 3 },
     preciseStrike: 2,
     finisherDice: "2d6",
     feats: [
@@ -81,7 +82,7 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 5,
-    abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
+    attributeBoosts: ["CHA", "CON", "DEX", "STR"],
     preciseStrike: 3,
     finisherDice: "3d6",
     feats: [
@@ -92,7 +93,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 6,
-    abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 3,
     finisherDice: "3d6",
     feats: [
@@ -102,7 +102,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 7,
-    abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 3,
     finisherDice: "3d6",
     feats: [
@@ -115,7 +114,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 8,
-    abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 3,
     finisherDice: "3d6",
     feats: [
@@ -125,7 +123,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 9,
-    abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 4,
     finisherDice: "4d6",
     feats: [
@@ -136,7 +133,7 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 10,
-    abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
+    attributeBoosts: ["CHA", "CON", "DEX", "STR"],
     preciseStrike: 4,
     finisherDice: "4d6",
     feats: [
@@ -146,7 +143,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 11,
-    abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 4,
     finisherDice: "4d6",
     feats: [
@@ -158,7 +154,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 12,
-    abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 4,
     finisherDice: "4d6",
     feats: [
@@ -168,7 +163,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 13,
-    abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 5,
     finisherDice: "5d6",
     feats: [
@@ -181,7 +175,6 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 14,
-    abilities: { STR: 3, DEX: 5, CON: 2, INT: 0, WIS: 1, CHA: 4 },
     preciseStrike: 5,
     finisherDice: "5d6",
     feats: [
@@ -191,7 +184,7 @@ export const PROGRESSION: LevelProgression[] = [
   },
   {
     level: 15,
-    abilities: { STR: 4, DEX: 5, CON: 3, INT: 1, WIS: 1, CHA: 5 },
+    attributeBoosts: ["CHA", "CON", "INT", "STR"],
     preciseStrike: 5,
     finisherDice: "5d6",
     feats: [
@@ -205,13 +198,16 @@ export const PROGRESSION: LevelProgression[] = [
 ];
 
 function withDerivedStats(entry: LevelProgression): LevelSnapshot {
+  const attributes = attributesFromProgression(entry.level, PROGRESSION);
+  const { attributeBoosts: _attributeBoosts, ...base } = entry;
   return {
-    ...entry,
-    maxHp: maxHp(entry.level, entry.abilities.CON),
-    ac: armorClass(entry.abilities.DEX, entry.level),
-    perception: perception(entry.abilities.WIS, entry.level),
-    classDc: classDc(entry.abilities.DEX, entry.level),
-    ...savingThrows(entry.abilities, entry.level),
+    ...base,
+    attributes,
+    maxHp: maxHp(entry.level, attributes.CON),
+    ac: armorClass(attributes.DEX, entry.level),
+    perception: perception(attributes.WIS, entry.level),
+    classDc: classDc(attributes.DEX, entry.level),
+    ...savingThrows(attributes, entry.level),
   };
 }
 

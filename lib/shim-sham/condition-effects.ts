@@ -1,4 +1,4 @@
-import type { AbilityKey, ActiveCondition, LevelSnapshot } from "@/lib/types";
+import type { AttributeKey, ActiveCondition, LevelSnapshot } from "@/lib/types";
 import { armorClass } from "@/lib/shim-sham/armor";
 import { classDc } from "@/lib/shim-sham/class-dc";
 import { getActiveCondition, isValuedCondition } from "@/lib/shim-sham/conditions";
@@ -33,7 +33,7 @@ export type ConditionEffects = ConditionActionLocks & {
   classDc: number;
   maxHpDelta: number;
   speedDelta: number;
-  abilityDelta: Record<AbilityKey, number>;
+  attributeDelta: Record<AttributeKey, number>;
   skillDelta: Record<string, number>;
   finesseMeleeAttack: number;
   rangedAttack: number;
@@ -202,37 +202,37 @@ function allCheckPenalty(conditions: ActiveCondition[]): number {
   return Math.min(-conditionValue(conditions, "frightened"), -conditionValue(conditions, "sickened"), 0);
 }
 
-/** Effective ability modifier after condition-based reductions (enfeebled, clumsy, stupefied). */
-export function effectiveAbilityModifier(base: number, delta: number): number {
+/** Effective attribute modifier after condition-based reductions (enfeebled, clumsy, stupefied). */
+export function effectiveAttributeModifier(base: number, delta: number): number {
   return base + delta;
 }
 
-export function effectiveAbilities(
-  base: Record<AbilityKey, number>,
-  abilityDelta: Record<AbilityKey, number>,
-): Record<AbilityKey, number> {
+export function effectiveAttributes(
+  base: Record<AttributeKey, number>,
+  attributeDelta: Record<AttributeKey, number>,
+): Record<AttributeKey, number> {
   return {
-    STR: effectiveAbilityModifier(base.STR, abilityDelta.STR),
-    DEX: effectiveAbilityModifier(base.DEX, abilityDelta.DEX),
-    CON: effectiveAbilityModifier(base.CON, abilityDelta.CON),
-    INT: effectiveAbilityModifier(base.INT, abilityDelta.INT),
-    WIS: effectiveAbilityModifier(base.WIS, abilityDelta.WIS),
-    CHA: effectiveAbilityModifier(base.CHA, abilityDelta.CHA),
+    STR: effectiveAttributeModifier(base.STR, attributeDelta.STR),
+    DEX: effectiveAttributeModifier(base.DEX, attributeDelta.DEX),
+    CON: effectiveAttributeModifier(base.CON, attributeDelta.CON),
+    INT: effectiveAttributeModifier(base.INT, attributeDelta.INT),
+    WIS: effectiveAttributeModifier(base.WIS, attributeDelta.WIS),
+    CHA: effectiveAttributeModifier(base.CHA, attributeDelta.CHA),
   };
 }
 
-/** Sheet stats rebuilt from effective ability modifiers plus non-ability condition penalties. */
+/** Sheet stats rebuilt from effective attribute modifiers plus non-attribute condition penalties. */
 export function runtimeDerivedStats(
-  snapshot: Pick<LevelSnapshot, "level" | "abilities" | "ac" | "fort" | "reflex" | "will" | "perception" | "classDc">,
+  snapshot: Pick<LevelSnapshot, "level" | "attributes" | "ac" | "fort" | "reflex" | "will" | "perception" | "classDc">,
   effects: ConditionEffects,
 ) {
-  const abilities = effectiveAbilities(snapshot.abilities, effects.abilityDelta);
-  const saves = savingThrows(abilities, snapshot.level);
+  const attributes = effectiveAttributes(snapshot.attributes, effects.attributeDelta);
+  const saves = savingThrows(attributes, snapshot.level);
 
   return {
-    ac: armorClass(abilities.DEX, snapshot.level) + effects.ac,
-    perception: perception(abilities.WIS, snapshot.level) + effects.perception,
-    classDc: classDc(abilities.DEX, snapshot.level) + effects.classDc,
+    ac: armorClass(attributes.DEX, snapshot.level) + effects.ac,
+    perception: perception(attributes.WIS, snapshot.level) + effects.perception,
+    classDc: classDc(attributes.DEX, snapshot.level) + effects.classDc,
     fort: saves.fort + effects.fort,
     reflex: saves.reflex + effects.reflex,
     will: saves.will + effects.will,
@@ -247,7 +247,7 @@ export function runtimeDerivedStats(
 export function resolveConditionEffects(
   rawConditions: ActiveCondition[],
   snapshot: Pick<LevelSnapshot, "level" | "maxHp">,
-  skillAbilities: Record<string, AbilityKey>,
+  skillAttributes: Record<string, AttributeKey>,
 ): ConditionEffects {
   const conditions = expandImpliedConditions(rawConditions);
   const has = (id: string) => hasCondition(conditions, id);
@@ -305,7 +305,7 @@ export function resolveConditionEffects(
   addPenalty(strMeleeAttack, "status", allChecks);
   if (has("prone")) addPenalty(strMeleeAttack, "circumstance", -2);
 
-  const abilityDelta: Record<AbilityKey, number> = {
+  const attributeDelta: Record<AttributeKey, number> = {
     STR: enfeebled,
     DEX: clumsy,
     CON: 0,
@@ -315,11 +315,11 @@ export function resolveConditionEffects(
   };
 
   const skillDelta: Record<string, number> = {};
-  for (const [name, ability] of Object.entries(skillAbilities)) {
+  for (const [name, attribute] of Object.entries(skillAttributes)) {
     const skill = newTyped();
     addPenalty(skill, "status", allChecks);
     addPenalty(skill, "status", fascinated);
-    if (ability === "CON") addPenalty(skill, "status", -value("drained"));
+    if (attribute === "CON") addPenalty(skill, "status", -value("drained"));
     skillDelta[name] = total(skill);
   }
 
@@ -336,7 +336,7 @@ export function resolveConditionEffects(
     classDc: total(classDcMods),
     maxHpDelta: -drainedHpReduction(conditions, snapshot.level),
     speedDelta: has("encumbered") ? -10 : 0,
-    abilityDelta,
+    attributeDelta,
     skillDelta,
     finesseMeleeAttack: total(finesseMeleeAttack),
     rangedAttack: total(rangedAttack),

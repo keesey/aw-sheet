@@ -1,11 +1,11 @@
-import type { AbilityKey, LevelSnapshot, ProficiencyRank, SkillEntry } from "@/lib/types";
+import type { AttributeKey, LevelSnapshot, ProficiencyRank, SkillEntry } from "@/lib/types";
 import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/proficiency";
 
 const AON = "https://2e.aonsrd.com";
 
 type SkillDefinition = {
   name: string;
-  keyAbility: AbilityKey;
+  keyAttribute: AttributeKey;
   url: string;
   /**
    * Proficiency rank from this character level onward, until a later entry.
@@ -23,7 +23,7 @@ type SkillDefinition = {
 const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
   {
     name: "Acrobatics",
-    keyAbility: "DEX",
+    keyAttribute: "DEX",
     url: `${AON}/skills/1-acrobatics`,
     ranks: [
       { level: 1, rank: "T" },
@@ -34,7 +34,7 @@ const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
   },
   {
     name: "Athletics",
-    keyAbility: "STR",
+    keyAttribute: "STR",
     url: `${AON}/skills/3-athletics`,
     ranks: [
       { level: 5, rank: "T" },
@@ -43,13 +43,13 @@ const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
   },
   {
     name: "Diplomacy",
-    keyAbility: "CHA",
+    keyAttribute: "CHA",
     url: `${AON}/skills/7-diplomacy`,
     ranks: [{ level: 1, rank: "T" }],
   },
   {
     name: "Intimidation",
-    keyAbility: "CHA",
+    keyAttribute: "CHA",
     url: `${AON}/skills/8-intimidation`,
     ranks: [
       { level: 1, rank: "T" },
@@ -58,13 +58,13 @@ const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
   },
   {
     name: "Lore (Piracy)",
-    keyAbility: "INT",
+    keyAttribute: "INT",
     url: `${AON}/skills/9-lore`,
     ranks: [{ level: 1, rank: "T" }],
   },
   {
     name: "Performance",
-    keyAbility: "CHA",
+    keyAttribute: "CHA",
     url: `${AON}/skills/13-performance`,
     ranks: [
       { level: 1, rank: "T" },
@@ -75,19 +75,19 @@ const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
   },
   {
     name: "Piloting",
-    keyAbility: "DEX",
+    keyAttribute: "DEX",
     url: `${AON}/skills/14-piloting`,
     ranks: [{ level: 1, rank: "T" }],
   },
   {
     name: "Stealth",
-    keyAbility: "DEX",
+    keyAttribute: "DEX",
     url: `${AON}/skills/17-stealth`,
     ranks: [{ level: 1, rank: "T" }],
   },
   {
     name: "Thievery",
-    keyAbility: "DEX",
+    keyAttribute: "DEX",
     url: `${AON}/skills/19-thievery`,
     ranks: [
       { level: 1, rank: "T" },
@@ -116,13 +116,13 @@ export function buildSkillEntries(snapshot: LevelSnapshot): SkillEntry[] {
       name: skill.name,
       proficiency,
       url: skill.url,
-      bonus: skillCheckBonus(snapshot.abilities[skill.keyAbility], proficiency, snapshot.level),
+      bonus: skillCheckBonus(snapshot.attributes[skill.keyAttribute], proficiency, snapshot.level),
     };
   });
 }
 
-export function getSkillKeyAbilities(): Record<string, AbilityKey> {
-  return Object.fromEntries(SHIM_SHAM_SKILLS.map((skill) => [skill.name, skill.keyAbility]));
+export function getSkillKeyAttributes(): Record<string, AttributeKey> {
+  return Object.fromEntries(SHIM_SHAM_SKILLS.map((skill) => [skill.name, skill.keyAttribute]));
 }
 
 export function skillBonusByName(skills: SkillEntry[], name: string): number {

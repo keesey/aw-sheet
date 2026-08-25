@@ -11,14 +11,14 @@ import {
 import { getWornArmor } from "@/lib/shim-sham/armor";
 import {
   attackDeltaForStrike,
-  effectiveAbilities,
-  effectiveAbilityModifier,
+  effectiveAttributes,
+  effectiveAttributeModifier,
   resolveConditionEffects,
 } from "@/lib/shim-sham/condition-effects";
 import {
   buildSkillEntries,
   formatSignedBonus,
-  getSkillKeyAbilities,
+  getSkillKeyAttributes,
   skillBonusByName,
 } from "@/lib/shim-sham/skills";
 import { buildWeaponStrikes, formatSkillAttackMapBonus } from "@/lib/shim-sham/strikes";
@@ -73,11 +73,11 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   const effects = resolveConditionEffects(
     normalizedConditions,
     level,
-    getSkillKeyAbilities(),
+    getSkillKeyAttributes(),
   );
-  const effectiveStr = effectiveAbilityModifier(
-    level.abilities.STR,
-    effects.abilityDelta.STR,
+  const effectiveStr = effectiveAttributeModifier(
+    level.attributes.STR,
+    effects.attributeDelta.STR,
   );
   const conditions = syncEncumberedFromBulk(
     normalizedConditions,
@@ -103,11 +103,11 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   const effects = resolveConditionEffects(
     normalizedRuntime.conditions,
     level,
-    getSkillKeyAbilities(),
+    getSkillKeyAttributes(),
   );
   const effectiveLevel = {
     ...level,
-    abilities: effectiveAbilities(level.abilities, effects.abilityDelta),
+    attributes: effectiveAttributes(level.attributes, effects.attributeDelta),
   };
   const allSkills = buildSkillEntries(effectiveLevel).map((skill) => ({
     ...skill,

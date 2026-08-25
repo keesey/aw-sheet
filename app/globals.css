@@ -1267,21 +1267,21 @@ button {
   font-style: italic;
 }
 
-.abilities-grid {
+.attributes-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 0.75rem;
   row-gap: 0.35rem;
 }
 
-.ability-stat {
+.attribute-stat {
   display: grid;
   grid-template-columns: 2.25rem max-content;
   column-gap: 0.35rem;
   align-items: baseline;
 }
 
-.abilities-grid .stat-value {
+.attributes-grid .stat-value {
   font-size: 1.35rem;
 }
 
@@ -1292,11 +1292,29 @@ button {
 }
 
 .feat-level {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .feat-level--future {
   opacity: 0.45;
+}
+
+.feat-level-boosts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.feat-level-boosts .feat-column-title {
+  margin-bottom: 0;
+}
+
+.feat-level-boosts__items {
+  color: var(--text);
 }
 
 .feat-level-columns {
@@ -1305,8 +1323,12 @@ button {
   gap: 1rem;
 }
 
-.feat-level-columns--header {
-  margin-bottom: 0.25rem;
+.feat-level-column {
+  min-width: 0;
+}
+
+.feat-level-column .feat-column-title {
+  margin-bottom: 0.15rem;
 }
 
 .feat-column-title {

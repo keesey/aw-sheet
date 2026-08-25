@@ -1,10 +1,10 @@
-import type { AbilityKey, ProficiencyRank } from "@/lib/types";
+import type { AttributeKey, ProficiencyRank } from "@/lib/types";
 import { getWornArmor } from "@/lib/shim-sham/armor";
 import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/proficiency";
 
 type SaveId = "fort" | "reflex" | "will";
 
-const SAVE_ABILITY: Record<SaveId, AbilityKey> = {
+const SAVE_ATTRIBUTE: Record<SaveId, AttributeKey> = {
   fort: "CON",
   reflex: "DEX",
   will: "WIS",
@@ -28,10 +28,10 @@ const SAVE_RANKS: Record<SaveId, ReadonlyArray<{ level: number; rank: Proficienc
   will: [{ level: 1, rank: "E" }],
 };
 
-function saveModifier(abilityModifier: number, save: SaveId, level: number): number {
+function saveModifier(attributeModifier: number, save: SaveId, level: number): number {
   const rank = proficiencyRankAtLevel(SAVE_RANKS[save], level);
   const resilient = getWornArmor(level).resilient;
-  return abilityModifier + proficiencyBonus(rank, level) + resilient;
+  return attributeModifier + proficiencyBonus(rank, level) + resilient;
 }
 
 /**
@@ -41,12 +41,12 @@ function saveModifier(abilityModifier: number, save: SaveId, level: number): num
  * @see https://2e.aonsrd.com/traits/155-resilient
  */
 export function savingThrows(
-  abilities: Record<AbilityKey, number>,
+  attributes: Record<AttributeKey, number>,
   level: number,
 ): Record<SaveId, number> {
   return {
-    fort: saveModifier(abilities[SAVE_ABILITY.fort], "fort", level),
-    reflex: saveModifier(abilities[SAVE_ABILITY.reflex], "reflex", level),
-    will: saveModifier(abilities[SAVE_ABILITY.will], "will", level),
+    fort: saveModifier(attributes[SAVE_ATTRIBUTE.fort], "fort", level),
+    reflex: saveModifier(attributes[SAVE_ATTRIBUTE.reflex], "reflex", level),
+    will: saveModifier(attributes[SAVE_ATTRIBUTE.will], "will", level),
   };
 }

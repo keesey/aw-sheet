@@ -12,9 +12,9 @@ import {
 } from "@/lib/shim-sham/bulk";
 import { inventoryTotalBulk } from "@/lib/shim-sham/inventory";
 import { resolveConditionEffects, runtimeDerivedStats } from "@/lib/shim-sham/condition-effects";
-import { buildSkillEntries, getSkillKeyAbilities } from "@/lib/shim-sham/skills";
+import { buildSkillEntries, getSkillKeyAttributes } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
-import { AbilitiesSection } from "./components/sheet/AbilitiesSection";
+import { AttributesSection } from "./components/sheet/AttributesSection";
 import { LevelsPanel } from "./components/panels/LevelsPanel";
 import { InventoryPanel } from "./components/panels/InventoryPanel";
 import { ConditionsPanel } from "./components/panels/ConditionsPanel";
@@ -61,7 +61,7 @@ export default function CharacterSheet() {
     const effects = resolveConditionEffects(
       sheet.runtime.conditions,
       sheet.level,
-      getSkillKeyAbilities(),
+      getSkillKeyAttributes(),
     );
     logContextRef.current = {
       runtime: sheet.runtime,
@@ -145,7 +145,7 @@ export default function CharacterSheet() {
   }
 
   const { static: data, level, runtime } = sheet;
-  const effects = resolveConditionEffects(runtime.conditions, level, getSkillKeyAbilities());
+  const effects = resolveConditionEffects(runtime.conditions, level, getSkillKeyAttributes());
   const derived = runtimeDerivedStats(level, effects);
   const baseSkills = buildSkillEntries(level);
   const skillConditionDelta = Object.fromEntries(
@@ -172,7 +172,7 @@ export default function CharacterSheet() {
   const displayAc = derived.ac + circumstanceBonus;
   const acDelta = derived.ac - level.ac + circumstanceBonus;
   const inventoryBulk = inventoryTotalBulk(data.inventory, data.consumableCatalog, runtime);
-  const effectiveStr = level.abilities.STR + effects.abilityDelta.STR;
+  const effectiveStr = level.attributes.STR + effects.attributeDelta.STR;
   const inventoryBulkMax = maxBulkCapacity(effectiveStr);
   const encumberedFromBulk = isEncumberedByBulk(inventoryBulk, effectiveStr);
   const lockedConditionIds = encumberedFromBulk ? ["encumbered"] : [];
@@ -230,7 +230,7 @@ export default function CharacterSheet() {
 
       <section className="sheet-content">
         <div className="sheet-column sheet-column--combat">
-          <AbilitiesSection level={level} abilityDelta={effects.abilityDelta} />
+          <AttributesSection level={level} attributeDelta={effects.attributeDelta} />
 
           <HpBlock
             level={level}
@@ -353,7 +353,7 @@ export default function CharacterSheet() {
           finisherDice={level.finisherDice}
           damageMode={strikesDamageMode}
           attackDelta={effects.finesseMeleeAttack}
-          damagePenalized={effects.abilityDelta.STR < 0}
+          damagePenalized={effects.attributeDelta.STR < 0}
           onClose={() => setStrikesOpen(false)}
         />
       )}

@@ -47,7 +47,7 @@ export async function PATCH(request: Request) {
 
   if (body.action === "rest") {
     const snapshot = getLevelSnapshot(runtime.level)!;
-    const conMod = Math.max(1, snapshot.abilities.CON);
+    const conMod = Math.max(1, snapshot.attributes.CON);
     const heal = conMod * runtime.level;
     const startHp = typeof body.currentHp === "number" ? body.currentHp : runtime.currentHp;
     const incoming = Array.isArray(body.conditions) ? body.conditions : runtime.conditions;

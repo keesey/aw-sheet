@@ -1,4 +1,4 @@
-import type { AbilityKey, LevelSnapshot, ProficiencyRank, StrikeDamageProfile, WeaponStrike } from "@/lib/types";
+import type { AttributeKey, LevelSnapshot, ProficiencyRank, StrikeDamageProfile, WeaponStrike } from "@/lib/types";
 import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/proficiency";
 
 const AON = "https://2e.aonsrd.com";
@@ -171,7 +171,7 @@ export function formatSkillAttackMapBonus(bonus: string): string {
   return formatMapAttacks(parseInt(match[1], 10), false);
 }
 
-function attackAttribute(strike: StrikeDefinition): AbilityKey {
+function attackAttribute(strike: StrikeDefinition): AttributeKey {
   if (strike.ranged || strike.finesse) return "DEX";
   return "STR";
 }
@@ -215,7 +215,7 @@ function buildDamageProfile(
   rank: ProficiencyRank,
   strDamageDelta: number,
 ): StrikeDamageProfile {
-  const strength = strike.ranged ? 0 : snapshot.abilities.STR + strDamageDelta;
+  const strength = strike.ranged ? 0 : snapshot.attributes.STR + strDamageDelta;
   const flatBonus = strength + weaponSpecializationDamage(snapshot.level, rank);
   return {
     weaponDice: strike.dice,
@@ -236,7 +236,7 @@ function buildDamageProfile(
  * @see https://2e.aonsrd.com/traits/183-tracking
  */
 function attackBonus(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: ProficiencyRank): number {
-  const attribute = snapshot.abilities[attackAttribute(strike)];
+  const attribute = snapshot.attributes[attackAttribute(strike)];
   return attribute + proficiencyBonus(rank, snapshot.level) + strike.tracking;
 }
 
@@ -251,7 +251,7 @@ function formatDamage(
   rank: ProficiencyRank,
   strDamageDelta = 0,
 ): string {
-  const strength = strike.ranged ? 0 : snapshot.abilities.STR + strDamageDelta;
+  const strength = strike.ranged ? 0 : snapshot.attributes.STR + strDamageDelta;
   const bonus = strength + weaponSpecializationDamage(snapshot.level, rank);
   let text = strike.dice;
   if (bonus !== 0) text += signed(bonus);

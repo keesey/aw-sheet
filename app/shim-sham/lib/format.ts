@@ -1,4 +1,4 @@
-export function formatAbilityMod(value: number) {
+export function formatAttributeMod(value: number) {
   return value >= 0 ? `+${value}` : `${value}`;
 }
 

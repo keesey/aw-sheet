@@ -1,11 +1,27 @@
 import { PROGRESSION, getNextLevelSnapshot } from "@/lib/shim-sham/progression";
-import type { CharacterSheet, ProgressionFeat } from "@/lib/types";
+import type { AttributeKey, CharacterSheet, ProgressionFeat } from "@/lib/types";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
 
 const byName = (a: ProgressionFeat, b: ProgressionFeat) =>
   a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+
+function formatAttributeBoosts(boosts: AttributeKey[]): string[] {
+  const counts = new Map<AttributeKey, number>();
+  for (const attribute of boosts) {
+    counts.set(attribute, (counts.get(attribute) ?? 0) + 1);
+  }
+  const seen = new Set<AttributeKey>();
+  const labels: string[] = [];
+  for (const attribute of boosts) {
+    if (seen.has(attribute)) continue;
+    seen.add(attribute);
+    const count = counts.get(attribute)!;
+    labels.push(count > 1 ? `${attribute} ×${count}` : attribute);
+  }
+  return labels;
+}
 
 function FeatList({ entries }: { entries: ProgressionFeat[] }) {
   const sorted = [...entries].sort(byName);
@@ -24,6 +40,46 @@ function FeatList({ entries }: { entries: ProgressionFeat[] }) {
   );
 }
 
+function LevelSection({
+  level,
+  feats,
+  attributeBoosts,
+  future = false,
+  hideTitle = false,
+}: {
+  level: number;
+  feats: ProgressionFeat[];
+  attributeBoosts?: AttributeKey[];
+  future?: boolean;
+  hideTitle?: boolean;
+}) {
+  const featEntries = feats.filter((entry) => entry.kind === "feat");
+  const classFeatures = feats.filter((entry) => entry.kind === "class-feature");
+  const boostLabels = attributeBoosts ? formatAttributeBoosts(attributeBoosts) : [];
+
+  return (
+    <section className={`feat-level${future ? " feat-level--future" : ""}`}>
+      {hideTitle ? null : <div className="action-group-title">Level {level}</div>}
+      {boostLabels.length > 0 ? (
+        <div className="feat-level-boosts">
+          <span className="feat-column-title">Attribute Boosts</span>
+          <span className="feat-level-boosts__items">{boostLabels.join(" · ")}</span>
+        </div>
+      ) : null}
+      <div className="feat-level-columns">
+        <div className="feat-level-column">
+          <div className="feat-column-title">Feats</div>
+          <FeatList entries={featEntries} />
+        </div>
+        <div className="feat-level-column">
+          <div className="feat-column-title">Class Features</div>
+          <FeatList entries={classFeatures} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function LevelsPanel({
   data,
   runtime,
@@ -36,37 +92,25 @@ export function LevelsPanel({
   onClose: () => void;
 }) {
   const nextLevel = getNextLevelSnapshot(runtime.level);
-  const nextLevelFeats = nextLevel?.feats ?? [];
-  const nextLevelFeatEntries = nextLevelFeats.filter((entry) => entry.kind === "feat");
-  const nextLevelClassFeatures = nextLevelFeats.filter((entry) => entry.kind === "class-feature");
+  const nextEntry = nextLevel
+    ? PROGRESSION.find((entry) => entry.level === nextLevel.level)
+    : undefined;
 
   return (
     <BottomPanel title="Levels" onClose={onClose}>
       <div className="feats-panel">
-        <div className="feat-level-columns feat-level-columns--header">
-          <div className="feat-column-title">Feats</div>
-          <div className="feat-column-title">Class Features</div>
-        </div>
-        {PROGRESSION.map(({ level, feats }) => {
-          const featEntries = feats.filter((entry) => entry.kind === "feat");
-          const classFeatures = feats.filter((entry) => entry.kind === "class-feature");
-
-          return (
-            <section
-              key={level}
-              className={`feat-level${level > runtime.level ? " feat-level--future" : ""}`}
-            >
-              <div className="action-group-title">Level {level}</div>
-              <div className="feat-level-columns">
-                <FeatList entries={featEntries} />
-                <FeatList entries={classFeatures} />
-              </div>
-            </section>
-          );
-        })}
+        {PROGRESSION.map(({ level, feats, attributeBoosts }) => (
+          <LevelSection
+            key={level}
+            level={level}
+            feats={feats}
+            attributeBoosts={attributeBoosts}
+            future={level > runtime.level}
+          />
+        ))}
       </div>
 
-      {nextLevel ? (
+      {nextLevel && nextEntry ? (
         <section style={{ marginTop: "1.5rem" }}>
           <div className="stat-label">Level Up to {nextLevel.level}</div>
           <ul style={{ fontSize: "0.85rem", color: "var(--muted)", paddingLeft: "1.25rem" }}>
@@ -76,12 +120,12 @@ export function LevelsPanel({
               Fort/Ref/Will → +{nextLevel.fort}/+{nextLevel.reflex}/+{nextLevel.will}
             </li>
           </ul>
-          {nextLevelFeats.length > 0 ? (
-            <div className="feat-level-columns" style={{ marginTop: "0.5rem" }}>
-              <FeatList entries={nextLevelFeatEntries} />
-              <FeatList entries={nextLevelClassFeatures} />
-            </div>
-          ) : null}
+          <LevelSection
+            level={nextLevel.level}
+            feats={nextEntry.feats}
+            attributeBoosts={nextEntry.attributeBoosts}
+            hideTitle
+          />
           <button
             type="button"
             className="btn btn-success"
