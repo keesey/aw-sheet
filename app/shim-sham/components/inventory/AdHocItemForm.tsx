@@ -2,16 +2,18 @@
 
 import { useMemo, useState } from "react";
 import type { AdHocInventoryItem } from "@/lib/types";
-import { bulkSelectOptions } from "@/lib/shim-sham/bulk";
+import { bulkSelectOptions, bulkToUnits } from "@/lib/shim-sham/bulk";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 
 export function AdHocItemForm({
   items,
+  currentBulk,
   maxBulk,
   save,
 }: {
   items: AdHocInventoryItem[];
+  currentBulk: number;
   maxBulk: number;
   save: SaveFn;
 }) {
@@ -25,6 +27,11 @@ export function AdHocItemForm({
     const trimmedName = name.trim();
     if (!trimmedName) {
       setError("Name is required.");
+      return;
+    }
+    const addedUnits = bulkToUnits(bulk);
+    if (currentBulk > maxBulk || (addedUnits >= 1 && currentBulk + addedUnits > maxBulk)) {
+      setError(`Adding this item would exceed max bulk (${maxBulk}).`);
       return;
     }
     const trimmedLink = link.trim();

@@ -279,6 +279,7 @@ export function resolveConditionEffects(
     addPenalty(skill, "status", fascinated);
     if (ability === "DEX") addPenalty(skill, "status", clumsy);
     if (ability === "STR") addPenalty(skill, "status", enfeebled);
+    if (ability === "CON") addPenalty(skill, "status", -value("drained"));
     if (ability === "INT" || ability === "WIS" || ability === "CHA") {
       addPenalty(skill, "status", stupefied);
     }

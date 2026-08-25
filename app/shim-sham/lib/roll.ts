@@ -5,6 +5,8 @@ export type DamageRollLine = {
   rolls: number[];
   modifier: number;
   subtotal: number;
+  /** When set (>1), damage was multiplied on a critical hit (rolls are shown once). */
+  critMultiplier?: number;
 };
 
 export type CheckRollResult = {

@@ -1,7 +1,11 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
-import type { StrikeDamageMode } from "../../lib/strike-format";
+import {
+  stylishCombatantApplies,
+  stylishCombatantBonus,
+} from "@/lib/shim-sham/stylish-combatant";
 import { parseMapAttackValues, parseRollBonusString } from "../../lib/roll";
+import type { StrikeDamageMode } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { MapRollButtons } from "../MapRollButtons";
 import { RollBonusButton } from "../RollBonusButton";
@@ -43,10 +47,20 @@ function ActionTitle({ action }: { action: CharacterAction }) {
   return name;
 }
 
-function ActionRollBonus({ action, combat }: { action: CharacterAction; combat: boolean }) {
+function ActionRollBonus({
+  action,
+  inEncounter,
+  level,
+}: {
+  action: CharacterAction;
+  inEncounter: boolean;
+  level: number;
+}) {
   const rollBonus = isRollBonus(action.bonus) ? action.bonus : null;
   const combatBonus =
-    combat && action.combatBonus ? parseRollBonusString(action.combatBonus) : 0;
+    action.combatBonus && stylishCombatantApplies(inEncounter, level)
+      ? stylishCombatantBonus(level)
+      : 0;
 
   if (!rollBonus && !combatBonus) {
     return null;
@@ -70,8 +84,8 @@ function ActionRollBonus({ action, combat }: { action: CharacterAction; combat: 
   return (
     <RollBonusButton label={action.name} bonus={numericBonus} className="action-name__bonus">
       {rollBonus}
-      {combat && action.combatBonus ? (
-        <span className="action-combat-bonus"> {action.combatBonus}</span>
+      {combatBonus > 0 ? (
+        <span className="action-combat-bonus"> +{combatBonus}</span>
       ) : null}
     </RollBonusButton>
   );
@@ -129,7 +143,10 @@ export function ActionRow({
   speedDelta?: number;
 }) {
   const disabled = isActionDisabled(action, jetpack, panache, meyelRerollUsed, locks);
-  const rollBonus = compact ? <ActionRollBonus action={action} combat={combat} /> : null;
+  const rollBonus =
+    compact && level ? (
+      <ActionRollBonus action={action} inEncounter={combat} level={level.level} />
+    ) : null;
   const control =
     compact && runtime && save && onOpenStrikes && onOpenAreaWeapons && ffUsesLeft != null ? (
       <ActionControl
@@ -186,7 +203,11 @@ export function ActionRow({
         <span className="action-name__title">
           <ActionTitle action={action} />
         </span>
-        <ActionRollBonus action={action} combat={combat} />
+        <ActionRollBonus
+          action={action}
+          inEncounter={combat}
+          level={level?.level ?? 1}
+        />
       </div>
       <ActionDescription text={action.description} />
       {action.traits && <div className="action-traits">{action.traits.join(" · ")}</div>}

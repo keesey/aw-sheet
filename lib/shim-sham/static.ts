@@ -20,6 +20,9 @@ import {
   skillBonusByName,
 } from "@/lib/shim-sham/skills";
 import { buildWeaponStrikes, formatSkillAttackMapBonus } from "@/lib/shim-sham/strikes";
+import {
+  formatStylishCombatantBonus,
+} from "@/lib/shim-sham/stylish-combatant";
 
 const AON = "https://2e.aonsrd.com";
 const AONP = "https://2e.aonprd.com";
@@ -101,6 +104,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
     strDamageDelta: effects.strDamage,
   });
   const armor = getWornArmor(level.level);
+  const stylishBonus = formatStylishCombatantBonus(level.level);
   const allActions: CharacterAction[] = [
         {
           id: "cardiac-accelerator",
@@ -215,7 +219,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           traits: ["Bravado", "Move", "Swashbuckler"],
           url: `${AONP}/Feats.aspx?ID=6149`,
           bonus: skillBonus("Performance"),
-          combatBonus: "+1",
+          combatBonus: stylishBonus,
         },
         {
           id: "baton-parry",
@@ -233,7 +237,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           traits: ["Bravado", "Concentrate", "Incapacitation"],
           url: `${AONP}/Feats.aspx?ID=5147`,
           bonus: skillBonus("Performance"),
-          combatBonus: "+1",
+          combatBonus: stylishBonus,
         },
         {
           id: "stride",
@@ -259,7 +263,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           traits: ["Bravado", "Move"],
           url: `${AONP}/Actions.aspx?ID=2370`,
           bonus: skillBonus("Acrobatics"),
-          combatBonus: "+1",
+          combatBonus: stylishBonus,
         },
   ];
 

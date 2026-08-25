@@ -75,7 +75,7 @@ export const PROGRESSION: LevelProgression[] = [
     level: 6,
     abilities: { STR: 2, DEX: 4, CON: 1, INT: 0, WIS: 1, CHA: 4 },
     maxHp: 80,
-    landSpeed: 25,
+    landSpeed: 30,
     flySpeed: 20,
     climbSpeed: 25,
     preciseStrike: 3,

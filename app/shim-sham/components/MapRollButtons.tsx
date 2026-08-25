@@ -15,6 +15,7 @@ export function MapRollButtons({
   className,
   combatBonus = 0,
   strikeRoll,
+  rangePenalty = 0,
 }: {
   label: string;
   values: [number, number, number];
@@ -24,13 +25,14 @@ export function MapRollButtons({
     damage: StrikeDamageProfile;
     damageMode: StrikeDamageMode;
   };
+  rangePenalty?: number;
 }) {
   const { openStrikeRoll } = useRoll();
 
   return (
     <span className={`map-roll-btns${className ? ` ${className}` : ""}`}>
       {values.map((value, index) => {
-        const bonus = value + combatBonus;
+        const bonus = value + combatBonus + (rangePenalty ?? 0);
         const rollLabel = `${label}${MAP_ATTACK_SUFFIXES[index]}`;
         return (
           <Fragment key={index}>

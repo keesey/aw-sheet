@@ -80,6 +80,10 @@ export function isEncumberedByBulk(bulkUnits: number, strModifier: number): bool
   return bulkUnits >= encumberedBulkThreshold(strModifier);
 }
 
+export function isOverburdenedByBulk(bulkUnits: number, strModifier: number): boolean {
+  return bulkUnits > maxBulkCapacity(strModifier);
+}
+
 export function syncEncumberedFromBulk(
   conditions: ActiveCondition[],
   bulkUnits: number,
@@ -97,8 +101,13 @@ export function syncEncumberedFromBulk(
   return conditions;
 }
 
-/** Green at 0 bulk → red at encumbered threshold (5 + STR). */
-export function bulkBarColor(bulkUnits: number, strModifier: number): string {
+/** Green at 0 bulk → red at encumbered threshold (5 + STR). Over max turns fully red. */
+export function bulkBarColor(
+  bulkUnits: number,
+  strModifier: number,
+): string {
+  const max = maxBulkCapacity(strModifier);
+  if (bulkUnits > max) return "hsl(0, 65%, 42%)";
   const threshold = encumberedBulkThreshold(strModifier);
   const ratio = threshold > 0 ? Math.min(1, bulkUnits / threshold) : 1;
   const hue = Math.round(142 * (1 - ratio));

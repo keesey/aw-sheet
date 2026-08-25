@@ -100,7 +100,7 @@ export const CONDITIONS: ConditionEntry[] = [
     id: "flat-footed",
     name: "Flat-Footed",
     url: "https://2e.aonsrd.com/conditions/28-off-guard",
-    summary: "-2 AC, no Dex bonus to AC.",
+    summary: "-2 circumstance penalty to AC.",
   },
   {
     id: "frightened",

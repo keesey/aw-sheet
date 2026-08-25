@@ -33,31 +33,36 @@ function CheckRollBody({ result }: { result: Extract<RollResult, { kind: "check"
 }
 
 function DamageRollCell({ line }: { line: DamageRollLine }) {
-  if (line.rolls.length === 0) {
-    return null;
-  }
+  const hasRolls = line.rolls.length > 0;
+  const hasModifier = line.modifier !== 0;
+  if (!hasRolls && !hasModifier) return null;
 
-  const segments: { value: number; bold: boolean }[] = [
-    ...line.rolls.map((value) => ({ value, bold: true })),
-  ];
-  if (line.modifier !== 0) {
-    segments.push({ value: line.modifier, bold: false });
-  }
-
-  return (
+  const terms = (
     <>
-      {segments.map((segment, index) => (
-        <Fragment key={index}>
+      {line.rolls.map((value, index) => (
+        <Fragment key={`d${index}`}>
           {index > 0 ? " + " : null}
-          {segment.bold ? (
-            <span className="roll-result__die">{segment.value}</span>
-          ) : (
-            <span>{segment.value < 0 ? segment.value : Math.abs(segment.value)}</span>
-          )}
+          <span className="roll-result__die">{value}</span>
         </Fragment>
       ))}
+      {hasModifier ? (
+        <>
+          {hasRolls ? " + " : null}
+          <span>{line.modifier < 0 ? line.modifier : Math.abs(line.modifier)}</span>
+        </>
+      ) : null}
     </>
   );
+
+  if (line.critMultiplier != null && line.critMultiplier > 1) {
+    return (
+      <>
+        ({terms}) × {line.critMultiplier}
+      </>
+    );
+  }
+
+  return terms;
 }
 
 function CritEffectControl({
@@ -98,6 +103,8 @@ function CritEffectControl({
 
 function StrikeRollBody({ result }: { result: Extract<RollResult, { kind: "strike" }> }) {
   const nat = natClass(result.d20);
+  const deadlyRolled = result.damageLines.some((line) => line.label.includes("deadly"));
+
   return (
     <>
       <div className="roll-result__section-label">Attack</div>
@@ -130,7 +137,7 @@ function StrikeRollBody({ result }: { result: Extract<RollResult, { kind: "strik
         </tbody>
       </table>
 
-      {result.critNote && result.critDice ? (
+      {result.critNote && result.critDice && !deadlyRolled ? (
         <CritEffectControl
           critNote={result.critNote}
           critDice={result.critDice}

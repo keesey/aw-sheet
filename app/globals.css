@@ -132,6 +132,24 @@ body {
   min-width: 0;
 }
 
+.strike-range-control {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.strike-range-label {
+  margin-right: 0.25rem;
+}
+
+.strike-range-value {
+  min-width: 6rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .strike-attack {
   flex-shrink: 0;
   font-size: 1.15rem;
@@ -888,6 +906,12 @@ button {
 .inventory-bulk__note {
   font-size: 0.8rem;
   color: var(--muted);
+}
+
+.inventory-bulk__warning {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #fecaca;
 }
 
 .bulk-bar {

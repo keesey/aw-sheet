@@ -3,6 +3,7 @@ import type { CharacterSheet } from "@/lib/types";
 import {
   formatBulkLabel,
   formatBulkUnits,
+  isOverburdenedByBulk,
 } from "@/lib/shim-sham/bulk";
 import { getEquipmentGroups, SHIM_SHAM_AMMUNITION } from "@/lib/shim-sham/inventory";
 import type { SaveFn } from "../../types";
@@ -158,6 +159,8 @@ export function InventoryPanel({
     </>
   );
 
+  const overburdened = isOverburdenedByBulk(inventoryBulk, level.abilities.STR);
+
   const sections = [
     ...(runtime.adHocItems.length > 0
       ? [
@@ -196,9 +199,14 @@ export function InventoryPanel({
               Bulk {formatBulkUnits(inventoryBulk)} / {inventoryBulkMax}
             </span>
             <span className="inventory-bulk__note">
-              Encumbered at {5 + level.abilities.STR}+
+              Encumbered at {5 + level.abilities.STR}+ · Max {inventoryBulkMax}
             </span>
           </div>
+          {overburdened ? (
+            <p className="inventory-bulk__warning">
+              Over max bulk — drop items before you can carry more.
+            </p>
+          ) : null}
           <div className="hp-bar bulk-bar">
             <div
               className="bulk-bar-fill"
@@ -217,6 +225,7 @@ export function InventoryPanel({
 
         <AdHocItemForm
           items={runtime.adHocItems}
+          currentBulk={inventoryBulk}
           maxBulk={inventoryBulkMax}
           save={save}
         />

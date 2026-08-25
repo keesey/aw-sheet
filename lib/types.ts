@@ -21,6 +21,8 @@ export type WeaponStrike = {
   url: string;
   weaponUrl?: string;
   ranged?: boolean;
+  /** First range increment in feet. */
+  rangeIncrement?: number;
 };
 
 /** Structured damage for strike attack rolls. */

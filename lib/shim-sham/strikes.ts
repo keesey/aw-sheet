@@ -15,6 +15,8 @@ type StrikeDefinition = {
   agile?: boolean;
   /** Item bonus to attack from the Tracking trait (0 if none). */
   tracking: number;
+  /** First range increment in feet (ranged weapons only). */
+  rangeIncrement?: number;
   dice: string;
   damageType: string;
   /** Shown on its own line below damage, e.g. "+1d8 deadly on crit". */
@@ -119,6 +121,7 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     category: "simple",
     ranged: true,
     tracking: 1,
+    rangeIncrement: 30,
     dice: "2d6",
     damageType: "C",
     expend: 2,
@@ -130,6 +133,11 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
 
 function signed(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
+}
+
+/** −2 per range increment beyond the first. @see https://2e.aonsrd.com/rules/336-attack-rolls */
+export function rangeAttackPenalty(incrementsBeyondFirst: number): number {
+  return incrementsBeyondFirst <= 0 ? 0 : -2 * incrementsBeyondFirst;
 }
 
 export function mapAttackValues(first: number, agile: boolean): [number, number, number] {
@@ -286,6 +294,7 @@ export function buildWeaponStrikes(
     url: strike.url,
     weaponUrl: strike.weaponUrl,
     ranged: strike.ranged,
+    rangeIncrement: strike.rangeIncrement,
   };
   });
 }
