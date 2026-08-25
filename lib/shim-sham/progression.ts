@@ -26,7 +26,6 @@ const classFeature = (name: string, url: string): ProgressionFeat => ({
 });
 
 /** Level progression from https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530
- *  Gist vs calculated values: data/progression-gist-issues.md
  *  Attributes: lib/shim-sham/attributes.ts (base build + attributeBoosts on this table).
  *  Land speed: lib/shim-sham/ancestry.ts (Stylish Combatant / Vivacious Speed at runtime).
  */

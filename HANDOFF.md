@@ -35,7 +35,6 @@ Production build: `yarn build` (verified working).
 | `lib/kv.ts` | Upstash Redis load/save |
 | `lib/types.ts` | TypeScript types |
 | `data/jenluwess-wivvashimmeh.md` | Notes export (source for actions/consumables) |
-| `data/progression-gist-issues.md` | Gist vs AoN-calculated stat discrepancies |
 
 ## Architecture
 
@@ -67,7 +66,7 @@ If `KV_REST_API_URL` / `KV_REST_API_TOKEN` (or Upstash equivalents) are unset:
 3. **Level plan** — https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530 → `lib/shim-sham/progression.ts`
 4. **Combat playbook** — https://gist.github.com/keesey/2c6a5bb30f1ccc30e4d4b7fe3e1c7e78 (not in UI)
 
-Rules reference: [Archives of Nethys (Starfinder 2e)](https://2e.aonsrd.com). See `data/progression-gist-issues.md` where the gist diverges from AoN math.
+Rules reference: [Archives of Nethys (Starfinder 2e)](https://2e.aonsrd.com).
 
 ## Implemented features
 
