@@ -35,8 +35,10 @@ export function SheetHeader({
               <AonLink href={data.background.url}>{data.background.name}</AonLink>
               {" · "}
               <AonLink href={data.class.url}>
-                {data.class.name.replace(/\d+/, "").trim()} {runtime.level}
+                {data.class.name.replace(/\d+/, "").trim()}
               </AonLink>
+              {" "}
+              {runtime.level}
               {" ("}
               <AonLink href={data.style.url}>{data.style.name}</AonLink>
               {")"}
@@ -87,6 +89,7 @@ export function SheetHeader({
                       accelerate: false,
                       duelingParry: false,
                       batonParry: false,
+                      cover: "none",
                       forceFieldActive: false,
                       forceFieldHp: 0,
                     },

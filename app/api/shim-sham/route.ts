@@ -165,6 +165,7 @@ export async function PATCH(request: Request) {
       accelerate: false,
       duelingParry: false,
       batonParry: false,
+      cover: "none",
       forceFieldActive: false,
       forceFieldHp: 0,
     };
