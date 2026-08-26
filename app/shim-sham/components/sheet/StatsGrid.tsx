@@ -1,9 +1,11 @@
 import type { CharacterSheet } from "@/lib/types";
 import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { runtimeDerivedStats } from "@/lib/shim-sham/condition-effects";
+import { hasJetpackInstalled } from "@/lib/shim-sham/jetpack";
 import { formatSigned, statModClass } from "../../lib/format";
 import { getSpeedClassName, getSpeedDisplayValue } from "../../lib/speed";
 import type { SaveFn, SpeedEntry } from "../../types";
+import { ActionToggle } from "../ActionToggle";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 
@@ -113,7 +115,20 @@ export function StatsGrid({
 
       {showSpeed ? (
         <div className="stat-card stat-card--wide">
-          <div className="stat-label">Speed</div>
+          <div className="stat-card__header-row">
+            <div className="stat-label">Speed</div>
+            {hasJetpackInstalled(level.level) ? (
+              <div className="speed-jetpack-control">
+                <span className="speed-jetpack-label">Jetpack</span>
+                <ActionToggle
+                  label="Jetpack"
+                  variant="jetpack"
+                  checked={runtime.jetpack}
+                  onChange={(checked) => void save({ jetpack: checked })}
+                />
+              </div>
+            ) : null}
+          </div>
           <div style={{ fontSize: "1rem", fontWeight: 600, marginTop: "0.35rem", lineHeight: 1.5 }}>
             {speedEntries.map((speed, index) => {
               const speedClass = getSpeedClassName(speed, runtime.panache, runtime.accelerate);

@@ -36,10 +36,10 @@ export function jetpackFlySpeedEntry(
   };
 }
 
-export function buildSpeedEntries(level: LevelSnapshot): SpeedEntry[] {
+export function buildSpeedEntries(level: LevelSnapshot, jetpackActive = false): SpeedEntry[] {
   return [
     { label: "Land", value: PAHTRA_LAND_SPEED, stylishBoost: true, accelerateBoost: true },
-    jetpackFlySpeedEntry(level.level),
+    jetpackFlySpeedEntry(level.level, { requireActive: true, active: jetpackActive }),
     climbingClawsSpeedEntry(level),
     level.swimSpeed != null
       ? { label: "Swim", value: level.swimSpeed, stylishBoost: true, accelerateBoost: false }

@@ -184,7 +184,7 @@ export default function CharacterSheet() {
     data.consumableCatalog,
     runtime.consumables,
   );
-  const speedEntries = buildSpeedEntries(level);
+  const speedEntries = buildSpeedEntries(level, runtime.jetpack);
 
   const handleRest = () => {
     if (

@@ -1,6 +1,7 @@
 import type { CharacterAction, CoverLevel, RuntimeState } from "@/lib/types";
 import type { StrikeDamageMode } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
+import { ActionToggle } from "../ActionToggle";
 
 function TakeCoverButtons({
   cover,
@@ -34,35 +35,6 @@ function TakeCoverButtons({
         +4
       </button>
     </div>
-  );
-}
-
-function ActionToggle({
-  checked,
-  disabled,
-  onChange,
-  label,
-  variant,
-}: {
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-  variant?: "force-field";
-}) {
-  return (
-    <label
-      className={`action-toggle${variant === "force-field" ? " action-toggle--force-field" : ""}`}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.checked)}
-        aria-label={label}
-      />
-      <span className="action-toggle__track" aria-hidden />
-    </label>
   );
 }
 
@@ -112,6 +84,7 @@ export function ActionControl({
       return (
         <ActionToggle
           label="Jetpack"
+          variant="jetpack"
           checked={runtime.jetpack}
           disabled={disabled}
           onChange={(checked) => void save({ jetpack: checked })}
