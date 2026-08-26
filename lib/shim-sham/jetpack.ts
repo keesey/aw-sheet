@@ -7,3 +7,8 @@ export const COMMERCIAL_JETPACK_FLY_SPEED = 20;
 export function hasJetpackInstalled(level: number): boolean {
   return level >= JETPACK_ARMOR_LEVEL;
 }
+
+/** True when the character currently has a fly Speed (jetpack active at level 3+). */
+export function hasFlySpeed(level: number, jetpackActive: boolean): boolean {
+  return hasJetpackInstalled(level) && jetpackActive;
+}

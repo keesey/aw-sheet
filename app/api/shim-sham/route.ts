@@ -63,7 +63,9 @@ export async function PATCH(request: Request) {
       panache: false,
       accelerate: false,
       jetpack: false,
-      combat: false,
+      preparedToAid: false,
+      delayed: false,
+      encounter: false,
       conditions,
     };
   } else if (body.action === "level-up") {
@@ -158,7 +160,7 @@ export async function PATCH(request: Request) {
     }
   }
 
-  if (!runtime.combat) {
+  if (!runtime.encounter) {
     runtime = {
       ...runtime,
       panache: false,
@@ -166,6 +168,8 @@ export async function PATCH(request: Request) {
       duelingParry: false,
       batonParry: false,
       cover: "none",
+      preparedToAid: false,
+      delayed: false,
       forceFieldActive: false,
       forceFieldHp: 0,
     };

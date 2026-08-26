@@ -52,7 +52,7 @@ export type CoverLevel = "none" | "standard" | "greater";
 export type CharacterAction = {
   id: string;
   name: string;
-  cost: "free" | "single" | "double" | "minute" | "reaction";
+  cost: "free" | "single" | "double" | "triple" | "reaction";
   description: string;
   traits?: string[];
   url: string;
@@ -69,6 +69,12 @@ export type CharacterAction = {
     | "dueling-parry"
     | "baton-parry"
     | "take-cover"
+    | "prepare-to-aid"
+    | "aid"
+    | "drop-prone"
+    | "stand"
+    | "delay"
+    | "return-to-initiative"
     | "strikes"
     | "area-weapons";
 };
@@ -134,7 +140,7 @@ export type RuntimeState = {
   panache: boolean;
   accelerate: boolean;
   jetpack: boolean;
-  combat: boolean;
+  encounter: boolean;
   duelingParry: boolean;
   batonParry: boolean;
   cover: CoverLevel;
@@ -145,6 +151,8 @@ export type RuntimeState = {
   /** True from Activate until Deactivate; independent of current temp HP. */
   forceFieldActive: boolean;
   meyelRerollUsed: boolean;
+  preparedToAid: boolean;
+  delayed: boolean;
   consumables: Record<string, number>;
   batteries: { id: string; charges: number; max: number }[];
   chemTankCharges: number;

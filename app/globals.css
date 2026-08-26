@@ -1167,8 +1167,16 @@ button {
 }
 
 .action-row__main {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   min-width: 0;
   flex: 1 1 auto;
+}
+
+.action-row__cost-icon {
+  flex-shrink: 0;
+  color: var(--text);
 }
 
 .action-row__speeds {

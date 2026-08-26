@@ -71,31 +71,33 @@ export function SheetHeader({
             className={`btn ${runtime.panache ? "panache-on" : ""}`}
             onClick={() => void save({ panache: !runtime.panache })}
             aria-pressed={runtime.panache}
-            disabled={!runtime.combat}
+            disabled={!runtime.encounter}
           >
             Panache
           </button>
           <button
             type="button"
-            className={`btn ${runtime.combat ? "combat-on" : ""}`}
+            className={`btn ${runtime.encounter ? "combat-on" : ""}`}
             onClick={() => {
-              const nextCombat = !runtime.combat;
+              const nextEncounter = !runtime.encounter;
               void save(
-                nextCombat
-                  ? { combat: true }
+                nextEncounter
+                  ? { encounter: true }
                   : {
-                      combat: false,
+                      encounter: false,
                       panache: false,
                       accelerate: false,
                       duelingParry: false,
                       batonParry: false,
                       cover: "none",
+                      preparedToAid: false,
+                      delayed: false,
                       forceFieldActive: false,
                       forceFieldHp: 0,
                     },
               );
             }}
-            aria-pressed={runtime.combat}
+            aria-pressed={runtime.encounter}
           >
             Encounter
           </button>

@@ -64,13 +64,13 @@ export function sessionLogLineForSave(
     }
   }
 
-  if (body.combat === true && !runtime.combat) {
+  if (body.encounter === true && !runtime.encounter) {
     return "ENCOUNTER";
   }
-  if (body.combat === false && runtime.combat) {
+  if (body.encounter === false && runtime.encounter) {
     return "EXPLORATION";
   }
-  if (body.combat === false) {
+  if (body.encounter === false) {
     return null;
   }
 
@@ -113,6 +113,20 @@ export function sessionLogLineForSave(
 
   if (body.meyelRerollUsed === true && !runtime.meyelRerollUsed) {
     return "Reroll Save — Meyel's Chosen Pahtra";
+  }
+
+  if (body.preparedToAid === true && !runtime.preparedToAid) {
+    return "Prepare to Aid";
+  }
+  if (body.preparedToAid === false && runtime.preparedToAid) {
+    return "Aid";
+  }
+
+  if (body.delayed === true && !runtime.delayed) {
+    return "Delay";
+  }
+  if (body.delayed === false && runtime.delayed) {
+    return "Return to Initiative Order";
   }
 
   if (body.duelingParry === true && !runtime.duelingParry) {

@@ -158,6 +158,38 @@ function formatMapAttacks(first: number, agile: boolean): string {
   return mapAttackValues(first, agile).map(signed).join(" / ");
 }
 
+const SLIPPERY_PREY_LEVEL = 4;
+
+/** Second and third MAP penalties for Escape with Slippery Prey (Acrobatics). */
+function escapeMapPenalties(
+  acrobaticsRank: ProficiencyRank,
+  hasSlipperyPrey: boolean,
+): [number, number] {
+  if (!hasSlipperyPrey || acrobaticsRank === "U") {
+    return [5, 10];
+  }
+  if (acrobaticsRank === "L") {
+    return [0, 0];
+  }
+  if (acrobaticsRank === "M") {
+    return [3, 6];
+  }
+  return [4, 8];
+}
+
+/** Escape MAP: standard, or reduced by Slippery Prey when trained in Acrobatics. */
+export function formatEscapeMapBonus(
+  first: number,
+  acrobaticsRank: ProficiencyRank,
+  characterLevel: number,
+): string {
+  const [secondPenalty, thirdPenalty] = escapeMapPenalties(
+    acrobaticsRank,
+    characterLevel >= SLIPPERY_PREY_LEVEL,
+  );
+  return [first, first - secondPenalty, first - thirdPenalty].map(signed).join(" / ");
+}
+
 export function formatSkillAttackMapBonus(bonus: string): string {
   const match = bonus.match(/^([+-]?\d+)/);
   if (!match) return bonus;

@@ -14,7 +14,7 @@ export function ActionsSection({
   save,
   onOpenStrikes,
   onOpenAreaWeapons,
-  combat,
+  encounter,
   jetpack,
   panache,
   meyelRerollUsed,
@@ -26,6 +26,7 @@ export function ActionsSection({
     reaction: CharacterAction[];
     single: CharacterAction[];
     double: CharacterAction[];
+    triple: CharacterAction[];
   };
   strikeAction: CharacterAction;
   level: LevelSnapshot;
@@ -35,7 +36,7 @@ export function ActionsSection({
   save: SaveFn;
   onOpenStrikes: (options: StrikesOpenOptions) => void;
   onOpenAreaWeapons: () => void;
-  combat: boolean;
+  encounter: boolean;
   jetpack: boolean;
   panache: boolean;
   meyelRerollUsed: boolean;
@@ -43,7 +44,7 @@ export function ActionsSection({
   athleticsBonus: number;
 }) {
   const actionProps = {
-    combat,
+    encounter,
     jetpack,
     panache,
     meyelRerollUsed,
@@ -63,31 +64,25 @@ export function ActionsSection({
     a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
   );
 
+  const actionSections = [
+    actionsByCost.free,
+    actionsByCost.reaction,
+    singleActions,
+    actionsByCost.double,
+    actionsByCost.triple,
+  ];
+
   return (
     <div className="stat-card sheet-section actions-main-section">
       <div className="stat-label" style={{ marginBottom: "0.5rem" }}>
         Actions
       </div>
 
-      <div className="action-group-title">Free Action</div>
-      {actionsByCost.free.map((action) => (
-        <ActionRow key={action.id} action={action} {...actionProps} />
-      ))}
-
-      <div className="action-group-title">Reaction</div>
-      {actionsByCost.reaction.map((action) => (
-        <ActionRow key={action.id} action={action} {...actionProps} />
-      ))}
-
-      <div className="action-group-title">Single Action</div>
-      {singleActions.map((action) => (
-        <ActionRow key={action.id} action={action} {...actionProps} />
-      ))}
-
-      <div className="action-group-title">Double Action</div>
-      {actionsByCost.double.map((action) => (
-        <ActionRow key={action.id} action={action} {...actionProps} />
-      ))}
+      {actionSections.flatMap((section) =>
+        section.map((action) => (
+          <ActionRow key={action.id} action={action} {...actionProps} />
+        )),
+      )}
     </div>
   );
 }

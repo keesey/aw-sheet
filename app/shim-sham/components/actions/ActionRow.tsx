@@ -1,5 +1,9 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
+import { crawlActionAvailable, escapeActionAvailable, modifiedSpeed } from "@/lib/shim-sham/condition-effects";
+import { getActiveCondition } from "@/lib/shim-sham/conditions";
+import { PAHTRA_LAND_SPEED } from "@/lib/shim-sham/ancestry";
+import { hasFlySpeed } from "@/lib/shim-sham/jetpack";
 import {
   stylishCombatantApplies,
   stylishCombatantBonus,
@@ -9,6 +13,7 @@ import type { StrikesOpenOptions } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { MapRollButtons } from "../MapRollButtons";
 import { RollBonusButton } from "../RollBonusButton";
+import { ActionCostIcon } from "../icons/ActionCostIcon";
 import { AonLink } from "../AonLink";
 import { ActionDescription } from "./ActionDescription";
 import { ActionControl } from "./ActionControl";
@@ -32,7 +37,7 @@ function ActionTitle({ action }: { action: CharacterAction }) {
   const name =
     action.id === "fly" ? (
       <span className="speed-fly-label">{action.name}</span>
-    ) : action.id === "jetpack" ? (
+    ) : action.id === "jetpack" || action.id === "dismiss-jetpack" ? (
       <span className="action-jetpack-label">{action.name}</span>
     ) : action.id === "cardiac-accelerator" ? (
       <span className="action-accelerate-label">{action.name}</span>
@@ -91,21 +96,51 @@ function ActionRollBonus({
   );
 }
 
-function isActionDisabled(
+function isActionHidden(
   action: CharacterAction,
   jetpack: boolean,
   panache: boolean,
   meyelRerollUsed: boolean,
   locks: ConditionActionLocks,
+  characterLevel?: number,
+  preparedToAid = false,
+  conditions: RuntimeState["conditions"] = [],
+  speedDelta = 0,
+  delayed = false,
+  encounter = false,
 ) {
-  if (action.id === "fly" && !jetpack) return true;
+  if (delayed) {
+    return action.id !== "return-to-initiative";
+  }
+
+  if (action.id === "return-to-initiative") return true;
+  if (action.id === "delay" && !encounter) return true;
+  if (action.id === "fly" && (characterLevel == null || !hasFlySpeed(characterLevel, jetpack))) return true;
+  if (action.id === "arrest-a-fall" && (characterLevel == null || !hasFlySpeed(characterLevel, jetpack))) {
+    return true;
+  }
+  if (action.id === "aid" && !preparedToAid) return true;
+  if (action.id === "jetpack" && jetpack) return true;
+  if (action.id === "dismiss-jetpack" && !jetpack) return true;
+  if (action.id === "drop-prone" && getActiveCondition(conditions, "prone")) return true;
+  if (action.id === "stand" && !getActiveCondition(conditions, "prone")) return true;
+  if (action.id === "step" && modifiedSpeed(PAHTRA_LAND_SPEED, speedDelta) < 10) return true;
+  if (
+    action.id === "crawl" &&
+    !crawlActionAvailable(conditions, modifiedSpeed(PAHTRA_LAND_SPEED, speedDelta))
+  ) {
+    return true;
+  }
+  if (action.id === "escape" && !escapeActionAvailable(conditions)) return true;
   if (PANACHE_ACTION_IDS.has(action.id) && !panache) return true;
   if (action.id === "meyel-reroll" && meyelRerollUsed) return true;
   if (locks.disableAllActions) return true;
   if (locks.disableReaction && action.cost === "reaction") return true;
   const traits = action.traits ?? [];
-  if (locks.disableMove && traits.includes("Move")) return true;
-  if (locks.disableAttack && (traits.includes("Attack") || traits.includes("Finisher"))) return true;
+  if (locks.disableMove && traits.includes("Move") && action.id !== "crawl" && action.id !== "stand") return true;
+  if (locks.disableAttack && (traits.includes("Attack") || traits.includes("Finisher")) && action.id !== "escape") {
+    return true;
+  }
   if (locks.disableManipulate && traits.includes("Manipulate")) return true;
   if (locks.disableConcentrate && traits.includes("Concentrate")) return true;
   return false;
@@ -113,7 +148,7 @@ function isActionDisabled(
 
 export function ActionRow({
   action,
-  combat,
+  encounter,
   jetpack,
   panache,
   meyelRerollUsed,
@@ -129,7 +164,7 @@ export function ActionRow({
   speedDelta = 0,
 }: {
   action: CharacterAction;
-  combat: boolean;
+  encounter: boolean;
   jetpack: boolean;
   panache: boolean;
   meyelRerollUsed: boolean;
@@ -144,10 +179,25 @@ export function ActionRow({
   level?: LevelSnapshot;
   speedDelta?: number;
 }) {
-  const disabled = isActionDisabled(action, jetpack, panache, meyelRerollUsed, locks);
+  if (isActionHidden(
+    action,
+    jetpack,
+    panache,
+    meyelRerollUsed,
+    locks,
+    level?.level,
+    runtime?.preparedToAid,
+    runtime?.conditions,
+    speedDelta,
+    runtime?.delayed,
+    encounter,
+  )) {
+    return null;
+  }
+
   const rollBonus =
     compact && level ? (
-      <ActionRollBonus action={action} inEncounter={combat} level={level.level} />
+      <ActionRollBonus action={action} inEncounter={encounter} level={level.level} />
     ) : null;
   const control =
     compact && runtime && save && onOpenStrikes && onOpenAreaWeapons && ffUsesLeft != null ? (
@@ -155,7 +205,7 @@ export function ActionRow({
         action={action}
         runtime={runtime}
         ffUsesLeft={ffUsesLeft}
-        disabled={disabled}
+        disabled={false}
         save={save}
         onOpenStrikes={onOpenStrikes}
         onOpenAreaWeapons={onOpenAreaWeapons}
@@ -164,7 +214,7 @@ export function ActionRow({
     ) : null;
 
   if (compact) {
-    const className = `action-row action-row--compact action-row--split${disabled ? " action-row--disabled" : ""}`;
+    const className = "action-row action-row--compact action-row--split";
     const title = <ActionTitle action={action} />;
     const speedNote =
       level && runtime ? (
@@ -185,15 +235,12 @@ export function ActionRow({
       ) : null;
 
     return (
-      <div className={className} aria-disabled={disabled || undefined}>
+      <div className={className}>
         <div className="action-row__main">
-          {disabled ? (
-            <span className="action-row__link action-row__link--disabled">{title}</span>
-          ) : (
-            <AonLink href={action.url} className="action-row__link">
-              {title}
-            </AonLink>
-          )}
+          <ActionCostIcon cost={action.cost} className="action-row__cost-icon" />
+          <AonLink href={action.url} className="action-row__link">
+            {title}
+          </AonLink>
         </div>
         {aside}
       </div>
@@ -208,7 +255,7 @@ export function ActionRow({
         </span>
         <ActionRollBonus
           action={action}
-          inEncounter={combat}
+          inEncounter={encounter}
           level={level?.level ?? 1}
         />
       </div>
@@ -217,18 +264,8 @@ export function ActionRow({
     </>
   );
 
-  const className = `action-row${disabled ? " action-row--disabled" : ""}`;
-
-  if (disabled) {
-    return (
-      <div className={className} aria-disabled="true">
-        {content}
-      </div>
-    );
-  }
-
   return (
-    <AonLink href={action.url} className={className}>
+    <AonLink href={action.url} className="action-row">
       {content}
     </AonLink>
   );

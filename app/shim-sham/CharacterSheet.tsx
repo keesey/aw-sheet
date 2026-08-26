@@ -172,6 +172,7 @@ export default function CharacterSheet() {
     reaction: data.actions.filter((a) => a.cost === "reaction").sort(byActionName),
     single: data.actions.filter((a) => a.cost === "single").sort(byActionName),
     double: data.actions.filter((a) => a.cost === "double").sort(byActionName),
+    triple: data.actions.filter((a) => a.cost === "triple").sort(byActionName),
   };
   const circumstanceBonus = circumstanceAcBonus(runtime);
   const displayAc = derived.ac + circumstanceBonus;
@@ -211,7 +212,9 @@ export default function CharacterSheet() {
       panache: false,
       accelerate: false,
       jetpack: false,
-      combat: false,
+      preparedToAid: false,
+      delayed: false,
+      encounter: false,
     });
   };
 
@@ -244,7 +247,7 @@ export default function CharacterSheet() {
             maxHp={maxHp}
             hpPct={hpPct}
             ffPct={ffPct}
-            showForceField={runtime.combat}
+            showForceField={runtime.encounter}
             hpDeltaInput={hpDeltaInput}
             onHpDeltaInputChange={setHpDeltaInput}
             onApplyHpDelta={(sign) => applyHpDelta(sign, currentHp, runtime.forceFieldHp)}
@@ -258,8 +261,8 @@ export default function CharacterSheet() {
             displayAc={displayAc}
             acDelta={acDelta}
             effects={effects}
-            showCredits={!runtime.combat}
-            showSpeed={!runtime.combat}
+            showCredits={!runtime.encounter}
+            showSpeed={!runtime.encounter}
             speedEntries={speedEntries}
             creditInput={creditInput}
             onCreditInputChange={setCreditInput}
@@ -274,7 +277,7 @@ export default function CharacterSheet() {
         </div>
 
         <div className="sheet-column sheet-column--strikes">
-          {runtime.combat ? (
+          {runtime.encounter ? (
             <ActionsSection
               actionsByCost={actionsByCost}
               strikeAction={strikeAction}
@@ -288,7 +291,7 @@ export default function CharacterSheet() {
                 setStrikesOpen(true);
               }}
               onOpenAreaWeapons={() => setAreaWeaponsOpen(true)}
-              combat={runtime.combat}
+              encounter={runtime.encounter}
               jetpack={runtime.jetpack}
               panache={runtime.panache}
               meyelRerollUsed={runtime.meyelRerollUsed}
@@ -354,7 +357,7 @@ export default function CharacterSheet() {
         />
       )}
 
-      {strikesOpen && runtime.combat && (
+      {strikesOpen && runtime.encounter && (
         <StrikesPanel
           weapons={filterWeaponStrikes(data.weapons, strikesOpenOptions.weaponFilter)}
           finisherDice={level.finisherDice}
@@ -365,7 +368,7 @@ export default function CharacterSheet() {
         />
       )}
 
-      {areaWeaponsOpen && runtime.combat && (
+      {areaWeaponsOpen && runtime.encounter && (
         <AreaWeaponsPanel weapons={areaWeapons} onClose={() => setAreaWeaponsOpen(false)} />
       )}
     </main>

@@ -9,11 +9,13 @@ import {
   SHIM_SHAM_INVENTORY,
 } from "@/lib/shim-sham/inventory";
 import { getWornArmor } from "@/lib/shim-sham/armor";
+import { perception } from "@/lib/shim-sham/perception";
 import {
   attackDeltaForStrike,
   effectiveAttributes,
   effectiveAttributeModifier,
   resolveConditionEffects,
+  runtimeDerivedStats,
 } from "@/lib/shim-sham/condition-effects";
 import {
   buildSkillEntries,
@@ -21,7 +23,7 @@ import {
   getSkillKeyAttributes,
   skillBonusByName,
 } from "@/lib/shim-sham/skills";
-import { buildWeaponStrikes, formatSkillAttackMapBonus } from "@/lib/shim-sham/strikes";
+import { buildWeaponStrikes, formatEscapeMapBonus, formatSkillAttackMapBonus } from "@/lib/shim-sham/strikes";
 import {
   formatStylishCombatantBonus,
 } from "@/lib/shim-sham/stylish-combatant";
@@ -41,7 +43,7 @@ export function createDefaultRuntime(level = 1): RuntimeState {
     panache: false,
     accelerate: false,
     jetpack: false,
-    combat: false,
+    encounter: false,
     duelingParry: false,
     batonParry: false,
     cover: "none",
@@ -51,6 +53,8 @@ export function createDefaultRuntime(level = 1): RuntimeState {
     forceFieldUsesUsed: 0,
     forceFieldActive: false,
     meyelRerollUsed: false,
+    preparedToAid: false,
+    delayed: false,
     consumables: {
       "medpatch-tactical": 0,
       "medpatch-commercial": 0,
@@ -68,6 +72,7 @@ export function createDefaultRuntime(level = 1): RuntimeState {
 }
 
 export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
+  const legacy = runtime as RuntimeState & { combat?: boolean };
   const level = getLevelSnapshot(runtime.level)!;
   const normalizedConditions = normalizeConditions(runtime.conditions);
   const effects = resolveConditionEffects(
@@ -88,8 +93,11 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   const forceFieldActive = runtime.forceFieldActive && forceFieldHp > 0;
   return {
     ...runtime,
+    encounter: runtime.encounter ?? legacy.combat ?? false,
     batonParry: runtime.batonParry ?? false,
     cover: runtime.cover ?? "none",
+    preparedToAid: runtime.preparedToAid ?? false,
+    delayed: runtime.delayed ?? false,
     forceFieldActive,
     forceFieldHp,
     adHocItems: normalizeAdHocItems(runtime.adHocItems),
@@ -115,11 +123,24 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   }));
   const skillBonus = (name: string) => formatSignedBonus(skillBonusByName(allSkills, name));
   const attackMapBonus = (bonus: string) => formatSkillAttackMapBonus(bonus);
+  const acrobaticsSkill = allSkills.find((skill) => skill.name === "Acrobatics")!;
+  const escapeMapBonus = formatEscapeMapBonus(
+    acrobaticsSkill.bonus,
+    acrobaticsSkill.proficiency,
+    effectiveLevel.level,
+  );
   const weapons = buildWeaponStrikes(effectiveLevel, {
     attackDelta: (strike) => attackDeltaForStrike(effects, strike),
   });
   const armor = getWornArmor(level.level);
   const stylishBonus = formatStylishCombatantBonus(level.level);
+  const perceptionBonus = formatSignedBonus(
+    perception(effectiveLevel.attributes.WIS, effectiveLevel.level) + effects.perception,
+  );
+  const derived = runtimeDerivedStats(level, effects);
+  const grabAnEdgeBonus = formatSignedBonus(
+    Math.max(derived.reflex, acrobaticsSkill.bonus),
+  );
   const allActions: CharacterAction[] = [
         {
           id: "cardiac-accelerator",
@@ -131,12 +152,36 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           control: "accelerate",
         },
         {
+          id: "delay",
+          name: "Delay",
+          cost: "free",
+          description: actionDescription("delay"),
+          url: `${AON}/actions/3-delay`,
+          control: "delay",
+        },
+        {
           id: "exemplary-finisher",
           name: "Exemplary Finisher (Step)",
           cost: "free",
           description: actionDescription("exemplary-finisher"),
           url: `${AONP}/Styles.aspx?ID=7`,
           minLevel: 9,
+        },
+        {
+          id: "return-to-initiative",
+          name: "Return to Initiative Order",
+          cost: "free",
+          description: actionDescription("return-to-initiative"),
+          url: `${AON}/actions/3-delay`,
+          control: "return-to-initiative",
+        },
+        {
+          id: "release",
+          name: "Release",
+          cost: "free",
+          description: actionDescription("release"),
+          traits: ["Manipulate"],
+          url: `${AON}/actions/9-release`,
         },
         {
           id: "meyel-reroll",
@@ -146,6 +191,30 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           traits: ["Fortune"],
           url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
           control: "meyel-reroll",
+        },
+        {
+          id: "aid",
+          name: "Aid",
+          cost: "reaction",
+          description: actionDescription("aid"),
+          url: `${AON}/actions/1-aid`,
+          control: "aid",
+        },
+        {
+          id: "arrest-a-fall",
+          name: "Arrest a Fall",
+          cost: "reaction",
+          description: actionDescription("arrest-a-fall"),
+          url: `${AON}/actions/18-arrest-a-fall`,
+        },
+        {
+          id: "grab-an-edge",
+          name: "Grab an Edge",
+          cost: "reaction",
+          description: actionDescription("grab-an-edge"),
+          traits: ["Manipulate"],
+          url: `${AON}/actions/24-grab-an-edge`,
+          bonus: grabAnEdgeBonus,
         },
         {
           id: "opportune-riposte",
@@ -175,6 +244,15 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           control: "jetpack",
         },
         {
+          id: "dismiss-jetpack",
+          name: "Dismiss — Jetpack",
+          cost: "single",
+          description: actionDescription("dismiss-jetpack"),
+          traits: ["Concentrate"],
+          url: `${AON}/actions/22-dismiss`,
+          control: "jetpack",
+        },
+        {
           id: "area-fire-grenade",
           name: "Area Fire",
           cost: "double",
@@ -182,6 +260,21 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           traits: ["Area", "Attack"],
           url: `${AON}/actions/17-area-fire`,
           control: "area-weapons",
+        },
+        {
+          id: "ready",
+          name: "Ready",
+          cost: "double",
+          description: actionDescription("ready"),
+          traits: ["Concentrate"],
+          url: `${AON}/actions/8-ready`,
+        },
+        {
+          id: "avert-gaze",
+          name: "Avert Gaze",
+          cost: "single",
+          description: actionDescription("avert-gaze"),
+          url: `${AON}/actions/20-avert-gaze`,
         },
         {
           id: "confident-finisher",
@@ -193,6 +286,14 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           control: "strikes",
         },
         {
+          id: "crawl",
+          name: "Crawl",
+          cost: "single",
+          description: actionDescription("crawl"),
+          traits: ["Move"],
+          url: `${AON}/actions/2-crawl`,
+        },
+        {
           id: "dirty-trick",
           name: "Dirty Trick",
           cost: "single",
@@ -202,12 +303,30 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           bonus: attackMapBonus(skillBonus("Thievery")),
         },
         {
+          id: "drop-prone",
+          name: "Drop Prone",
+          cost: "single",
+          description: actionDescription("drop-prone"),
+          traits: ["Move"],
+          url: `${AON}/actions/4-drop-prone`,
+          control: "drop-prone",
+        },
+        {
           id: "dueling-parry",
           name: "Dueling Parry",
           cost: "single",
           description: actionDescription("dueling-parry"),
           url: `${AONP}/Feats.aspx?ID=4781`,
           control: "dueling-parry",
+        },
+        {
+          id: "escape",
+          name: "Escape",
+          cost: "single",
+          description: actionDescription("escape"),
+          traits: ["Attack"],
+          url: `${AON}/actions/5-escape`,
+          bonus: escapeMapBonus,
         },
         {
           id: "fly",
@@ -227,6 +346,14 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           bonus: attackMapBonus(skillBonus("Athletics")),
         },
         {
+          id: "interact",
+          name: "Interact",
+          cost: "single",
+          description: actionDescription("interact"),
+          traits: ["Manipulate"],
+          url: `${AON}/actions/6-interact`,
+        },
+        {
           id: "leading-dance",
           name: "Leading Dance",
           cost: "single",
@@ -235,6 +362,14 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           url: `${AONP}/Feats.aspx?ID=6149`,
           bonus: skillBonus("Performance"),
           combatBonus: stylishBonus,
+        },
+        {
+          id: "leap",
+          name: "Leap",
+          cost: "single",
+          description: actionDescription("leap"),
+          traits: ["Move"],
+          url: `${AON}/actions/7-leap`,
         },
         {
           id: "baton-parry",
@@ -253,6 +388,57 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           url: `${AONP}/Feats.aspx?ID=5147`,
           bonus: skillBonus("Performance"),
           combatBonus: stylishBonus,
+        },
+        {
+          id: "point-out",
+          name: "Point Out",
+          cost: "single",
+          description: actionDescription("point-out"),
+          traits: ["Auditory", "Manipulate", "Visual"],
+          url: `${AON}/actions/26-point-out`,
+        },
+        {
+          id: "prepare-to-aid",
+          name: "Prepare to Aid",
+          cost: "single",
+          description: actionDescription("prepare-to-aid"),
+          url: `${AON}/actions/1-aid`,
+          control: "prepare-to-aid",
+        },
+        {
+          id: "seek",
+          name: "Seek",
+          cost: "single",
+          description: actionDescription("seek"),
+          traits: ["Concentrate", "Secret"],
+          url: `${AON}/actions/10-seek`,
+          bonus: perceptionBonus,
+        },
+        {
+          id: "sense-motive",
+          name: "Sense Motive",
+          cost: "single",
+          description: actionDescription("sense-motive"),
+          traits: ["Concentrate", "Secret"],
+          url: `${AON}/actions/11-sense-motive`,
+          bonus: perceptionBonus,
+        },
+        {
+          id: "stand",
+          name: "Stand",
+          cost: "single",
+          description: actionDescription("stand"),
+          traits: ["Move"],
+          url: `${AON}/actions/12-stand`,
+          control: "stand",
+        },
+        {
+          id: "step",
+          name: "Step",
+          cost: "single",
+          description: actionDescription("step"),
+          traits: ["Move"],
+          url: `${AON}/actions/13-step`,
         },
         {
           id: "stride",

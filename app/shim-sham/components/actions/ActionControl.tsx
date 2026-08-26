@@ -1,3 +1,4 @@
+import { getActiveCondition, removeCondition } from "@/lib/shim-sham/conditions";
 import type { CharacterAction, CoverLevel, RuntimeState } from "@/lib/types";
 import { formatSignedBonus } from "@/lib/shim-sham/skills";
 import type { StrikesOpenOptions } from "../../lib/strike-format";
@@ -140,6 +141,81 @@ export function ActionControl({
           onChange={(checked) => void save({ batonParry: checked })}
         />
       );
+    case "prepare-to-aid":
+      return (
+        <ActionToggle
+          label="Prepared to Aid"
+          checked={runtime.preparedToAid}
+          disabled={disabled}
+          onChange={(checked) => void save({ preparedToAid: checked })}
+        />
+      );
+    case "aid":
+      return (
+        <button
+          type="button"
+          className="btn btn-icon action-row__icon-btn"
+          disabled={disabled}
+          aria-label="Aid used — no longer prepared"
+          onClick={() => void save({ preparedToAid: false })}
+        >
+          ✓
+        </button>
+      );
+    case "drop-prone":
+      return (
+        <button
+          type="button"
+          className="btn btn-icon action-row__icon-btn"
+          disabled={disabled || !!getActiveCondition(runtime.conditions, "prone")}
+          aria-label="Drop prone"
+          onClick={() => {
+            if (getActiveCondition(runtime.conditions, "prone")) return;
+            void save({ conditions: [...runtime.conditions, { id: "prone" }] });
+          }}
+        >
+          ↓
+        </button>
+      );
+    case "stand":
+      return (
+        <button
+          type="button"
+          className="btn btn-icon action-row__icon-btn"
+          disabled={disabled || !getActiveCondition(runtime.conditions, "prone")}
+          aria-label="Stand up from prone"
+          onClick={() => {
+            if (!getActiveCondition(runtime.conditions, "prone")) return;
+            void save({ conditions: removeCondition(runtime.conditions, "prone") });
+          }}
+        >
+          ↑
+        </button>
+      );
+    case "delay":
+      return (
+        <button
+          type="button"
+          className="btn btn-icon action-row__icon-btn"
+          disabled={disabled || runtime.delayed}
+          aria-label="Delay your turn"
+          onClick={() => void save({ delayed: true })}
+        >
+          ⏸
+        </button>
+      );
+    case "return-to-initiative":
+      return (
+        <button
+          type="button"
+          className="btn btn-icon action-row__icon-btn"
+          disabled={disabled || !runtime.delayed}
+          aria-label="Return to initiative order"
+          onClick={() => void save({ delayed: false })}
+        >
+          ▶
+        </button>
+      );
     case "take-cover":
       return (
         <TakeCoverButtons
@@ -195,7 +271,9 @@ export function ActionControl({
           ◉
         </button>
       );
-    default:
-      return null;
+    default: {
+      const _exhaustive: never = action.control;
+      return _exhaustive;
+    }
   }
 }

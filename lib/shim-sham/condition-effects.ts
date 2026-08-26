@@ -357,6 +357,25 @@ export function modifiedSpeed(base: number, speedDelta: number): number {
   return Math.max(5, base + speedDelta);
 }
 
+/** Crawl is available while prone if land Speed ≥ 10 and you are not immobilized. */
+export function crawlActionAvailable(conditions: ActiveCondition[], landSpeed: number): boolean {
+  const expanded = expandImpliedConditions(conditions);
+  if (!hasCondition(expanded, "prone")) return false;
+  if (landSpeed < 10) return false;
+  if (hasCondition(expanded, "immobilized")) return false;
+  return true;
+}
+
+/** Escape is available while grabbed, immobilized, or restrained. */
+export function escapeActionAvailable(conditions: ActiveCondition[]): boolean {
+  const expanded = expandImpliedConditions(conditions);
+  return (
+    hasCondition(expanded, "grabbed") ||
+    hasCondition(expanded, "immobilized") ||
+    hasCondition(expanded, "restrained")
+  );
+}
+
 export function attackDeltaForStrike(
   effects: ConditionEffects,
   strike: { ranged?: boolean; finesse?: boolean },

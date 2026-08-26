@@ -59,7 +59,7 @@ Upstash Redis (or localStorage fallback on client)
 Static data + computed level stats → buildCharacterSheet(runtime)
 ```
 
-**Runtime state** (mutable): level, HP, panache, combat/explore toggles, jetpack, parry/cover, credits, conditions, Force Field, consumables, batteries, chem tank, Meyel reroll, notes, ad hoc items.
+**Runtime state** (mutable): level, HP, panache, encounter/explore toggles, jetpack, parry/cover, credits, conditions, Force Field, consumables, batteries, chem tank, Meyel reroll, notes, ad hoc items.
 
 **Static data** (in code): weapons, skills, actions, inventory, ancestry/class links.
 
