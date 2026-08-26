@@ -132,6 +132,7 @@ function isActionHidden(
     return true;
   }
   if (action.id === "escape" && !escapeActionAvailable(conditions)) return true;
+  if (action.id === "retch" && !getActiveCondition(conditions, "sickened")) return true;
   if (PANACHE_ACTION_IDS.has(action.id) && !panache) return true;
   if (action.id === "meyel-reroll" && meyelRerollUsed) return true;
   if (locks.disableAllActions) return true;

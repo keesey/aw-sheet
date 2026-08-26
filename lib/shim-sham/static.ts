@@ -141,6 +141,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   const grabAnEdgeBonus = formatSignedBonus(
     Math.max(derived.reflex, acrobaticsSkill.bonus),
   );
+  const fortBonus = formatSignedBonus(derived.fort);
   const allActions: CharacterAction[] = [
         {
           id: "cardiac-accelerator",
@@ -404,6 +405,14 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           description: actionDescription("prepare-to-aid"),
           url: `${AON}/actions/1-aid`,
           control: "prepare-to-aid",
+        },
+        {
+          id: "retch",
+          name: "Retch",
+          cost: "single",
+          description: actionDescription("retch"),
+          url: `${AON}/conditions/35-sickened`,
+          bonus: fortBonus,
         },
         {
           id: "seek",

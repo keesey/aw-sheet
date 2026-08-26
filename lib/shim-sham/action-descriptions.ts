@@ -51,6 +51,8 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Prepare a single action or free action with a trigger; your turn ends, and you can use it as a reaction if the trigger occurs before your next turn.",
   release:
     "Release something you're holding; unlike most Manipulate actions, this doesn't trigger reactions such as Reactive Strike.",
+  retch:
+    "Attempt a Fortitude save against the DC of the effect that sickened you; on a success reduce Sickened by 1 (by 2 on a critical success).",
   seek:
     "Scan an area for hidden creatures or objects; the GM rolls a secret Perception check against Stealth or detection DCs.",
   "sense-motive":
