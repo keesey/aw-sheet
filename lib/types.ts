@@ -16,6 +16,8 @@ export type WeaponStrike = {
   damageProfile: StrikeDamageProfile;
   /** Shown on its own line, e.g. "+1d8 deadly on crit". */
   critNote?: string;
+  /** Weapon group critical specialization when expert+ (Weapon Expertise 5+). */
+  critSpecialization?: string;
   traits: string[];
   url: string;
   weaponUrl?: string;

@@ -243,11 +243,18 @@ body {
 }
 
 .strike-crit {
-  flex-shrink: 0;
   font-size: 0.95rem;
   font-weight: 500;
   color: var(--muted);
-  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.strike-crit-notes {
+  margin-top: 0.15rem;
+}
+
+.strike-crit-notes .strike-crit + .strike-crit {
+  margin-top: 0.1rem;
 }
 
 .strike-traits {

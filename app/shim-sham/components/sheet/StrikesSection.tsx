@@ -90,8 +90,21 @@ export function StrikesSection({
           <div className={`strike-damage ${damagePenalized && !w.ranged ? "stat-penalized" : ""}`.trim()}>
             {formatStrikeDamage(w.damage, finisherDice, damageMode)}
           </div>
-          {w.critNote ? <span className="strike-crit">({w.critNote})</span> : null}
         </div>
+        {w.critNote || w.critSpecialization ? (
+          <div className="strike-crit-notes">
+            {w.critNote ? (
+              <div className="strike-crit">
+                <strong>Crit:</strong> {w.critNote}
+              </div>
+            ) : null}
+            {w.critSpecialization ? (
+              <div className="strike-crit">
+                <strong>Crit:</strong> {w.critSpecialization}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         {w.rangeIncrement != null ? (
           <RangeIncrementButtons
             rangeIncrement={w.rangeIncrement}

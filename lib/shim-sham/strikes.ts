@@ -1,4 +1,9 @@
 import type { AttributeKey, ProficiencyRank, ProgressionSnapshot, StrikeDamageProfile, WeaponStrike } from "@/lib/types";
+import {
+  criticalSpecializationEffect,
+  hasCriticalSpecialization,
+  type WeaponGroup,
+} from "@/lib/shim-sham/critical-specialization";
 import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/proficiency";
 
 const AON = "https://2e.aonsrd.com";
@@ -9,6 +14,7 @@ type StrikeDefinition = {
   id: string;
   name: string;
   category: WeaponCategory;
+  weaponGroup: WeaponGroup;
   /** Ranged attacks always use Dex. Melee uses Str unless finesse. */
   ranged?: boolean;
   finesse?: boolean;
@@ -43,6 +49,7 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     id: "baton",
     name: "Baton (Tactical)",
     category: "simple",
+    weaponGroup: "club",
     finesse: true,
     tracking: 1,
     dice: "1d6",
@@ -55,6 +62,7 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     id: "battle-ribbon",
     name: "Battle Ribbon",
     category: "martial",
+    weaponGroup: "flail",
     finesse: true,
     tracking: 0,
     dice: "1d4",
@@ -67,6 +75,7 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     id: "jaws",
     name: "Jaws",
     category: "unarmed",
+    weaponGroup: "brawling",
     finesse: true,
     tracking: 0,
     dice: "1d6",
@@ -79,11 +88,12 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     id: "rapier",
     name: "Nano-Edge Rapier (Advanced)",
     category: "martial",
+    weaponGroup: "sword",
     finesse: true,
     tracking: 1,
     dice: "2d6",
     damageType: "P",
-    critNote: "+1d8 deadly on crit",
+    critNote: "+1d8 deadly",
     traits: ["Sword", "Deadly d8", "Disarm", "Finesse"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/17-nano-edge-rapier`,
@@ -92,12 +102,12 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     id: "tailblade",
     name: "Tailblade (Advanced)",
     category: "martial",
+    weaponGroup: "knife",
     finesse: true,
     agile: true,
     tracking: 1,
     dice: "2d4",
     damageType: "S",
-    critNote: "frightened 1 on crit",
     traits: ["Knife", "Agile", "Finesse", "Free-hand"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/29-tailblade`,
@@ -106,6 +116,7 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     id: "zero-knife",
     name: "Zero Knife",
     category: "simple",
+    weaponGroup: "knife",
     finesse: true,
     agile: true,
     tracking: 0,
@@ -119,6 +130,7 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     id: "zero-pistol",
     name: "Zero Pistol (Advanced)",
     category: "simple",
+    weaponGroup: "cryo",
     ranged: true,
     tracking: 1,
     rangeIncrement: 30,
@@ -307,6 +319,9 @@ export function buildWeaponStrikes(
     const first = attackBonus(strike, snapshot, rank) + attackDelta(strike);
     const agile = strike.agile === true;
     const mapAttacks = mapAttackValues(first, agile);
+    const critSpecialization = hasCriticalSpecialization(rank)
+      ? criticalSpecializationEffect(strike.weaponGroup, strike.tracking)
+      : undefined;
     return {
     id: strike.id,
     name: strike.name,
@@ -314,6 +329,7 @@ export function buildWeaponStrikes(
     damage: formatDamage(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),
     damageProfile: buildDamageProfile(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),
     critNote: strike.critNote,
+    critSpecialization,
     traits: [...strike.traits],
     url: strike.url,
     weaponUrl: strike.weaponUrl,
