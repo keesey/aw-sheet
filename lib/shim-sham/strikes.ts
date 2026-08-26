@@ -1,4 +1,4 @@
-import type { AttributeKey, LevelSnapshot, ProficiencyRank, StrikeDamageProfile, WeaponStrike } from "@/lib/types";
+import type { AttributeKey, ProficiencyRank, ProgressionSnapshot, StrikeDamageProfile, WeaponStrike } from "@/lib/types";
 import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/proficiency";
 
 const AON = "https://2e.aonsrd.com";
@@ -204,7 +204,7 @@ function parseCritDice(critNote?: string): string | undefined {
 
 function buildDamageProfile(
   strike: StrikeDefinition,
-  snapshot: LevelSnapshot,
+  snapshot: ProgressionSnapshot,
   rank: ProficiencyRank,
   strDamageDelta: number,
 ): StrikeDamageProfile {
@@ -228,7 +228,7 @@ function buildDamageProfile(
  * @see https://2e.aonsrd.com/traits/11-agile
  * @see https://2e.aonsrd.com/traits/183-tracking
  */
-function attackBonus(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: ProficiencyRank): number {
+function attackBonus(strike: StrikeDefinition, snapshot: ProgressionSnapshot, rank: ProficiencyRank): number {
   const attribute = snapshot.attributes[attackAttribute(strike)];
   return attribute + proficiencyBonus(rank, snapshot.level) + strike.tracking;
 }
@@ -240,7 +240,7 @@ function attackBonus(strike: StrikeDefinition, snapshot: LevelSnapshot, rank: Pr
  */
 function formatDamage(
   strike: StrikeDefinition,
-  snapshot: LevelSnapshot,
+  snapshot: ProgressionSnapshot,
   rank: ProficiencyRank,
   strDamageDelta = 0,
 ): string {
@@ -262,7 +262,7 @@ function formatDamage(
 }
 
 export function buildWeaponStrikes(
-  snapshot: LevelSnapshot,
+  snapshot: ProgressionSnapshot,
   extras: {
     attackDelta?: (strike: { ranged?: boolean; finesse?: boolean }) => number;
     strDamageDelta?: number;
@@ -278,7 +278,6 @@ export function buildWeaponStrikes(
     return {
     id: strike.id,
     name: strike.name,
-    attack: formatMapAttacks(first, agile),
     mapAttacks,
     damage: formatDamage(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),
     damageProfile: buildDamageProfile(strike, snapshot, rank, strike.ranged ? 0 : strDamageDelta),

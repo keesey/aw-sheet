@@ -85,10 +85,21 @@ body {
   font-size: 0.85em;
 }
 
-.sheet-subtitle {
-  margin: 0.25rem 0 0;
+.sheet-title-meta {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-weight: 400;
+  font-size: 0.65em;
+}
+
+.sheet-flavor__line {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.sheet-flavor__label {
+  font-weight: 600;
 }
 
 .sheet-content {
@@ -284,8 +295,12 @@ body {
     font-size: 1.2rem;
   }
 
-  .sheet-subtitle {
-    font-size: 0.85rem;
+  .sheet-title-meta {
+    font-size: 0.7em;
+  }
+
+  .sheet-flavor__line {
+    font-size: 0.75rem;
   }
 
   .sheet-content {

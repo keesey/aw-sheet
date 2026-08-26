@@ -104,7 +104,6 @@ export const SHIM_SHAM_CONSUMABLES: Consumable[] = [
     name: "Medpatch (Tactical)",
     url: `${AON}/treasure/35-medpatch`,
     quantity: 1,
-    used: 0,
     bulk: "L",
   },
   {
@@ -112,7 +111,6 @@ export const SHIM_SHAM_CONSUMABLES: Consumable[] = [
     name: "Medpatch (Commercial)",
     url: `${AON}/treasure/35-medpatch`,
     quantity: 3,
-    used: 0,
     bulk: "L",
   },
   {
@@ -120,7 +118,6 @@ export const SHIM_SHAM_CONSUMABLES: Consumable[] = [
     name: "Celebrity Serum",
     url: `${AON}/treasure/38-celebrity-serum`,
     quantity: 5,
-    used: 0,
     bulk: "L",
   },
   {
@@ -128,7 +125,6 @@ export const SHIM_SHAM_CONSUMABLES: Consumable[] = [
     name: "Incendiary Grenade (Commercial)",
     url: `${AON}/treasure/104-incendiary-grenade`,
     quantity: 1,
-    used: 0,
     bulk: "L",
   },
 ];

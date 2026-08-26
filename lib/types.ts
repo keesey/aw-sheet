@@ -11,7 +11,6 @@ type AonLink = {
 export type WeaponStrike = {
   id: string;
   name: string;
-  attack: string;
   mapAttacks: [number, number, number];
   damage: string;
   damageProfile: StrikeDamageProfile;
@@ -79,7 +78,6 @@ export type Consumable = {
   name: string;
   url: string;
   quantity: number;
-  used: number;
   bulk: string;
 };
 
@@ -121,8 +119,12 @@ export type LevelSnapshot = {
   perception: number;
   classDc: number;
   swimSpeed?: number;
-  preciseStrike: number;
   finisherDice: string;
+};
+
+/** Internal progression row with fields used when building strikes, not sent on the sheet API. */
+export type ProgressionSnapshot = LevelSnapshot & {
+  preciseStrike: number;
   feats: ProgressionFeat[];
 };
 
@@ -154,28 +156,24 @@ export type CharacterSheet = {
   static: {
     name: string;
     nickname: string;
-    player: string;
-    deity: string;
+    deity: AonLink;
     ancestry: AonLink;
     heritage: AonLink;
     background: AonLink;
     class: AonLink;
     style: AonLink;
-    size: string;
-    languages: string[];
-    homeWorld: string;
-    portOfCall: string;
+    languages: AonLink[];
+    homeWorld: AonLink;
+    portOfCall: AonLink;
     senses: AonLink[];
     anathema: string[];
-    armor: AonLink & { acBonus: number; notes?: string };
-    resistances: string[];
+    armor: AonLink;
     skills: SkillEntry[];
     weapons: WeaponStrike[];
     actions: CharacterAction[];
     inventory: InventoryItem[];
     consumableCatalog: Consumable[];
     planUrl: string;
-    playbookUrl: string;
   };
   level: LevelSnapshot;
   runtime: RuntimeState;

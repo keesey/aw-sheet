@@ -33,7 +33,7 @@ export const FORCE_FIELD_MAX_HP = 6;
 export const FORCE_FIELD_DAILY_USES = 3;
 export const FORCE_FIELD_REGEN_PER_TURN = 2;
 
-export function createDefaultRuntime(level = 6): RuntimeState {
+export function createDefaultRuntime(level = 1): RuntimeState {
   const snapshot = getLevelSnapshot(level)!;
   return {
     level,
@@ -45,7 +45,7 @@ export function createDefaultRuntime(level = 6): RuntimeState {
     duelingParry: false,
     batonParry: false,
     cover: "none",
-    credits: 1280,
+    credits: 0,
     conditions: [],
     forceFieldHp: 0,
     forceFieldUsesUsed: 0,
@@ -282,12 +282,13 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
         },
   ];
 
+  const { feats: _feats, preciseStrike: _preciseStrike, ...levelForClient } = level;
+
   return {
     static: {
       name: "Jenluwess Wivvashimmeh",
       nickname: "Shim Sham",
-      player: "Keesey",
-      deity: "Meyel",
+      deity: { name: "Meyel", url: `${AON}/deities/11-meyel` },
       ancestry: { name: "Pahtra", url: `${AON}/ancestries/12-pahtra` },
       heritage: {
         name: "Meyel's Chosen",
@@ -296,28 +297,27 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       background: { name: "Space Pirate", url: `${AON}/backgrounds/32-space-pirate` },
       class: { name: "Swashbuckler 6", url: `${AONP}/Classes.aspx?ID=63` },
       style: { name: "Battledancer", url: `${AONP}/Styles.aspx?ID=7` },
-      size: "Medium",
-      languages: ["Common", "Pahtra", "Vesk"],
-      homeWorld: "Pulonis",
-      portOfCall: "Absalom Station",
+      languages: [
+        { name: "Common", url: `${AON}/languages/1-common` },
+        { name: "Pahtra", url: `${AON}/languages/12-pahtra` },
+        { name: "Vesk", url: `${AON}/languages/13-vesk` },
+      ],
+      homeWorld: { name: "Pulonis", url: `${AON}/planets/26-pulonis` },
+      portOfCall: { name: "Absalom Station", url: `${AON}/planets/16-absalom-station` },
       senses: [{ name: "Darkvision", url: `${AON}/rules/459-darkvision-and-greater-darkvision` }],
-      anathema: ["Look clumsy (never do)", "Reveal secretive Pahtra names"],
+      anathema: ["Look clumsy (never do).", "Reveal secretive Pahtra name."],
       armor: {
         name: armor.name,
         url: armor.url,
-        acBonus: armor.acBonus,
-        notes: armor.notes,
       },
-      resistances: ["Reroll crit fail on save 1×/day (Meyel's Chosen)"],
       skills: allSkills.filter((skill) => skill.proficiency !== "U"),
       weapons,
       actions: allActions.filter((action) => level.level >= (action.minLevel ?? 1)),
       inventory: SHIM_SHAM_INVENTORY,
       consumableCatalog: SHIM_SHAM_CONSUMABLES,
       planUrl: "https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530",
-      playbookUrl: "https://gist.github.com/keesey/2c6a5bb30f1ccc30e4d4b7fe3e1c7e78",
     },
-    level,
+    level: levelForClient,
     runtime: normalizedRuntime,
   };
 }

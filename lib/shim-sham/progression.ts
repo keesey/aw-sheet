@@ -1,4 +1,4 @@
-import type { AttributeKey, LevelSnapshot, ProgressionFeat } from "@/lib/types";
+import type { AttributeKey, ProgressionFeat, ProgressionSnapshot } from "@/lib/types";
 import { attributesFromProgression } from "@/lib/shim-sham/attributes";
 import { armorClass } from "@/lib/shim-sham/armor";
 import { classDc } from "@/lib/shim-sham/class-dc";
@@ -7,7 +7,7 @@ import { perception } from "@/lib/shim-sham/perception";
 import { savingThrows } from "@/lib/shim-sham/saves";
 
 type LevelProgression = Omit<
-  LevelSnapshot,
+  ProgressionSnapshot,
   "attributes" | "ac" | "fort" | "reflex" | "will" | "perception" | "classDc" | "maxHp"
 > & {
   attributeBoosts?: AttributeKey[];
@@ -196,7 +196,7 @@ export const PROGRESSION: LevelProgression[] = [
   },
 ];
 
-function withDerivedStats(entry: LevelProgression): LevelSnapshot {
+function withDerivedStats(entry: LevelProgression): ProgressionSnapshot {
   const attributes = attributesFromProgression(entry.level, PROGRESSION);
   const { attributeBoosts: _attributeBoosts, ...base } = entry;
   return {
@@ -210,12 +210,12 @@ function withDerivedStats(entry: LevelProgression): LevelSnapshot {
   };
 }
 
-export function getLevelSnapshot(level: number): LevelSnapshot | undefined {
+export function getLevelSnapshot(level: number): ProgressionSnapshot | undefined {
   const entry = PROGRESSION.find((item) => item.level === level);
   return entry ? withDerivedStats(entry) : undefined;
 }
 
-export function getNextLevelSnapshot(level: number): LevelSnapshot | undefined {
+export function getNextLevelSnapshot(level: number): ProgressionSnapshot | undefined {
   const entry = PROGRESSION.find((item) => item.level === level + 1);
   return entry ? withDerivedStats(entry) : undefined;
 }

@@ -26,16 +26,41 @@ export function SheetHeader({
           <h1 className="sheet-title">
             {data.name}
             <span className="sheet-title-nickname"> “{data.nickname}”</span>
+            <span className="sheet-title-meta">
+              {" · "}
+              <AonLink href={data.ancestry.url}>{data.ancestry.name}</AonLink>
+              {" ("}
+              <AonLink href={data.heritage.url}>{data.heritage.name}</AonLink>
+              {") · "}
+              <AonLink href={data.background.url}>{data.background.name}</AonLink>
+              {" · "}
+              <AonLink href={data.class.url}>
+                {data.class.name.replace(/\d+/, "").trim()} {runtime.level}
+              </AonLink>
+              {" ("}
+              <AonLink href={data.style.url}>{data.style.name}</AonLink>
+              {")"}
+            </span>
           </h1>
-          <p className="sheet-subtitle">
-            <AonLink href={data.ancestry.url}>{data.ancestry.name}</AonLink>
+          <p className="sheet-flavor__line">
+            <AonLink href={data.deity.url}>{data.deity.name}</AonLink>
             {" · "}
-            <AonLink href={data.background.url}>{data.background.name}</AonLink>
-            {" · Level "}
-            {runtime.level}{" "}
-            <AonLink href={data.class.url}>{data.class.name.replace(/\d+/, "").trim()}</AonLink>
+            {data.languages.map((language, index) => (
+              <span key={language.url}>
+                {index > 0 ? ", " : null}
+                <AonLink href={language.url}>{language.name}</AonLink>
+              </span>
+            ))}
             {" · "}
-            <AonLink href={data.style.url}>{data.style.name}</AonLink>
+            <AonLink href={data.homeWorld.url}>{data.homeWorld.name}</AonLink>
+            {" → "}
+            <AonLink href={data.portOfCall.url}>{data.portOfCall.name}</AonLink>
+            {data.anathema.length > 0 ? (
+              <>
+                {" · "}
+                <span className="sheet-flavor__label">Anathema:</span> {data.anathema.join(" ")}
+              </>
+            ) : null}
           </p>
         </div>
         <div className="sheet-header-actions">
