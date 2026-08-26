@@ -10,6 +10,7 @@ export function RollBonusButton({
   style,
   children,
   onRoll,
+  disabled = false,
 }: {
   label: string;
   bonus: number;
@@ -17,6 +18,7 @@ export function RollBonusButton({
   style?: CSSProperties;
   children: ReactNode;
   onRoll?: () => void;
+  disabled?: boolean;
 }) {
   const { openRoll } = useRoll();
 
@@ -26,9 +28,11 @@ export function RollBonusButton({
       className={`roll-bonus-btn${className ? ` ${className}` : ""}`}
       style={style}
       aria-label={`Roll ${label}`}
+      disabled={disabled}
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
+        if (disabled) return;
         if (onRoll) {
           onRoll();
         } else {

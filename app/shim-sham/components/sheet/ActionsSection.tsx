@@ -1,6 +1,6 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
-import type { StrikeDamageMode } from "../../lib/strike-format";
+import type { StrikesOpenOptions } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { ActionRow } from "../actions/ActionRow";
 
@@ -19,6 +19,7 @@ export function ActionsSection({
   panache,
   meyelRerollUsed,
   locks,
+  athleticsBonus,
 }: {
   actionsByCost: {
     free: CharacterAction[];
@@ -32,13 +33,14 @@ export function ActionsSection({
   runtime: RuntimeState;
   ffUsesLeft: number;
   save: SaveFn;
-  onOpenStrikes: (mode: StrikeDamageMode) => void;
+  onOpenStrikes: (options: StrikesOpenOptions) => void;
   onOpenAreaWeapons: () => void;
   combat: boolean;
   jetpack: boolean;
   panache: boolean;
   meyelRerollUsed: boolean;
   locks: ConditionActionLocks;
+  athleticsBonus: number;
 }) {
   const actionProps = {
     combat,
@@ -52,6 +54,7 @@ export function ActionsSection({
     save,
     onOpenStrikes,
     onOpenAreaWeapons,
+    athleticsBonus,
     level,
     speedDelta,
   };

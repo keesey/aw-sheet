@@ -12,7 +12,7 @@ import {
 } from "@/lib/shim-sham/bulk";
 import { inventoryTotalBulk } from "@/lib/shim-sham/inventory";
 import { resolveConditionEffects, runtimeDerivedStats } from "@/lib/shim-sham/condition-effects";
-import { buildSkillEntries, getSkillKeyAttributes } from "@/lib/shim-sham/skills";
+import { buildSkillEntries, getSkillKeyAttributes, skillBonusByName } from "@/lib/shim-sham/skills";
 import { BottomNav } from "./components/BottomNav";
 import { AttributesSection } from "./components/sheet/AttributesSection";
 import { LevelsPanel } from "./components/panels/LevelsPanel";
@@ -29,6 +29,7 @@ import { StrikesPanel } from "./components/panels/StrikesPanel";
 import { AreaWeaponsPanel } from "./components/panels/AreaWeaponsPanel";
 import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
 import { buildAreaWeaponEntries } from "@/lib/shim-sham/area-weapons";
+import { filterWeaponStrikes } from "@/lib/shim-sham/strikes";
 import { circumstanceAcBonus } from "@/lib/shim-sham/ac-bonuses";
 import { buildSpeedEntries } from "./lib/speed";
 import type { RuntimeState } from "@/lib/types";
@@ -36,14 +37,18 @@ import { useCharacterSheet } from "./hooks/useCharacterSheet";
 import { RollProvider } from "./context/RollContext";
 import { formatRollSummary, type RollResult } from "./lib/roll";
 import { appendSessionLogLine, sessionLogLineForSave } from "./lib/session-log";
-import type { StrikeDamageMode } from "./lib/strike-format";
+import {
+  DEFAULT_STRIKES_OPEN,
+  type StrikesOpenOptions,
+} from "./lib/strike-format";
 import type { Panel } from "./types";
 
 export default function CharacterSheet() {
   const { sheet, kvConfigured, loading, error, save } = useCharacterSheet();
   const [panel, setPanel] = useState<Panel>(null);
   const [strikesOpen, setStrikesOpen] = useState(false);
-  const [strikesDamageMode, setStrikesDamageMode] = useState<StrikeDamageMode>("default");
+  const [strikesOpenOptions, setStrikesOpenOptions] =
+    useState<StrikesOpenOptions>(DEFAULT_STRIKES_OPEN);
   const [areaWeaponsOpen, setAreaWeaponsOpen] = useState(false);
   const [hpDeltaInput, setHpDeltaInput] = useState("");
   const [creditInput, setCreditInput] = useState("");
@@ -179,6 +184,7 @@ export default function CharacterSheet() {
   const bulkBarPct = Math.min(100, (inventoryBulk / inventoryBulkMax) * 100);
   const bulkBarFillColor = bulkBarColor(inventoryBulk, effectiveStr);
   const strikeAction = buildStrikeAction();
+  const athleticsBonus = skillBonusByName(data.skills, "Athletics");
   const areaWeapons = buildAreaWeaponEntries(
     data.weapons,
     data.consumableCatalog,
@@ -277,8 +283,8 @@ export default function CharacterSheet() {
               runtime={runtime}
               ffUsesLeft={ffUsesLeft}
               save={saveSheet}
-              onOpenStrikes={(mode) => {
-                setStrikesDamageMode(mode);
+              onOpenStrikes={(options) => {
+                setStrikesOpenOptions(options);
                 setStrikesOpen(true);
               }}
               onOpenAreaWeapons={() => setAreaWeaponsOpen(true)}
@@ -287,6 +293,7 @@ export default function CharacterSheet() {
               panache={runtime.panache}
               meyelRerollUsed={runtime.meyelRerollUsed}
               locks={effects}
+              athleticsBonus={athleticsBonus}
             />
           ) : (
             <ExploreSection
@@ -349,9 +356,9 @@ export default function CharacterSheet() {
 
       {strikesOpen && runtime.combat && (
         <StrikesPanel
-          weapons={data.weapons}
+          weapons={filterWeaponStrikes(data.weapons, strikesOpenOptions.weaponFilter)}
           finisherDice={level.finisherDice}
-          damageMode={strikesDamageMode}
+          damageMode={strikesOpenOptions.damageMode}
           attackDelta={effects.finesseMeleeAttack}
           damagePenalized={effects.attributeDelta.STR < 0}
           onClose={() => setStrikesOpen(false)}

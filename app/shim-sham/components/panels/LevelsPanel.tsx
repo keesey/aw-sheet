@@ -59,7 +59,7 @@ function LevelSection({
 
   return (
     <section className={`feat-level${future ? " feat-level--future" : ""}`}>
-      {hideTitle ? null : <div className="action-group-title">Level {level}</div>}
+      {hideTitle ? null : <h3 className="feat-level-title">Level {level}</h3>}
       {boostLabels.length > 0 ? (
         <div className="feat-level-boosts">
           <span className="feat-column-title">Attribute Boosts</span>

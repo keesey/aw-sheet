@@ -5,7 +5,7 @@ import {
   stylishCombatantBonus,
 } from "@/lib/shim-sham/stylish-combatant";
 import { parseMapAttackValues, parseRollBonusString } from "../../lib/roll";
-import type { StrikeDamageMode } from "../../lib/strike-format";
+import type { StrikesOpenOptions } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { MapRollButtons } from "../MapRollButtons";
 import { RollBonusButton } from "../RollBonusButton";
@@ -124,6 +124,7 @@ export function ActionRow({
   save,
   onOpenStrikes,
   onOpenAreaWeapons,
+  athleticsBonus,
   level,
   speedDelta = 0,
 }: {
@@ -137,8 +138,9 @@ export function ActionRow({
   runtime?: RuntimeState;
   ffUsesLeft?: number;
   save?: SaveFn;
-  onOpenStrikes?: (mode: StrikeDamageMode) => void;
+  onOpenStrikes?: (options: StrikesOpenOptions) => void;
   onOpenAreaWeapons?: () => void;
+  athleticsBonus: number;
   level?: LevelSnapshot;
   speedDelta?: number;
 }) {
@@ -157,6 +159,7 @@ export function ActionRow({
         save={save}
         onOpenStrikes={onOpenStrikes}
         onOpenAreaWeapons={onOpenAreaWeapons}
+        athleticsBonus={athleticsBonus}
       />
     ) : null;
 

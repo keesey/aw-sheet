@@ -71,7 +71,7 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     tracking: 0,
     dice: "1d6",
     damageType: "P",
-    traits: ["Brawling", "Finesse", "Grapple", "Unarmed"],
+    traits: ["Brawling", "Finesse", "Grapple", "Pahtra", "Unarmed"],
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/feats/331-predatory`,
   },
@@ -135,9 +135,17 @@ function signed(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
 }
 
+/** Sixth range increment is the maximum; attacks beyond that are impossible. */
+export const MAX_RANGE_INCREMENT_COUNT = 6;
+
 /** −2 per range increment beyond the first. @see https://2e.aonsrd.com/rules/336-attack-rolls */
 export function rangeAttackPenalty(incrementsBeyondFirst: number): number {
   return incrementsBeyondFirst <= 0 ? 0 : -2 * incrementsBeyondFirst;
+}
+
+/** Upper distance in feet for a selected range increment band (1-based count). */
+export function rangeIncrementMaxFeet(rangeIncrement: number, incrementsBeyondFirst: number): number {
+  return (incrementsBeyondFirst + 1) * rangeIncrement;
 }
 
 function mapAttackValues(first: number, agile: boolean): [number, number, number] {
@@ -282,4 +290,37 @@ export function buildWeaponStrikes(
     rangeIncrement: strike.rangeIncrement,
   };
   });
+}
+
+function traitMatches(traits: string[], trait: string): boolean {
+  const key = trait.toLowerCase();
+  return traits.some((entry) => {
+    const lower = entry.toLowerCase();
+    return lower === key || lower.startsWith(`${key} `);
+  });
+}
+
+/** Confident Finisher: agile, finesse, or unarmed weapons only. */
+export function isFinisherEligibleStrike(weapon: WeaponStrike): boolean {
+  return (
+    traitMatches(weapon.traits, "agile") ||
+    traitMatches(weapon.traits, "finesse") ||
+    traitMatches(weapon.traits, "unarmed")
+  );
+}
+
+export type StrikesWeaponFilter = "all" | "melee" | "finisher";
+
+export function filterWeaponStrikes(
+  weapons: WeaponStrike[],
+  filter: StrikesWeaponFilter,
+): WeaponStrike[] {
+  switch (filter) {
+    case "melee":
+      return weapons.filter((weapon) => !weapon.ranged);
+    case "finisher":
+      return weapons.filter(isFinisherEligibleStrike);
+    default:
+      return weapons;
+  }
 }

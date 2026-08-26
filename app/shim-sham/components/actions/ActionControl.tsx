@@ -1,7 +1,9 @@
 import type { CharacterAction, CoverLevel, RuntimeState } from "@/lib/types";
-import type { StrikeDamageMode } from "../../lib/strike-format";
+import { formatSignedBonus } from "@/lib/shim-sham/skills";
+import type { StrikesOpenOptions } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { ActionToggle } from "../ActionToggle";
+import { RollBonusButton } from "../RollBonusButton";
 
 function TakeCoverButtons({
   cover,
@@ -46,18 +48,32 @@ export function ActionControl({
   save,
   onOpenStrikes,
   onOpenAreaWeapons,
+  athleticsBonus,
 }: {
   action: CharacterAction;
   runtime: RuntimeState;
   ffUsesLeft: number;
   disabled: boolean;
   save: SaveFn;
-  onOpenStrikes: (mode: StrikeDamageMode) => void;
+  onOpenStrikes: (options: StrikesOpenOptions) => void;
   onOpenAreaWeapons: () => void;
+  athleticsBonus: number;
 }) {
   if (!action.control) {
     return null;
   }
+
+  const openStrikes = () => {
+    if (action.id === "confident-finisher") {
+      onOpenStrikes({ damageMode: "finisher", weaponFilter: "finisher" });
+      return;
+    }
+    if (action.id === "opportune-riposte") {
+      onOpenStrikes({ damageMode: "default", weaponFilter: "melee" });
+      return;
+    }
+    onOpenStrikes({ damageMode: "default", weaponFilter: "all" });
+  };
 
   switch (action.control) {
     case "accelerate":
@@ -133,14 +149,35 @@ export function ActionControl({
         />
       );
     case "strikes":
+      if (action.id === "opportune-riposte") {
+        return (
+          <div className="action-riposte-btns">
+            <RollBonusButton
+              label="Athletics"
+              bonus={athleticsBonus}
+              disabled={disabled}
+              className="btn action-riposte-btn"
+            >
+              Disarm {formatSignedBonus(athleticsBonus)}
+            </RollBonusButton>
+            <button
+              type="button"
+              className="btn btn-icon action-row__icon-btn"
+              disabled={disabled}
+              onClick={openStrikes}
+              aria-label="Open strikes"
+            >
+              ⚔
+            </button>
+          </div>
+        );
+      }
       return (
         <button
           type="button"
           className="btn btn-icon action-row__icon-btn"
           disabled={disabled}
-          onClick={() =>
-            onOpenStrikes(action.id === "confident-finisher" ? "finisher" : "default")
-          }
+          onClick={openStrikes}
           aria-label="Open strikes"
         >
           ⚔

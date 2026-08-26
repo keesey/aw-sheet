@@ -138,22 +138,54 @@ body {
   min-width: 0;
 }
 
-.strike-range-control {
+.strike-range-row {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.35rem;
-  font-size: 0.85rem;
-  color: var(--muted);
+  gap: 0.4rem;
+  margin-top: 0.15rem;
 }
 
 .strike-range-label {
-  margin-right: 0.25rem;
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-.strike-range-value {
-  min-width: 6rem;
+.strike-range-btns {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.strike-range-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: auto;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.strike-range-btn:active {
+  transform: scale(0.97);
+}
+
+.strike-range-btn--active {
+  color: #082f49;
+  background: var(--accent);
+  font-weight: 700;
 }
 
 .strike-attack {
@@ -342,7 +374,7 @@ body {
     flex: 1 1 0;
     min-width: 0;
     flex-direction: row;
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     min-height: 48px;
     gap: 0.35rem;
   }
@@ -1166,6 +1198,22 @@ button {
   line-height: 1;
 }
 
+.action-riposte-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.action-riposte-btn {
+  min-height: 2rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .action-cover-btns {
   display: inline-flex;
   gap: 0.35rem;
@@ -1313,11 +1361,22 @@ button {
 .feats-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0;
 }
 
 .feat-level {
-  margin-bottom: 0.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.feat-level-title {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--text);
 }
 
 .feat-level--future {
@@ -1391,7 +1450,7 @@ button {
   flex: 1 1 0;
   min-width: 0;
   flex-direction: column;
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   padding: 0.5rem 0.25rem;
   min-height: 56px;
 }

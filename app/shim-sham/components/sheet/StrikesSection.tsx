@@ -2,46 +2,49 @@
 
 import { useState } from "react";
 import type { CharacterSheet } from "@/lib/types";
-import { rangeAttackPenalty } from "@/lib/shim-sham/strikes";
+import {
+  MAX_RANGE_INCREMENT_COUNT,
+  rangeAttackPenalty,
+  rangeIncrementMaxFeet,
+} from "@/lib/shim-sham/strikes";
+import { formatSigned, statModClass } from "../../lib/format";
 import { formatStrikeDamage, type StrikeDamageMode } from "../../lib/strike-format";
-import { statModClass } from "../../lib/format";
 import { MapRollButtons } from "../MapRollButtons";
 import { AonLink } from "../AonLink";
 
-function RangePenaltyControl({
+function RangeIncrementButtons({
   rangeIncrement,
-  incrementsBeyondFirst,
+  selected,
   onChange,
 }: {
   rangeIncrement: number;
-  incrementsBeyondFirst: number;
-  onChange: (value: number) => void;
+  selected: number;
+  onChange: (incrementsBeyondFirst: number) => void;
 }) {
-  const penalty = rangeAttackPenalty(incrementsBeyondFirst);
   return (
-    <div className="strike-range-control">
-      <span className="strike-range-label">Range ({rangeIncrement}′)</span>
-      <button
-        type="button"
-        className="btn btn-icon"
-        disabled={incrementsBeyondFirst <= 0}
-        onClick={() => onChange(Math.max(0, incrementsBeyondFirst - 1))}
-        aria-label="Decrease range penalty"
-      >
-        −
-      </button>
-      <span className="strike-range-value">
-        {incrementsBeyondFirst === 0 ? "1st" : `+${incrementsBeyondFirst} inc (${penalty})`}
-      </span>
-      <button
-        type="button"
-        className="btn btn-icon"
-        disabled={incrementsBeyondFirst >= 5}
-        onClick={() => onChange(Math.min(5, incrementsBeyondFirst + 1))}
-        aria-label="Increase range penalty"
-      >
-        +
-      </button>
+    <div className="strike-range-row">
+      <span className="strike-range-label">Range</span>
+      <div className="strike-range-btns" role="group" aria-label="Range increment">
+        {Array.from({ length: MAX_RANGE_INCREMENT_COUNT }, (_, index) => {
+          const penalty = rangeAttackPenalty(index);
+          const maxFeet = rangeIncrementMaxFeet(rangeIncrement, index);
+          const active = selected === index;
+          const penaltyLabel = penalty === 0 ? "no penalty" : formatSigned(penalty);
+
+          return (
+            <button
+              key={index}
+              type="button"
+              className={`strike-range-btn${active ? " strike-range-btn--active" : ""}`}
+              aria-pressed={active}
+              aria-label={`Increment ${index + 1}, up to ${maxFeet} feet, ${penaltyLabel}`}
+              onClick={() => onChange(index)}
+            >
+              {maxFeet}′
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -83,21 +86,21 @@ export function StrikesSection({
             strikeRoll={{ damage: w.damageProfile, damageMode }}
           />
         </div>
-        {w.rangeIncrement != null ? (
-          <RangePenaltyControl
-            rangeIncrement={w.rangeIncrement}
-            incrementsBeyondFirst={incrementsBeyondFirst}
-            onChange={(value) =>
-              setRangeIncrements((previous) => ({ ...previous, [w.id]: value }))
-            }
-          />
-        ) : null}
         <div className="strike-damage-row">
           <div className={`strike-damage ${damagePenalized && !w.ranged ? "stat-penalized" : ""}`.trim()}>
             {formatStrikeDamage(w.damage, finisherDice, damageMode)}
           </div>
           {w.critNote ? <span className="strike-crit">({w.critNote})</span> : null}
         </div>
+        {w.rangeIncrement != null ? (
+          <RangeIncrementButtons
+            rangeIncrement={w.rangeIncrement}
+            selected={incrementsBeyondFirst}
+            onChange={(value) =>
+              setRangeIncrements((previous) => ({ ...previous, [w.id]: value }))
+            }
+          />
+        ) : null}
         <div className="strike-traits">{w.traits.join(" · ")}</div>
       </div>
     );
