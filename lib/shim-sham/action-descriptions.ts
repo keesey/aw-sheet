@@ -49,6 +49,8 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Indicate an undetected creature to allies so it becomes hidden to them instead of undetected.",
   ready:
     "Prepare a single action or free action with a trigger; your turn ends, and you can use it as a reaction if the trigger occurs before your next turn.",
+  "recall-knowledge":
+    "Attempt a skill check to remember knowledge about a topic; ask the GM one question (DC set by the GM).",
   release:
     "Release something you're holding; unlike most Manipulate actions, this doesn't trigger reactions such as Reactive Strike.",
   retch:

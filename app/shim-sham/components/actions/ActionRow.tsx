@@ -135,7 +135,9 @@ function isActionHidden(
   if (action.id === "retch" && !getActiveCondition(conditions, "sickened")) return true;
   if (PANACHE_ACTION_IDS.has(action.id) && !panache) return true;
   if (action.id === "meyel-reroll" && meyelRerollUsed) return true;
-  if (locks.disableAllActions) return true;
+  const recallWhileParalyzed =
+    action.id === "recall-knowledge" && getActiveCondition(conditions, "paralyzed") != null;
+  if (locks.disableAllActions && !recallWhileParalyzed) return true;
   if (locks.disableReaction && action.cost === "reaction") return true;
   const traits = action.traits ?? [];
   if (locks.disableMove && traits.includes("Move") && action.id !== "crawl" && action.id !== "stand") return true;
@@ -143,7 +145,7 @@ function isActionHidden(
     return true;
   }
   if (locks.disableManipulate && traits.includes("Manipulate")) return true;
-  if (locks.disableConcentrate && traits.includes("Concentrate")) return true;
+  if (locks.disableConcentrate && traits.includes("Concentrate") && !recallWhileParalyzed) return true;
   return false;
 }
 

@@ -407,6 +407,14 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
           control: "prepare-to-aid",
         },
         {
+          id: "recall-knowledge",
+          name: "Recall Knowledge",
+          cost: "single",
+          description: actionDescription("recall-knowledge"),
+          traits: ["Concentrate", "Secret"],
+          url: `${AON}/actions/50-recall-knowledge`,
+        },
+        {
           id: "retch",
           name: "Retch",
           cost: "single",
