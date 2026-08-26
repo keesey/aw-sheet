@@ -15,6 +15,8 @@ export type CheckRollResult = {
   d20: number;
   bonus: number;
   total: number;
+  /** Take Cover ends when using an attack action. */
+  endsCover?: boolean;
 };
 
 export type RollResult = CheckRollResult | StrikeRollResult;
@@ -38,9 +40,20 @@ export function rollDiceNotation(notation: string): { rolls: number[]; total: nu
   return { rolls, total: rolls.reduce((sum, roll) => sum + roll, 0) };
 }
 
-export function rollCheck(label: string, bonus: number): CheckRollResult {
+export function rollCheck(
+  label: string,
+  bonus: number,
+  options?: { endsCover?: boolean },
+): CheckRollResult {
   const d20 = rollD20();
-  return { kind: "check", label, d20, bonus, total: d20 + bonus };
+  return {
+    kind: "check",
+    label,
+    d20,
+    bonus,
+    total: d20 + bonus,
+    endsCover: options?.endsCover,
+  };
 }
 
 function formatD20Breakdown(d20: number, bonus: number): string | null {

@@ -1,3 +1,4 @@
+import { actionEndsCover } from "@/lib/shim-sham/cover";
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import { crawlActionAvailable, escapeActionAvailable, modifiedSpeed } from "@/lib/shim-sham/condition-effects";
@@ -71,6 +72,7 @@ function ActionRollBonus({
     return null;
   }
 
+  const endsCover = actionEndsCover(action);
   const mapValues = rollBonus ? parseMapAttackValues(rollBonus) : null;
   if (mapValues) {
     return (
@@ -79,6 +81,7 @@ function ActionRollBonus({
         values={mapValues}
         className="action-name__bonus"
         combatBonus={combatBonus}
+        endsCover={endsCover}
       />
     );
   }
@@ -87,7 +90,12 @@ function ActionRollBonus({
     (rollBonus ? parseRollBonusString(rollBonus) : 0) + combatBonus;
 
   return (
-    <RollBonusButton label={action.name} bonus={numericBonus} className="action-name__bonus">
+    <RollBonusButton
+      label={action.name}
+      bonus={numericBonus}
+      className="action-name__bonus"
+      endsCover={endsCover}
+    >
       {rollBonus}
       {combatBonus > 0 ? (
         <span className="action-combat-bonus"> +{combatBonus}</span>

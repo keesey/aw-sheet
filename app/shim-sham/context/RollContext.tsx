@@ -16,11 +16,11 @@ type StrikeRollRequest = {
 };
 
 type RollRequest =
-  | { type: "check"; label: string; bonus: number }
+  | { type: "check"; label: string; bonus: number; endsCover?: boolean }
   | ({ type: "strike" } & StrikeRollRequest);
 
 type RollContextValue = {
-  openRoll: (label: string, bonus: number) => void;
+  openRoll: (label: string, bonus: number, options?: { endsCover?: boolean }) => void;
   openStrikeRoll: (request: StrikeRollRequest) => void;
 };
 
@@ -28,7 +28,7 @@ const RollContext = createContext<RollContextValue | null>(null);
 
 function executeRoll(request: RollRequest): RollResult {
   if (request.type === "check") {
-    return rollCheck(request.label, request.bonus);
+    return rollCheck(request.label, request.bonus, { endsCover: request.endsCover });
   }
   return rollStrikeAttack(
     request.label,
@@ -60,8 +60,8 @@ export function RollProvider({
   );
 
   const openRoll = useCallback(
-    (label: string, bonus: number) => {
-      storeRequest({ type: "check", label, bonus });
+    (label: string, bonus: number, options?: { endsCover?: boolean }) => {
+      storeRequest({ type: "check", label, bonus, endsCover: options?.endsCover });
     },
     [storeRequest],
   );

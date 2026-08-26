@@ -3,6 +3,7 @@ import { loadRuntimeState, saveRuntimeState, isKvConfigured } from "@/lib/kv";
 import { buildCharacterSheet, normalizeRuntimeState } from "@/lib/shim-sham/static";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
 import { applyRecoveryCheck } from "@/lib/shim-sham/recovery-check";
+import { shouldClearCoverForUnconscious } from "@/lib/shim-sham/cover";
 import {
   adjustCurrentHpForDrainedChange,
   effectiveMaxHp,
@@ -199,6 +200,15 @@ export async function PATCH(request: Request) {
 
   runtime = normalizeRuntime(runtime);
   const snapshot = getLevelSnapshot(runtime.level)!;
+  if (
+    shouldClearCoverForUnconscious(
+      normalizeConditions(previous.conditions),
+      runtime.conditions,
+      runtime.cover,
+    )
+  ) {
+    runtime = { ...runtime, cover: "none" };
+  }
   runtime.currentHp = adjustCurrentHpForDrainedChange(
     normalizeConditions(previous.conditions),
     runtime.conditions,

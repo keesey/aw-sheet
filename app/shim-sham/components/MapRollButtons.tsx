@@ -16,6 +16,7 @@ export function MapRollButtons({
   combatBonus = 0,
   strikeRoll,
   rangePenalty = 0,
+  endsCover = false,
 }: {
   label: string;
   values: [number, number, number];
@@ -26,8 +27,9 @@ export function MapRollButtons({
     damageMode: StrikeDamageMode;
   };
   rangePenalty?: number;
+  endsCover?: boolean;
 }) {
-  const { openStrikeRoll } = useRoll();
+  const { openStrikeRoll, openRoll } = useRoll();
 
   return (
     <span className={`map-roll-btns${className ? ` ${className}` : ""}`}>
@@ -45,6 +47,7 @@ export function MapRollButtons({
               label={rollLabel}
               bonus={bonus}
               className="map-roll-btn"
+              endsCover={endsCover || !!strikeRoll}
               onRoll={
                 strikeRoll
                   ? () =>
@@ -55,7 +58,7 @@ export function MapRollButtons({
                         damage: strikeRoll.damage,
                         damageMode: strikeRoll.damageMode,
                       })
-                  : undefined
+                  : () => openRoll(rollLabel, bonus, { endsCover })
               }
             >
               {formatSigned(bonus)}

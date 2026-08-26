@@ -119,6 +119,12 @@ export default function CharacterSheet() {
       setNotesDraft(nextNotes);
 
       const body: Record<string, unknown> = { notes: nextNotes };
+      if (
+        result.kind === "strike" ||
+        (result.kind === "check" && result.endsCover)
+      ) {
+        body.cover = "none";
+      }
       if (result.kind === "strike" && result.damageMode === "finisher") {
         body.panache = false;
       }

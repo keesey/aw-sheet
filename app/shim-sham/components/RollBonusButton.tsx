@@ -11,6 +11,7 @@ export function RollBonusButton({
   children,
   onRoll,
   disabled = false,
+  endsCover = false,
 }: {
   label: string;
   bonus: number;
@@ -19,6 +20,7 @@ export function RollBonusButton({
   children: ReactNode;
   onRoll?: () => void;
   disabled?: boolean;
+  endsCover?: boolean;
 }) {
   const { openRoll } = useRoll();
 
@@ -36,7 +38,7 @@ export function RollBonusButton({
         if (onRoll) {
           onRoll();
         } else {
-          openRoll(label, bonus);
+          openRoll(label, bonus, { endsCover });
         }
       }}
     >
