@@ -1,4 +1,8 @@
 import { formatActiveCondition } from "@/lib/shim-sham/conditions";
+import {
+  applyRecoveryCheck,
+  formatRecoveryCheckLogLine,
+} from "@/lib/shim-sham/recovery-check";
 import type { ActiveCondition, CoverLevel, RuntimeState } from "@/lib/types";
 
 type SessionLogContext = {
@@ -78,6 +82,17 @@ export function sessionLogLineForSave(
     const delta = body.delta;
     if (delta === 0) return null;
     return delta < 0 ? `HP ${delta}` : `HP +${delta}`;
+  }
+
+  if (body.action === "recovery-check" && typeof body.d20 === "number") {
+    const d20 = Math.floor(body.d20);
+    if (d20 < 1 || d20 > 20) return null;
+    try {
+      const result = applyRecoveryCheck(runtime.conditions, runtime.currentHp, d20, runtime.level);
+      return formatRecoveryCheckLogLine(result);
+    } catch {
+      return null;
+    }
   }
 
   if (typeof body.credits === "number" && body.credits !== runtime.credits) {

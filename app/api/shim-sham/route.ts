@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { loadRuntimeState, saveRuntimeState, isKvConfigured } from "@/lib/kv";
 import { buildCharacterSheet, normalizeRuntimeState } from "@/lib/shim-sham/static";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
+import { applyRecoveryCheck } from "@/lib/shim-sham/recovery-check";
 import {
   adjustCurrentHpForDrainedChange,
   effectiveMaxHp,
@@ -21,9 +22,9 @@ function normalizeRuntime(runtime: RuntimeState): RuntimeState {
 
 function mergeClientRuntime(
   server: RuntimeState,
-  body: Partial<RuntimeState> & { action?: string; delta?: number },
+  body: Partial<RuntimeState> & { action?: string; delta?: number; d20?: number },
 ): RuntimeState {
-  const { action: _action, delta: _delta, ...patch } = body;
+  const { action: _action, delta: _delta, d20: _d20, ...patch } = body;
   return { ...server, ...patch };
 }
 
@@ -39,8 +40,9 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   const body = (await request.json()) as Partial<RuntimeState> & {
-    action?: "rest" | "level-up" | "activate-force-field" | "deactivate-force-field" | "force-field-regen" | "hp-delta";
+    action?: "rest" | "level-up" | "activate-force-field" | "deactivate-force-field" | "force-field-regen" | "hp-delta" | "recovery-check";
     delta?: number;
+    d20?: number;
   };
 
   const previous = await loadRuntimeState();
@@ -113,6 +115,22 @@ export async function PATCH(request: Request) {
         FORCE_FIELD_MAX_HP,
         runtime.forceFieldHp + FORCE_FIELD_REGEN_PER_TURN,
       ),
+    };
+  } else if (body.action === "recovery-check" && typeof body.d20 === "number") {
+    const snapshot = getLevelSnapshot(runtime.level)!;
+    const d20 = Math.floor(body.d20);
+    if (d20 < 1 || d20 > 20) {
+      return NextResponse.json({ error: "Recovery check d20 must be between 1 and 20" }, { status: 400 });
+    }
+    const conditions = normalizeConditions(runtime.conditions);
+    if (!conditions.some((condition) => condition.id === "dying")) {
+      return NextResponse.json({ error: "Not dying" }, { status: 400 });
+    }
+    const result = applyRecoveryCheck(conditions, runtime.currentHp, d20, snapshot.level);
+    runtime = {
+      ...runtime,
+      conditions: result.conditions,
+      currentHp: result.currentHp,
     };
   } else if (body.action === "hp-delta" && typeof body.delta === "number") {
     const snapshot = getLevelSnapshot(runtime.level)!;

@@ -1317,6 +1317,120 @@ button {
   margin-top: 0;
 }
 
+.recovery-section__intro {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.recovery-section__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.recovery-section__stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.recovery-section__stats dt {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recovery-section__stats dd {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.recovery-section__note {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.recovery-section__roll-btn {
+  width: 100%;
+}
+
+.recovery-section__result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recovery-section__roll-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.recovery-section__roll-label {
+  font-size: 0.875rem;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.recovery-section__roll-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.recovery-section__roll-vs {
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.recovery-section__outcome {
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.recovery-section__outcome--critical-success {
+  color: #86efac;
+}
+
+.recovery-section__outcome--success {
+  color: #bbf7d0;
+}
+
+.recovery-section__outcome--failure {
+  color: #fca5a5;
+}
+
+.recovery-section__outcome--critical-failure {
+  color: #f87171;
+}
+
+.recovery-section__preview {
+  margin: 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.recovery-section__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.recovery-section__accept-btn {
+  flex: 1;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 .strikes-panel-content .strike-entry:first-child {
   padding-top: 0;
 }

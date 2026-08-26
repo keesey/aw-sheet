@@ -4,7 +4,7 @@ import { PROGRESSION } from "@/lib/shim-sham/progression";
 /** Swashbuckler HP per level includes Constitution modifier each level. */
 const SWASHBUCKLER_HP_PER_LEVEL = 10;
 
-function hasToughness(level: number): boolean {
+export function hasToughness(level: number): boolean {
   return PROGRESSION.some(
     (entry) =>
       entry.level <= level &&

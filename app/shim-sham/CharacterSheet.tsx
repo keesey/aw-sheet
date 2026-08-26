@@ -24,7 +24,9 @@ import { SheetHeader } from "./components/sheet/SheetHeader";
 import { SkillsSection } from "./components/sheet/SkillsSection";
 import { StatsGrid } from "./components/sheet/StatsGrid";
 import { ActionsSection } from "./components/sheet/ActionsSection";
+import { RecoverySection } from "./components/sheet/RecoverySection";
 import { ExploreSection } from "./components/sheet/ExploreSection";
+import { getActiveCondition } from "@/lib/shim-sham/conditions";
 import { StrikesPanel } from "./components/panels/StrikesPanel";
 import { AreaWeaponsPanel } from "./components/panels/AreaWeaponsPanel";
 import { buildStrikeAction } from "@/lib/shim-sham/strike-action";
@@ -192,6 +194,7 @@ export default function CharacterSheet() {
     runtime.consumables,
   );
   const speedEntries = buildSpeedEntries(level, runtime.jetpack);
+  const isDying = getActiveCondition(runtime.conditions, "dying") != null;
 
   const handleRest = () => {
     if (
@@ -277,7 +280,14 @@ export default function CharacterSheet() {
         </div>
 
         <div className="sheet-column sheet-column--strikes">
-          {runtime.encounter ? (
+          {isDying ? (
+            <RecoverySection
+              conditions={runtime.conditions}
+              currentHp={currentHp}
+              level={runtime.level}
+              save={saveSheet}
+            />
+          ) : runtime.encounter ? (
             <ActionsSection
               actionsByCost={actionsByCost}
               strikeAction={strikeAction}
