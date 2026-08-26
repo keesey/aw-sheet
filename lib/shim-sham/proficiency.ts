@@ -33,3 +33,15 @@ export function proficiencyBonus(rank: ProficiencyRank, level: number): number {
   if (rank === "U") return 0;
   return level + RANK_BONUS[rank];
 }
+
+const RANK_LABELS: Record<ProficiencyRank, string> = {
+  U: "Untrained",
+  T: "Trained",
+  E: "Expert",
+  M: "Master",
+  L: "Legendary",
+};
+
+export function proficiencyRankLabel(rank: ProficiencyRank): string {
+  return RANK_LABELS[rank];
+}

@@ -1,5 +1,16 @@
 import type { AttributeKey, LevelSnapshot, ProficiencyRank, SkillEntry } from "@/lib/types";
-import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/proficiency";
+import {
+  proficiencyBonus,
+  proficiencyRankAtLevel,
+  proficiencyRankLabel,
+} from "@/lib/shim-sham/proficiency";
+
+export type SkillProgressionChange = {
+  name: string;
+  url: string;
+  rank: ProficiencyRank;
+  label: string;
+};
 
 const AON = "https://2e.aonsrd.com";
 
@@ -107,6 +118,31 @@ function skillCheckBonus(
   level: number,
 ): number {
   return keyAttributeModifier + proficiencyBonus(rank, level);
+}
+
+function rankBeforeLevel(
+  ranks: ReadonlyArray<{ level: number; rank: ProficiencyRank }>,
+  level: number,
+): ProficiencyRank {
+  let rank: ProficiencyRank = "U";
+  for (const step of ranks) {
+    if (step.level >= level) break;
+    rank = step.rank;
+  }
+  return rank;
+}
+
+/** Skills whose proficiency rank changes at this character level. */
+export function skillChangesAtLevel(level: number): SkillProgressionChange[] {
+  return SHIM_SHAM_SKILLS.flatMap((skill) => {
+    const step = skill.ranks.find((entry) => entry.level === level);
+    if (!step) return [];
+    const previous = rankBeforeLevel(skill.ranks, level);
+    const nextLabel = proficiencyRankLabel(step.rank);
+    const label =
+      previous === "U" ? nextLabel : `${proficiencyRankLabel(previous)} → ${nextLabel}`;
+    return [{ name: skill.name, url: skill.url, rank: step.rank, label }];
+  }).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 }
 
 export function buildSkillEntries(snapshot: LevelSnapshot): SkillEntry[] {

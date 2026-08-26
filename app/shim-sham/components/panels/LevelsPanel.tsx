@@ -1,4 +1,5 @@
 import { PROGRESSION, getNextLevelSnapshot } from "@/lib/shim-sham/progression";
+import { skillChangesAtLevel } from "@/lib/shim-sham/skills";
 import type { AttributeKey, CharacterSheet, ProgressionFeat } from "@/lib/types";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
@@ -21,6 +22,27 @@ function formatAttributeBoosts(boosts: AttributeKey[]): string[] {
     labels.push(count > 1 ? `${attribute} ×${count}` : attribute);
   }
   return labels;
+}
+
+function SkillIncreaseList({ level }: { level: number }) {
+  const entries = skillChangesAtLevel(level);
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="feat-level-skills">
+      <div className="feat-column-title">{level === 1 ? "Trained Skills" : "Skill Increases"}</div>
+      <ul className="feat-list feat-level-skills__list">
+        {entries.map((entry) => (
+          <li key={entry.name}>
+            <AonLink href={entry.url}>{entry.name}</AonLink>
+            <span className="feat-level-skills__rank"> {entry.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function FeatList({ entries }: { entries: ProgressionFeat[] }) {
@@ -66,6 +88,7 @@ function LevelSection({
           <span className="feat-level-boosts__items">{boostLabels.join(" · ")}</span>
         </div>
       ) : null}
+      <SkillIncreaseList level={level} />
       <div className="feat-level-columns">
         <div className="feat-level-column">
           <div className="feat-column-title">Feats</div>

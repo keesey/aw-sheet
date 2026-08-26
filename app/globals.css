@@ -1538,6 +1538,20 @@ button {
   color: var(--text);
 }
 
+.feat-level-skills {
+  margin-bottom: 0.5rem;
+}
+
+.feat-level-skills__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1rem;
+}
+
+.feat-level-skills__rank {
+  color: var(--muted);
+}
+
 .feat-level-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
