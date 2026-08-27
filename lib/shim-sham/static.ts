@@ -1,6 +1,8 @@
-import type { CharacterAction, CharacterSheet, RuntimeState } from "@/lib/types";
-import { actionDescription } from "@/lib/shim-sham/action-descriptions";
-import { getLevelSnapshot } from "@/lib/shim-sham/progression";
+import type { CharacterSheet, RuntimeState } from "@/lib/types";
+import { buildShimShamActions } from "@/lib/shim-sham/actions-data";
+import { AON, AONP } from "@/lib/shim-sham/aon";
+import { formatSigned } from "@/lib/format-signed";
+import { requireLevelSnapshot } from "@/lib/shim-sham/progression";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
 import { normalizeAdHocItems, syncEncumberedFromBulk } from "@/lib/shim-sham/bulk";
 import {
@@ -19,7 +21,6 @@ import {
 } from "@/lib/shim-sham/condition-effects";
 import {
   buildSkillEntries,
-  formatSignedBonus,
   getSkillKeyAttributes,
   skillBonusByName,
 } from "@/lib/shim-sham/skills";
@@ -28,15 +29,12 @@ import {
   formatStylishCombatantBonus,
 } from "@/lib/shim-sham/stylish-combatant";
 
-const AON = "https://2e.aonsrd.com";
-const AONP = "https://2e.aonprd.com";
-
 export const FORCE_FIELD_MAX_HP = 6;
 export const FORCE_FIELD_DAILY_USES = 3;
 export const FORCE_FIELD_REGEN_PER_TURN = 2;
 
 export function createDefaultRuntime(level = 1): RuntimeState {
-  const snapshot = getLevelSnapshot(level)!;
+  const snapshot = requireLevelSnapshot(level);
   return {
     level,
     currentHp: snapshot.maxHp,
@@ -73,7 +71,7 @@ export function createDefaultRuntime(level = 1): RuntimeState {
 
 export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   const legacy = runtime as RuntimeState & { combat?: boolean };
-  const level = getLevelSnapshot(runtime.level)!;
+  const level = requireLevelSnapshot(runtime.level);
   const normalizedConditions = normalizeConditions(runtime.conditions);
   const effects = resolveConditionEffects(
     normalizedConditions,
@@ -107,7 +105,7 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
 
 export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   const normalizedRuntime = normalizeRuntimeState(runtime);
-  const level = getLevelSnapshot(normalizedRuntime.level)!;
+  const level = requireLevelSnapshot(normalizedRuntime.level);
   const effects = resolveConditionEffects(
     normalizedRuntime.conditions,
     level,
@@ -121,9 +119,12 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
     ...skill,
     bonus: skill.bonus + (effects.skillDelta[skill.name] ?? 0),
   }));
-  const skillBonus = (name: string) => formatSignedBonus(skillBonusByName(allSkills, name));
+  const skillBonus = (name: string) => formatSigned(skillBonusByName(allSkills, name));
   const attackMapBonus = (bonus: string) => formatSkillAttackMapBonus(bonus);
-  const acrobaticsSkill = allSkills.find((skill) => skill.name === "Acrobatics")!;
+  const acrobaticsSkill = allSkills.find((skill) => skill.name === "Acrobatics");
+  if (!acrobaticsSkill) {
+    throw new Error("Acrobatics skill missing from character build");
+  }
   const escapeMapBonus = formatEscapeMapBonus(
     acrobaticsSkill.bonus,
     acrobaticsSkill.proficiency,
@@ -134,473 +135,23 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   });
   const armor = getWornArmor(level.level);
   const stylishBonus = formatStylishCombatantBonus(level.level);
-  const perceptionBonus = formatSignedBonus(
+  const perceptionBonus = formatSigned(
     perception(effectiveLevel.attributes.WIS, effectiveLevel.level) + effects.perception,
   );
   const derived = runtimeDerivedStats(level, effects);
-  const grabAnEdgeBonus = formatSignedBonus(
+  const grabAnEdgeBonus = formatSigned(
     Math.max(derived.reflex, acrobaticsSkill.bonus),
   );
-  const fortBonus = formatSignedBonus(derived.fort);
-  const allActions: CharacterAction[] = [
-        {
-          id: "cardiac-accelerator",
-          name: "Activate — Cardiac Accelerator",
-          cost: "free",
-          description: actionDescription("cardiac-accelerator"),
-          traits: ["Tech"],
-          url: `${AON}/treasure/130`,
-          control: "accelerate",
-        },
-        {
-          id: "delay",
-          name: "Delay",
-          cost: "free",
-          description: actionDescription("delay"),
-          url: `${AON}/actions/3-delay`,
-          control: "delay",
-        },
-        {
-          id: "exemplary-finisher",
-          name: "Exemplary Finisher (Step)",
-          cost: "free",
-          description: actionDescription("exemplary-finisher"),
-          url: `${AONP}/Styles.aspx?ID=7`,
-          minLevel: 9,
-        },
-        {
-          id: "return-to-initiative",
-          name: "Return to Initiative Order",
-          cost: "free",
-          description: actionDescription("return-to-initiative"),
-          url: `${AON}/actions/3-delay`,
-          control: "return-to-initiative",
-        },
-        {
-          id: "release",
-          name: "Release",
-          cost: "free",
-          description: actionDescription("release"),
-          traits: ["Manipulate"],
-          url: `${AON}/actions/9-release`,
-        },
-        {
-          id: "meyel-reroll",
-          name: "Reroll Save — Meyel's Chosen Pahtra",
-          cost: "free",
-          description: actionDescription("meyel-reroll"),
-          traits: ["Fortune"],
-          url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
-          control: "meyel-reroll",
-        },
-        {
-          id: "aid",
-          name: "Aid",
-          cost: "reaction",
-          description: actionDescription("aid"),
-          url: `${AON}/actions/1-aid`,
-          control: "aid",
-        },
-        {
-          id: "arrest-a-fall",
-          name: "Arrest a Fall",
-          cost: "reaction",
-          description: actionDescription("arrest-a-fall"),
-          url: `${AON}/actions/18-arrest-a-fall`,
-        },
-        {
-          id: "grab-an-edge",
-          name: "Grab an Edge",
-          cost: "reaction",
-          description: actionDescription("grab-an-edge"),
-          traits: ["Manipulate"],
-          url: `${AON}/actions/24-grab-an-edge`,
-          bonus: grabAnEdgeBonus,
-        },
-        {
-          id: "opportune-riposte",
-          name: "Opportune Riposte",
-          cost: "reaction",
-          description: actionDescription("opportune-riposte"),
-          traits: ["Bravado", "Swashbuckler"],
-          url: `${AONP}/Actions.aspx?ID=2819`,
-          control: "strikes",
-        },
-        {
-          id: "force-field",
-          name: "Activate — Force Field",
-          cost: "single",
-          description: actionDescription("force-field"),
-          traits: ["Manipulate"],
-          url: `${AON}/treasure/57`,
-          control: "force-field",
-        },
-        {
-          id: "jetpack",
-          name: "Activate — Jetpack",
-          cost: "single",
-          description: actionDescription("jetpack"),
-          traits: ["Manipulate", "Move"],
-          url: `${AON}/treasure/59-jetpack`,
-          control: "jetpack",
-        },
-        {
-          id: "dismiss-jetpack",
-          name: "Dismiss — Jetpack",
-          cost: "single",
-          description: actionDescription("dismiss-jetpack"),
-          traits: ["Concentrate"],
-          url: `${AON}/actions/22-dismiss`,
-          control: "jetpack",
-        },
-        {
-          id: "area-fire-grenade",
-          name: "Area Fire",
-          cost: "double",
-          description: actionDescription("area-fire-grenade"),
-          traits: ["Area", "Attack"],
-          url: `${AON}/actions/17-area-fire`,
-          control: "area-weapons",
-        },
-        {
-          id: "disable-device",
-          name: "Disable a Device",
-          cost: "double",
-          description: actionDescription("disable-device"),
-          traits: ["Manipulate"],
-          url: `${AON}/actions/108-disable-a-device`,
-          bonus: skillBonus("Thievery"),
-        },
-        {
-          id: "high-jump",
-          name: "High Jump",
-          cost: "double",
-          description: actionDescription("high-jump"),
-          traits: ["Move"],
-          url: `${AON}/actions/65-high-jump`,
-          bonus: skillBonus("Athletics"),
-        },
-        {
-          id: "long-jump",
-          name: "Long Jump",
-          cost: "double",
-          description: actionDescription("long-jump"),
-          traits: ["Move"],
-          url: `${AON}/actions/66-long-jump`,
-          bonus: skillBonus("Athletics"),
-        },
-        {
-          id: "ready",
-          name: "Ready",
-          cost: "double",
-          description: actionDescription("ready"),
-          traits: ["Concentrate"],
-          url: `${AON}/actions/8-ready`,
-        },
-        {
-          id: "avert-gaze",
-          name: "Avert Gaze",
-          cost: "single",
-          description: actionDescription("avert-gaze"),
-          url: `${AON}/actions/20-avert-gaze`,
-        },
-        {
-          id: "confident-finisher",
-          name: "Confident Finisher",
-          cost: "single",
-          description: actionDescription("confident-finisher"),
-          traits: ["Finisher", "Swashbuckler"],
-          url: `${AONP}/Actions.aspx?ID=2818`,
-          control: "strikes",
-        },
-        {
-          id: "crawl",
-          name: "Crawl",
-          cost: "single",
-          description: actionDescription("crawl"),
-          traits: ["Move"],
-          url: `${AON}/actions/2-crawl`,
-        },
-        {
-          id: "dirty-trick",
-          name: "Dirty Trick",
-          cost: "single",
-          description: actionDescription("dirty-trick"),
-          traits: ["Attack", "Manipulate", "Skill"],
-          url: `${AONP}/Feats.aspx?ID=6472`,
-          bonus: attackMapBonus(skillBonus("Thievery")),
-        },
-        {
-          id: "demoralize",
-          name: "Demoralize",
-          cost: "single",
-          description: actionDescription("demoralize"),
-          traits: ["Auditory", "Concentrate", "Emotion", "Fear", "Mental"],
-          url: `${AON}/actions/85-demoralize`,
-          bonus: skillBonus("Intimidation"),
-        },
-        {
-          id: "drop-prone",
-          name: "Drop Prone",
-          cost: "single",
-          description: actionDescription("drop-prone"),
-          traits: ["Move"],
-          url: `${AON}/actions/4-drop-prone`,
-          control: "drop-prone",
-        },
-        {
-          id: "dueling-parry",
-          name: "Dueling Parry",
-          cost: "single",
-          description: actionDescription("dueling-parry"),
-          url: `${AONP}/Feats.aspx?ID=4781`,
-          control: "dueling-parry",
-        },
-        {
-          id: "escape",
-          name: "Escape",
-          cost: "single",
-          description: actionDescription("escape"),
-          traits: ["Attack"],
-          url: `${AON}/actions/5-escape`,
-          bonus: escapeMapBonus,
-        },
-        {
-          id: "fly",
-          name: "Fly",
-          cost: "single",
-          description: actionDescription("fly"),
-          traits: ["Move"],
-          url: `${AON}/actions/23-fly`,
-        },
-        {
-          id: "grapple",
-          name: "Grapple",
-          cost: "single",
-          description: actionDescription("grapple"),
-          traits: ["Attack"],
-          url: `${AON}/actions/64-grapple`,
-          bonus: attackMapBonus(skillBonus("Athletics")),
-        },
-        {
-          id: "hide",
-          name: "Hide",
-          cost: "single",
-          description: actionDescription("hide"),
-          traits: ["Secret"],
-          url: `${AON}/actions/101-hide`,
-          bonus: skillBonus("Stealth"),
-        },
-        {
-          id: "interact",
-          name: "Interact",
-          cost: "single",
-          description: actionDescription("interact"),
-          traits: ["Manipulate"],
-          url: `${AON}/actions/6-interact`,
-        },
-        {
-          id: "leading-dance",
-          name: "Leading Dance",
-          cost: "single",
-          description: actionDescription("leading-dance"),
-          traits: ["Bravado", "Move", "Swashbuckler"],
-          url: `${AONP}/Feats.aspx?ID=6149`,
-          bonus: skillBonus("Performance"),
-          combatBonus: stylishBonus,
-        },
-        {
-          id: "leap",
-          name: "Leap",
-          cost: "single",
-          description: actionDescription("leap"),
-          traits: ["Move"],
-          url: `${AON}/actions/7-leap`,
-        },
-        {
-          id: "maneuver-in-flight",
-          name: "Maneuver in Flight",
-          cost: "single",
-          description: actionDescription("maneuver-in-flight"),
-          traits: ["Move"],
-          url: `${AON}/actions/59-maneuver-in-flight`,
-          bonus: skillBonus("Acrobatics"),
-        },
-        {
-          id: "baton-parry",
-          name: "Parry — Baton (Tactical)",
-          cost: "single",
-          description: actionDescription("baton-parry"),
-          url: `${AON}/traits/137-parry`,
-          control: "baton-parry",
-        },
-        {
-          id: "perform",
-          name: "Perform — Fascinating Performance",
-          cost: "single",
-          description: actionDescription("perform"),
-          traits: ["Bravado", "Concentrate", "Incapacitation"],
-          url: `${AONP}/Feats.aspx?ID=5147`,
-          bonus: skillBonus("Performance"),
-          combatBonus: stylishBonus,
-        },
-        {
-          id: "palm-an-object",
-          name: "Palm an Object",
-          cost: "single",
-          description: actionDescription("palm-an-object"),
-          traits: ["Manipulate"],
-          url: `${AON}/actions/106-palm-an-object`,
-          bonus: skillBonus("Thievery"),
-        },
-        {
-          id: "point-out",
-          name: "Point Out",
-          cost: "single",
-          description: actionDescription("point-out"),
-          traits: ["Auditory", "Manipulate", "Visual"],
-          url: `${AON}/actions/26-point-out`,
-        },
-        {
-          id: "prepare-to-aid",
-          name: "Prepare to Aid",
-          cost: "single",
-          description: actionDescription("prepare-to-aid"),
-          url: `${AON}/actions/1-aid`,
-          control: "prepare-to-aid",
-        },
-        {
-          id: "recall-knowledge",
-          name: "Recall Knowledge",
-          cost: "single",
-          description: actionDescription("recall-knowledge"),
-          traits: ["Concentrate", "Secret"],
-          url: `${AON}/actions/50-recall-knowledge`,
-        },
-        {
-          id: "reposition",
-          name: "Reposition",
-          cost: "single",
-          description: actionDescription("reposition"),
-          traits: ["Attack"],
-          url: `${AON}/actions/67-reposition`,
-          bonus: attackMapBonus(skillBonus("Athletics")),
-        },
-        {
-          id: "request",
-          name: "Request",
-          cost: "single",
-          description: actionDescription("request"),
-          traits: ["Auditory", "Concentrate", "Linguistic", "Mental"],
-          url: `${AON}/actions/83-request`,
-          bonus: skillBonus("Diplomacy"),
-        },
-        {
-          id: "retch",
-          name: "Retch",
-          cost: "single",
-          description: actionDescription("retch"),
-          url: `${AON}/conditions/35-sickened`,
-          bonus: fortBonus,
-        },
-        {
-          id: "seek",
-          name: "Seek",
-          cost: "single",
-          description: actionDescription("seek"),
-          traits: ["Concentrate", "Secret"],
-          url: `${AON}/actions/10-seek`,
-          bonus: perceptionBonus,
-        },
-        {
-          id: "sense-motive",
-          name: "Sense Motive",
-          cost: "single",
-          description: actionDescription("sense-motive"),
-          traits: ["Concentrate", "Secret"],
-          url: `${AON}/actions/11-sense-motive`,
-          bonus: perceptionBonus,
-        },
-        {
-          id: "sneak",
-          name: "Sneak",
-          cost: "single",
-          description: actionDescription("sneak"),
-          traits: ["Move", "Secret"],
-          url: `${AON}/actions/102-sneak`,
-          bonus: skillBonus("Stealth"),
-        },
-        {
-          id: "stand",
-          name: "Stand",
-          cost: "single",
-          description: actionDescription("stand"),
-          traits: ["Move"],
-          url: `${AON}/actions/12-stand`,
-          control: "stand",
-        },
-        {
-          id: "steal",
-          name: "Steal",
-          cost: "single",
-          description: actionDescription("steal"),
-          traits: ["Manipulate"],
-          url: `${AON}/actions/107-steal`,
-          bonus: skillBonus("Thievery"),
-        },
-        {
-          id: "step",
-          name: "Step",
-          cost: "single",
-          description: actionDescription("step"),
-          traits: ["Move"],
-          url: `${AON}/actions/13-step`,
-        },
-        {
-          id: "stride",
-          name: "Stride",
-          cost: "single",
-          description: actionDescription("stride"),
-          traits: ["Move"],
-          url: `${AON}/actions/14-stride`,
-        },
-        {
-          id: "swim",
-          name: "Swim",
-          cost: "single",
-          description: actionDescription("swim"),
-          traits: ["Move"],
-          url: `${AON}/actions/69-swim`,
-          bonus: skillBonus("Athletics"),
-        },
-        {
-          id: "take-cover",
-          name: "Take Cover",
-          cost: "single",
-          description: actionDescription("take-cover"),
-          url: `${AONP}/Actions.aspx?ID=2307`,
-          control: "take-cover",
-        },
-        {
-          id: "tumble-through",
-          name: "Tumble Through",
-          cost: "single",
-          description: actionDescription("tumble-through"),
-          traits: ["Bravado", "Move"],
-          url: `${AONP}/Actions.aspx?ID=2370`,
-          bonus: skillBonus("Acrobatics"),
-          combatBonus: stylishBonus,
-        },
-        {
-          id: "trip",
-          name: "Trip",
-          cost: "single",
-          description: actionDescription("trip"),
-          traits: ["Attack"],
-          url: `${AON}/actions/70-trip`,
-          bonus: attackMapBonus(skillBonus("Athletics")),
-        },
-  ];
+  const fortBonus = formatSigned(derived.fort);
+  const allActions = buildShimShamActions({
+    skillBonus,
+    attackMapBonus,
+    escapeMapBonus,
+    grabAnEdgeBonus,
+    fortBonus,
+    perceptionBonus,
+    stylishBonus,
+  });
 
   const { feats: _feats, preciseStrike: _preciseStrike, ...levelForClient } = level;
 

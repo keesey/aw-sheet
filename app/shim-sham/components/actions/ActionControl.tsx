@@ -173,7 +173,10 @@ export function ActionControl({
           aria-label="Drop prone"
           onClick={() => {
             if (getActiveCondition(runtime.conditions, "prone")) return;
-            void save({ conditions: [...runtime.conditions, { id: "prone" }] });
+            void save((runtime) => {
+              if (getActiveCondition(runtime.conditions, "prone")) return {};
+              return { conditions: [...runtime.conditions, { id: "prone" }] };
+            });
           }}
         >
           ↓
@@ -188,7 +191,9 @@ export function ActionControl({
           aria-label="Stand up from prone"
           onClick={() => {
             if (!getActiveCondition(runtime.conditions, "prone")) return;
-            void save({ conditions: removeCondition(runtime.conditions, "prone") });
+            void save((runtime) => ({
+              conditions: removeCondition(runtime.conditions, "prone"),
+            }));
           }}
         >
           ↑

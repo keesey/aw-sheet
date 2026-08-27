@@ -3,12 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { rollDiceNotation, type DamageRollLine, type RollResult } from "../../lib/roll";
 
-function natClass(d20: number): string | undefined {
-  if (d20 === 20) return "roll-result__nat20";
-  if (d20 === 1) return "roll-result__nat1";
-  return undefined;
-}
-
+import { natClass } from "../../lib/nat-class";
 function AttackRollBreakdown({ d20, bonus }: { d20: number; bonus: number }) {
   if (bonus === 0) return null;
 

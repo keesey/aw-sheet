@@ -1,9 +1,8 @@
 import type { Consumable, InventoryItem, RuntimeState } from "@/lib/types";
 import { normalizeAdHocItems, totalBulk } from "@/lib/shim-sham/bulk";
 
-const AON = "https://2e.aonsrd.com";
-
-/** Commercial-grade ammunition carried on the sheet (see AoN ammunition tables). */
+import { AON } from "@/lib/shim-sham/aon";
+import { compareByName } from "@/lib/shim-sham/sort";
 export const SHIM_SHAM_AMMUNITION = {
   battery: { bulk: "—" },
   chemTank: { bulk: "—" },
@@ -144,7 +143,7 @@ export function getEquipmentGroups(items: InventoryItem[]) {
     label: EQUIPMENT_GROUP_LABELS[group],
     items: items
       .filter((item) => item.equipmentGroup === group)
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" })),
+      .sort(compareByName),
   })).filter((group) => group.items.length > 0);
 }
 

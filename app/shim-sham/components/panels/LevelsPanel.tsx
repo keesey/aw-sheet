@@ -1,12 +1,10 @@
+import { compareByName } from "@/lib/shim-sham/sort";
 import { PROGRESSION, getNextLevelSnapshot } from "@/lib/shim-sham/progression";
 import { skillChangesAtLevel } from "@/lib/shim-sham/skills";
 import type { AttributeKey, CharacterSheet, ProgressionFeat } from "@/lib/types";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
-
-const byName = (a: ProgressionFeat, b: ProgressionFeat) =>
-  a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
 
 function formatAttributeBoosts(boosts: AttributeKey[]): string[] {
   const counts = new Map<AttributeKey, number>();
@@ -46,7 +44,7 @@ function SkillIncreaseList({ level }: { level: number }) {
 }
 
 function FeatList({ entries }: { entries: ProgressionFeat[] }) {
-  const sorted = [...entries].sort(byName);
+  const sorted = [...entries].sort(compareByName);
   if (sorted.length === 0) {
     return null;
   }

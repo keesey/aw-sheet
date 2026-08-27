@@ -1,10 +1,10 @@
+import { formatSigned } from "@/lib/format-signed";
+
 export function formatAttributeMod(value: number) {
-  return value >= 0 ? `+${value}` : `${value}`;
+  return formatSigned(value);
 }
 
-export function formatSigned(value: number) {
-  return value >= 0 ? `+${value}` : `${value}`;
-}
+export { formatSigned } from "@/lib/format-signed";
 
 export function statModClass(delta: number): string | undefined {
   if (delta < 0) return "stat-penalized";

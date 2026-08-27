@@ -1,18 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { AdHocInventoryItem } from "@/lib/types";
 import { bulkSelectOptions, bulkToUnits } from "@/lib/shim-sham/bulk";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 
 export function AdHocItemForm({
-  items,
   currentBulk,
   maxBulk,
   save,
 }: {
-  items: AdHocInventoryItem[];
   currentBulk: number;
   maxBulk: number;
   save: SaveFn;
@@ -35,9 +32,9 @@ export function AdHocItemForm({
       return;
     }
     const trimmedLink = link.trim();
-    void save({
+    void save((runtime) => ({
       adHocItems: [
-        ...items,
+        ...runtime.adHocItems,
         {
           id: crypto.randomUUID(),
           name: trimmedName,
@@ -45,7 +42,7 @@ export function AdHocItemForm({
           ...(trimmedLink ? { url: trimmedLink } : {}),
         },
       ],
-    });
+    }));
     setName("");
     setLink("");
     setBulk("—");

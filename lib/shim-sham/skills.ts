@@ -1,9 +1,12 @@
 import type { AttributeKey, LevelSnapshot, ProficiencyRank, SkillEntry } from "@/lib/types";
+import { formatSigned } from "@/lib/format-signed";
 import {
   proficiencyBonus,
   proficiencyRankAtLevel,
   proficiencyRankLabel,
 } from "@/lib/shim-sham/proficiency";
+import { AON } from "@/lib/shim-sham/aon";
+import { compareByName } from "@/lib/shim-sham/sort";
 
 export type SkillProgressionChange = {
   name: string;
@@ -11,8 +14,6 @@ export type SkillProgressionChange = {
   rank: ProficiencyRank;
   label: string;
 };
-
-const AON = "https://2e.aonsrd.com";
 
 type SkillDefinition = {
   name: string;
@@ -142,7 +143,7 @@ export function skillChangesAtLevel(level: number): SkillProgressionChange[] {
     const label =
       previous === "U" ? nextLabel : `${proficiencyRankLabel(previous)} → ${nextLabel}`;
     return [{ name: skill.name, url: skill.url, rank: step.rank, label }];
-  }).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  }).sort(compareByName);
 }
 
 export function buildSkillEntries(snapshot: LevelSnapshot): SkillEntry[] {
@@ -170,5 +171,5 @@ export function skillBonusByName(skills: SkillEntry[], name: string): number {
 }
 
 export function formatSignedBonus(value: number): string {
-  return value >= 0 ? `+${value}` : `${value}`;
+  return formatSigned(value);
 }

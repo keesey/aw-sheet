@@ -3,7 +3,8 @@ import {
   applyRecoveryCheck,
   formatRecoveryCheckLogLine,
 } from "@/lib/shim-sham/recovery-check";
-import type { ActiveCondition, CoverLevel, RuntimeState } from "@/lib/types";
+import type { ActiveCondition, RuntimeState } from "@/lib/types";
+import type { SheetPatch } from "@/lib/shim-sham/patch";
 
 type SessionLogContext = {
   maxHp: number;
@@ -52,7 +53,7 @@ function sessionLogLinesForConditionChanges(
 }
 
 export function sessionLogLineForSave(
-  body: Record<string, unknown>,
+  body: SheetPatch,
   runtime: RuntimeState,
   context: SessionLogContext,
 ): string | null {
@@ -151,8 +152,8 @@ export function sessionLogLineForSave(
     return "Baton Parry activated";
   }
 
-  if (typeof body.cover === "string") {
-    const cover = body.cover as CoverLevel;
+  if (body.cover !== undefined) {
+    const cover = body.cover;
     if (cover === "standard" && runtime.cover !== "standard") {
       return "Take Cover (+2)";
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import type { CharacterSheet } from "@/lib/types";
+import { encounterOffPatch } from "@/lib/shim-sham/runtime-reset";
 import type { SaveFn } from "../../types";
 import { useRoll } from "../../context/RollContext";
 import { D20Icon } from "../icons/D20Icon";
@@ -85,20 +86,7 @@ export function SheetHeader({
             onClick={() => {
               const nextEncounter = !runtime.encounter;
               void save(
-                nextEncounter
-                  ? { encounter: true }
-                  : {
-                      encounter: false,
-                      panache: false,
-                      accelerate: false,
-                      duelingParry: false,
-                      batonParry: false,
-                      cover: "none",
-                      preparedToAid: false,
-                      delayed: false,
-                      forceFieldActive: false,
-                      forceFieldHp: 0,
-                    },
+                nextEncounter ? { encounter: true } : encounterOffPatch(),
               );
             }}
             aria-pressed={runtime.encounter}

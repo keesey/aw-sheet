@@ -23,7 +23,11 @@ export function ConditionTags({
           key={active.id}
           active={active}
           showAdjustments={false}
-          onRemove={() => void save({ conditions: removeCondition(conditions, active.id) })}
+          onRemove={() =>
+            void save((runtime) => ({
+              conditions: removeCondition(runtime.conditions, active.id),
+            }))
+          }
           removeDisabled={lockedConditionIds.includes(active.id)}
         />
       ))}

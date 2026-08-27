@@ -1,6 +1,5 @@
 import type { Consumable, WeaponStrike } from "@/lib/types";
-
-const AON = "https://2e.aonsrd.com";
+import { compareByName } from "@/lib/shim-sham/sort";
 
 export type AreaWeaponEntry = {
   id: string;
@@ -77,7 +76,5 @@ export function buildAreaWeaponEntries(
     })
     .filter((entry): entry is AreaWeaponEntry => entry != null);
 
-  return [...fromWeapons, ...grenades].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-  );
+  return [...fromWeapons, ...grenades].sort(compareByName);
 }

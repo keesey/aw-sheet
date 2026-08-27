@@ -1,6 +1,6 @@
 import type { SkillEntry } from "@/lib/types";
-
-const AON = "https://2e.aonsrd.com";
+import { AON } from "@/lib/shim-sham/aon";
+import { compareByName } from "@/lib/shim-sham/sort";
 
 export type ExplorationActivity = {
   id: string;
@@ -105,7 +105,5 @@ export function explorationActivityBonus(
 export function orderedExplorationActivities(
   activities: readonly ExplorationActivity[],
 ): ExplorationActivity[] {
-  return [...activities].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-  );
+  return [...activities].sort(compareByName);
 }

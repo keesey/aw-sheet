@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CharacterSheet } from "@/lib/types";
+import { compareByName } from "@/lib/shim-sham/sort";
 import {
   MAX_RANGE_INCREMENT_COUNT,
   rangeAttackPenalty,
@@ -66,9 +67,7 @@ export function StrikesSection({
 }) {
   const [rangeIncrements, setRangeIncrements] = useState<Record<string, number>>({});
 
-  const weapons = [...unsortedWeapons].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-  );
+  const weapons = [...unsortedWeapons].sort(compareByName);
 
   const content = weapons.map((w) => {
     const incrementsBeyondFirst = rangeIncrements[w.id] ?? 0;

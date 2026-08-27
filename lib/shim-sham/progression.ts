@@ -13,8 +13,7 @@ type LevelProgression = Omit<
   attributeBoosts?: AttributeKey[];
 };
 
-const AON = "https://2e.aonsrd.com";
-const AONP = "https://2e.aonprd.com";
+import { AON, AONP } from "@/lib/shim-sham/aon";
 const SWASHBUCKLER = `${AONP}/Classes.aspx?ID=63`;
 const BATTLEDANCER = `${AONP}/Styles.aspx?ID=7`;
 
@@ -213,6 +212,14 @@ function withDerivedStats(entry: LevelProgression): ProgressionSnapshot {
 export function getLevelSnapshot(level: number): ProgressionSnapshot | undefined {
   const entry = PROGRESSION.find((item) => item.level === level);
   return entry ? withDerivedStats(entry) : undefined;
+}
+
+export function requireLevelSnapshot(level: number): ProgressionSnapshot {
+  const snapshot = getLevelSnapshot(level);
+  if (!snapshot) {
+    throw new Error(`Invalid character level: ${level}`);
+  }
+  return snapshot;
 }
 
 export function getNextLevelSnapshot(level: number): ProgressionSnapshot | undefined {

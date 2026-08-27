@@ -1,4 +1,5 @@
 import type { AdHocInventoryItem } from "@/lib/types";
+import { compareByName } from "@/lib/shim-sham/sort";
 import { formatBulkLabel } from "@/lib/shim-sham/bulk";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
@@ -10,12 +11,12 @@ export function AdHocItemsList({
   items: AdHocInventoryItem[];
   save: SaveFn;
 }) {
-  const sortedItems = [...items].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-  );
+  const sortedItems = [...items].sort(compareByName);
 
   const removeItem = (id: string) => {
-    void save({ adHocItems: items.filter((item) => item.id !== id) });
+    void save((runtime) => ({
+      adHocItems: runtime.adHocItems.filter((item) => item.id !== id),
+    }));
   };
 
   return (

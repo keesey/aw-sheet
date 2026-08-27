@@ -1,5 +1,6 @@
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
+import { compareByName } from "@/lib/shim-sham/sort";
 import type { StrikesOpenOptions } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { ActionRow } from "../actions/ActionRow";
@@ -60,9 +61,7 @@ export function ActionsSection({
     speedDelta,
   };
 
-  const singleActions = [...actionsByCost.single, strikeAction].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-  );
+  const singleActions = [...actionsByCost.single, strikeAction].sort(compareByName);
 
   const actionSections = [
     actionsByCost.free,

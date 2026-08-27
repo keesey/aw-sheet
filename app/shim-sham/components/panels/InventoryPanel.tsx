@@ -5,7 +5,9 @@ import {
   formatBulkUnits,
   isOverburdenedByBulk,
 } from "@/lib/shim-sham/bulk";
+import { compareByName } from "@/lib/shim-sham/sort";
 import { getEquipmentGroups, SHIM_SHAM_AMMUNITION } from "@/lib/shim-sham/inventory";
+import { aonAmmunition } from "@/lib/shim-sham/aon";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
@@ -50,7 +52,7 @@ export function InventoryPanel({
   onClose: () => void;
 }) {
   const consumablesContent = [...data.consumableCatalog]
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
+    .sort(compareByName)
     .map((c) => {
       const used = runtime.consumables[c.id] ?? 0;
       const remaining = c.quantity - used;
@@ -69,7 +71,12 @@ export function InventoryPanel({
               className="btn btn-icon"
               disabled={remaining <= 0}
               onClick={() =>
-                void save({ consumables: { ...runtime.consumables, [c.id]: used + 1 } })
+                void save((runtime) => {
+                  const used = runtime.consumables[c.id] ?? 0;
+                  return {
+                    consumables: { ...runtime.consumables, [c.id]: used + 1 },
+                  };
+                })
               }
             >
               Use
@@ -79,7 +86,15 @@ export function InventoryPanel({
                 type="button"
                 className="btn btn-icon"
                 onClick={() =>
-                  void save({ consumables: { ...runtime.consumables, [c.id]: used - 1 } })
+                  void save((runtime) => {
+                    const currentUsed = runtime.consumables[c.id] ?? 0;
+                    return {
+                      consumables: {
+                        ...runtime.consumables,
+                        [c.id]: currentUsed - 1,
+                      },
+                    };
+                  })
                 }
               >
                 ↩
@@ -95,7 +110,7 @@ export function InventoryPanel({
       {runtime.batteries.map((b, i) => (
         <div key={b.id} className="inventory-item inventory-item--controls">
           <div className="inventory-item__details">
-            <AonLink href="https://2e.aonsrd.com/equipment/ammunition/2-batteries">Battery</AonLink>
+            <AonLink href={aonAmmunition("2-batteries")}>Battery</AonLink>
           </div>
           <span className="inventory-item__bulk">
             {formatBulkLabel(SHIM_SHAM_AMMUNITION.battery.bulk)}
@@ -105,9 +120,13 @@ export function InventoryPanel({
               type="button"
               className="btn btn-icon"
               onClick={() => {
-                const batteries = [...runtime.batteries];
-                batteries[i] = { ...b, charges: Math.max(0, b.charges - 1) };
-                void save({ batteries });
+                void save((runtime) => {
+                  const batteries = [...runtime.batteries];
+                  const current = batteries[i];
+                  if (!current) return {};
+                  batteries[i] = { ...current, charges: Math.max(0, current.charges - 1) };
+                  return { batteries };
+                });
               }}
             >
               −
@@ -119,9 +138,16 @@ export function InventoryPanel({
               type="button"
               className="btn btn-icon"
               onClick={() => {
-                const batteries = [...runtime.batteries];
-                batteries[i] = { ...b, charges: Math.min(b.max, b.charges + 1) };
-                void save({ batteries });
+                void save((runtime) => {
+                  const batteries = [...runtime.batteries];
+                  const current = batteries[i];
+                  if (!current) return {};
+                  batteries[i] = {
+                    ...current,
+                    charges: Math.min(current.max, current.charges + 1),
+                  };
+                  return { batteries };
+                });
               }}
             >
               +
@@ -131,7 +157,7 @@ export function InventoryPanel({
       ))}
       <div className="inventory-item inventory-item--controls">
         <div className="inventory-item__details">
-          <AonLink href="https://2e.aonsrd.com/equipment/ammunition/3-chem-tanks">
+          <AonLink href={aonAmmunition("3-chem-tanks")}>
             Chem Tank (pistol)
           </AonLink>
         </div>
@@ -142,7 +168,11 @@ export function InventoryPanel({
           <button
             type="button"
             className="btn btn-icon"
-            onClick={() => void save({ chemTankCharges: Math.max(0, runtime.chemTankCharges - 1) })}
+            onClick={() =>
+              void save((runtime) => ({
+                chemTankCharges: Math.max(0, runtime.chemTankCharges - 1),
+              }))
+            }
           >
             −
           </button>
@@ -150,7 +180,11 @@ export function InventoryPanel({
           <button
             type="button"
             className="btn btn-icon"
-            onClick={() => void save({ chemTankCharges: Math.min(8, runtime.chemTankCharges + 1) })}
+            onClick={() =>
+              void save((runtime) => ({
+                chemTankCharges: Math.min(8, runtime.chemTankCharges + 1),
+              }))
+            }
           >
             +
           </button>
@@ -188,7 +222,7 @@ export function InventoryPanel({
       title: "Ammunition",
       content: ammunitionContent,
     },
-  ].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
+  ].sort((a, b) => compareByName({ name: a.title }, { name: b.title }));
 
   return (
     <BottomPanel title="Inventory" onClose={onClose} fullScreen>
@@ -224,7 +258,6 @@ export function InventoryPanel({
         </div>
 
         <AdHocItemForm
-          items={runtime.adHocItems}
           currentBulk={inventoryBulk}
           maxBulk={inventoryBulkMax}
           save={save}
