@@ -1266,6 +1266,7 @@ button {
   margin-bottom: 0.5rem;
   color: inherit;
   font: inherit;
+  font-size: 1rem;
   cursor: pointer;
 }
 
@@ -1300,7 +1301,6 @@ button {
 
 .action-row__speeds {
   flex-shrink: 0;
-  font-size: 0.9rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -1350,7 +1350,6 @@ button {
 .action-riposte-btn {
   min-height: 2rem;
   padding: 0.2rem 0.5rem;
-  font-size: 0.8rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -1366,8 +1365,11 @@ button {
   min-height: 2rem;
   min-width: 2.4rem;
   padding: 0.2rem 0.45rem;
-  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
+}
+
+.action-row .btn {
+  font-size: inherit;
 }
 
 .action-cover-btn--active {
@@ -1434,6 +1436,12 @@ button {
 
 .actions-main-section .action-group-title:first-of-type {
   margin-top: 0;
+}
+
+.actions-main-section .map-roll-btn,
+.actions-main-section .action-name__bonus {
+  font-size: inherit;
+  font-weight: 600;
 }
 
 .recovery-section__intro {
@@ -1584,13 +1592,11 @@ button {
 }
 
 .action-summary {
-  font-size: 0.85rem;
   color: var(--muted);
   margin-top: 0.25rem;
 }
 
 .action-traits {
-  font-size: 0.85rem;
   color: var(--muted);
   margin-top: 0.25rem;
   font-style: italic;
