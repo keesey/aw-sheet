@@ -5,6 +5,8 @@ import type { StrikesOpenOptions } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { ActionToggle } from "../ActionToggle";
 import { RollBonusButton } from "../RollBonusButton";
+import { RapierIcon } from "../icons/RapierIcon";
+import { GrenadeIcon } from "../icons/GrenadeIcon";
 
 function TakeCoverButtons({
   cover,
@@ -243,7 +245,7 @@ export function ActionControl({
               onClick={openStrikes}
               aria-label="Open strikes"
             >
-              ⚔
+              <RapierIcon className="rapier-icon" />
             </button>
           </div>
         );
@@ -256,7 +258,7 @@ export function ActionControl({
           onClick={openStrikes}
           aria-label="Open strikes"
         >
-          ⚔
+          <RapierIcon className="rapier-icon" />
         </button>
       );
     case "area-weapons":
@@ -268,7 +270,7 @@ export function ActionControl({
           onClick={onOpenAreaWeapons}
           aria-label="Open area weapons"
         >
-          ◉
+          <GrenadeIcon className="grenade-icon" />
         </button>
       );
     default: {

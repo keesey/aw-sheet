@@ -7,6 +7,7 @@ import { statModClass } from "../../lib/format";
 import type { SaveFn } from "../../types";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
+import { ClearIcon } from "../icons/ClearIcon";
 
 export function SkillsSection({
   skills,
@@ -48,21 +49,15 @@ export function SkillsSection({
       </div>
 
       <div className="stat-card sheet-section sheet-notes-card">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "0.5rem",
-          }}
-        >
+        <div className="sheet-notes-card__header">
           <label className="stat-label" htmlFor="sheet-session-log">
             Session Log
           </label>
           <button
             type="button"
-            className="btn"
+            className="btn btn-icon"
             disabled={!notesDraft}
+            aria-label="Clear session log"
             onClick={() => {
               if (!confirm("Clear the session log?")) {
                 return;
@@ -72,7 +67,7 @@ export function SkillsSection({
               void save({ notes: "" });
             }}
           >
-            Clear
+            <ClearIcon className="clear-icon" />
           </button>
         </div>
         <textarea

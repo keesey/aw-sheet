@@ -85,6 +85,10 @@ body {
   font-size: 0.85em;
 }
 
+.sheet-title-mobile {
+  display: none;
+}
+
 .sheet-title-meta {
   color: var(--muted);
   font-weight: 400;
@@ -285,6 +289,29 @@ body {
   min-height: 0;
 }
 
+.sheet-notes-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sheet-notes-card .sheet-notes {
+  margin-top: 0;
+}
+
+.sheet-notes-card .btn.btn-icon {
+  border: none;
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  flex-shrink: 0;
+}
+
 @media (min-width: 1024px) and (orientation: landscape) {
   .sheet-page {
     max-width: none;
@@ -403,6 +430,19 @@ body {
 
   .panel-body {
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 767px) {
+  .sheet-title-full,
+  .sheet-title-nickname,
+  .sheet-title-meta,
+  .sheet-flavor__line {
+    display: none;
+  }
+
+  .sheet-title-mobile {
+    display: inline;
   }
 }
 
@@ -623,7 +663,9 @@ button {
 .panel-sheet--fullscreen .panel-body {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   padding-bottom: calc(2rem + env(safe-area-inset-bottom));
@@ -813,6 +855,54 @@ button {
   width: 1.25rem;
   height: 1.25rem;
   display: block;
+  background-color: currentColor;
+  mask: url(/icons/d20-6524196.png) center / contain no-repeat;
+  -webkit-mask: url(/icons/d20-6524196.png) center / contain no-repeat;
+}
+
+.feather-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+  background-color: currentColor;
+  mask: url(/icons/feather-8106216.png) center / contain no-repeat;
+  -webkit-mask: url(/icons/feather-8106216.png) center / contain no-repeat;
+}
+
+.sleeping-cat-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+  background-color: currentColor;
+  mask: url(/icons/cat-sleeping-3839520.png) center / contain no-repeat;
+  -webkit-mask: url(/icons/cat-sleeping-3839520.png) center / contain no-repeat;
+}
+
+.rapier-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  display: block;
+  background-color: currentColor;
+  mask: url(/icons/rapier-5043230.png) center / contain no-repeat;
+  -webkit-mask: url(/icons/rapier-5043230.png) center / contain no-repeat;
+}
+
+.grenade-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  display: block;
+  background-color: currentColor;
+  mask: url(/icons/grenade-6343041.png) center / contain no-repeat;
+  -webkit-mask: url(/icons/grenade-6343041.png) center / contain no-repeat;
+}
+
+.clear-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  display: block;
+  background-color: currentColor;
+  mask: url(/icons/clear-6327794.png) center / contain no-repeat;
+  -webkit-mask: url(/icons/clear-6327794.png) center / contain no-repeat;
 }
 
 .hp-bar {
@@ -942,6 +1032,9 @@ button {
   gap: 0.75rem;
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .inventory-bulk {
@@ -956,15 +1049,34 @@ button {
 .inventory-sections {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  column-count: 3;
-  column-gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .inventory-sections {
+    display: block;
+    column-count: 3;
+    column-gap: 1rem;
+  }
 }
 
 .inventory-section {
   break-inside: avoid;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .inventory-section {
+    margin-bottom: 0.75rem;
+  }
 }
 
 .inventory-section .action-group-title {

@@ -98,8 +98,12 @@ export function AdHocItemForm({
             ))}
           </select>
         </label>
-        <button type="submit" className="btn ad-hoc-form__submit">
-          Add
+        <button
+          type="submit"
+          className="btn btn-icon ad-hoc-form__submit"
+          aria-label="Add ad hoc item"
+        >
+          +
         </button>
         <p id="ad-hoc-bulk-help" className="ad-hoc-form__help">
           <AonLink href="https://2e.aonsrd.com/rules/179-bulk-values">Bulk values</AonLink>
