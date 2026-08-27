@@ -49,7 +49,6 @@ export const EXPLORATION_ACTIVITIES: readonly ExplorationActivity[] = [
     id: "investigate",
     name: "Investigate",
     url: `${AON}/actions/39-investigate`,
-    bonusSource: "Lore (Piracy)",
   },
   {
     id: "make-an-impression",
