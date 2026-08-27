@@ -36,7 +36,7 @@ function isRollBonus(bonus?: string): bonus is string {
 
 function ActionTitle({ action }: { action: CharacterAction }) {
   const name =
-    action.id === "fly" ? (
+    action.id === "fly" || action.id === "maneuver-in-flight" ? (
       <span className="speed-fly-label">{action.name}</span>
     ) : action.id === "jetpack" || action.id === "dismiss-jetpack" ? (
       <span className="action-jetpack-label">{action.name}</span>
@@ -124,6 +124,12 @@ function isActionHidden(
   if (action.id === "return-to-initiative") return true;
   if (action.id === "delay" && !encounter) return true;
   if (action.id === "fly" && (characterLevel == null || !hasFlySpeed(characterLevel, jetpack))) return true;
+  if (
+    action.id === "maneuver-in-flight" &&
+    (characterLevel == null || !hasFlySpeed(characterLevel, jetpack))
+  ) {
+    return true;
+  }
   if (action.id === "arrest-a-fall" && (characterLevel == null || !hasFlySpeed(characterLevel, jetpack))) {
     return true;
   }

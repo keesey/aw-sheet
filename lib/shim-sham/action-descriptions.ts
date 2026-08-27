@@ -29,6 +29,10 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
   crawl:
     "Move 5 feet by crawling and remain prone (requires you to be prone with a Speed of at least 10 feet).",
   "dirty-trick": "Attempt a Thievery check against the target's Reflex DC.",
+  demoralize:
+    "Attempt an Intimidation check against a creature within 30 feet to frighten them.",
+  "disable-device":
+    "Attempt a Thievery check to disarm a trap or other complex device.",
   "drop-prone": "Fall prone.",
   "dueling-parry":
     "Gain a +2 circumstance bonus to AC until the start of your next turn while you meet the requirements.",
@@ -36,6 +40,12 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Attempt an Acrobatics check or unarmed attack roll against an effect's Escape DC to end grabbed, immobilized, or restrained on you.",
   fly: "Move up to your fly Speed through the air.",
   grapple: "Attempt an Athletics check against the target's Fortitude DC to grab them.",
+  hide:
+    "Attempt a Stealth check to become hidden from creatures you have cover or concealment against.",
+  "high-jump":
+    "Stride at least 10 feet, then attempt an Athletics check (typically DC 30) to Leap vertically.",
+  "long-jump":
+    "Stride at least 10 feet, then attempt an Athletics check (typically DC 15) to Leap horizontally.",
   interact:
     "Use your hands to manipulate an object or the terrain, such as drawing a weapon or opening a door.",
   "grab-an-edge":
@@ -43,8 +53,12 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
   "leading-dance": "Attempt a Performance check against an adjacent enemy's Will DC.",
   leap:
     "Make a short horizontal or vertical jump (requires Speed 15+ for horizontal leaps; greater distances use Athletics).",
+  "maneuver-in-flight":
+    "Attempt an Acrobatics check to perform a difficult maneuver while flying (requires a fly Speed).",
   "baton-parry": "Gain a +1 circumstance bonus to AC until the start of your next turn.",
   perform: "Attempt a Performance check to fascinate observers.",
+  "palm-an-object":
+    "Attempt a Thievery check to pick up a small unattended object without being noticed.",
   "point-out":
     "Indicate an undetected creature to allies so it becomes hidden to them instead of undetected.",
   ready:
@@ -53,22 +67,31 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Attempt a skill check to remember knowledge about a topic; ask the GM one question (DC set by the GM).",
   release:
     "Release something you're holding; unlike most Manipulate actions, this doesn't trigger reactions such as Reactive Strike.",
+  reposition:
+    "Attempt an Athletics check against the target's Fortitude DC to move a creature or object.",
+  request:
+    "Attempt a Diplomacy check to make a request of a friendly or helpful creature.",
   retch:
     "Attempt a Fortitude save against the DC of the effect that sickened you; on a success reduce Sickened by 1 (by 2 on a critical success).",
   seek:
     "Scan an area for hidden creatures or objects; the GM rolls a secret Perception check against Stealth or detection DCs.",
   "sense-motive":
     "Assess one creature for deception; the GM rolls a secret Perception check against its Deception DC or another appropriate DC.",
+  sneak:
+    "Stride up to half your Speed while attempting a Stealth check to stay undetected.",
   stand: "Stand up from being prone.",
+  steal: "Attempt a Thievery check to take a small object from another creature without being noticed.",
   step:
     "Carefully move 5 feet using your land Speed (requires Speed 10+; doesn't trigger move reactions or work in difficult terrain).",
   stride: "Move up to your Speed.",
+  swim: "Attempt an Athletics check to move up to 10 feet through water.",
   strike:
     "Attack with a weapon you're wielding or an unarmed attack, rolling against the target's AC.",
   "take-cover":
     "Gain standard cover (+2 AC) or greater cover (+4 AC) until you move, attack, become unconscious, or end the effect.",
   "tumble-through":
     "Stride up to your Speed and attempt an Acrobatics check to move through an enemy's space.",
+  trip: "Attempt an Athletics check against the target's Reflex DC to knock them prone.",
 };
 
 export function actionDescription(id: string): string {
