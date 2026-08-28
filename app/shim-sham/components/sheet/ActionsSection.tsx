@@ -17,6 +17,7 @@ export function ActionsSection({
   onOpenAreaWeapons,
   encounter,
   jetpack,
+  vehicles,
   panache,
   meyelRerollUsed,
   locks,
@@ -39,6 +40,7 @@ export function ActionsSection({
   onOpenAreaWeapons: () => void;
   encounter: boolean;
   jetpack: boolean;
+  vehicles: boolean;
   panache: boolean;
   meyelRerollUsed: boolean;
   locks: ConditionActionLocks;
@@ -47,6 +49,7 @@ export function ActionsSection({
   const actionProps = {
     encounter,
     jetpack,
+    vehicles,
     panache,
     meyelRerollUsed,
     locks,

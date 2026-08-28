@@ -6,6 +6,7 @@ export const DIRECT_PATCH_FIELDS = new Set<keyof RuntimeState>([
   "panache",
   "accelerate",
   "jetpack",
+  "vehicles",
   "encounter",
   "duelingParry",
   "batonParry",

@@ -116,6 +116,7 @@ export async function PATCH(request: Request) {
         panache: false,
         accelerate: false,
         jetpack: false,
+        vehicles: false,
         preparedToAid: false,
         delayed: false,
         encounter: false,

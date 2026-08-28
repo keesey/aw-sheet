@@ -6,6 +6,7 @@ import type { SaveFn } from "../../types";
 import { useRoll } from "../../context/RollContext";
 import { D20Icon } from "../icons/D20Icon";
 import { FeatherIcon } from "../icons/FeatherIcon";
+import { BusIcon } from "../icons/BusIcon";
 import { SleepingCatIcon } from "../icons/SleepingCatIcon";
 import { AonLink } from "../AonLink";
 
@@ -92,6 +93,16 @@ export function SheetHeader({
             aria-pressed={runtime.encounter}
           >
             Encounter
+          </button>
+          <button
+            type="button"
+            className={`btn btn-icon ${runtime.vehicles ? "vehicles-on" : ""}`}
+            onClick={() => void save({ vehicles: !runtime.vehicles })}
+            aria-pressed={runtime.vehicles}
+            aria-label="Vehicles"
+            disabled={!runtime.encounter}
+          >
+            <BusIcon className="bus-icon" />
           </button>
           <button
             type="button"

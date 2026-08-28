@@ -175,6 +175,7 @@ export function CharacterSheetView({
               onOpenAreaWeapons={() => onAreaWeaponsOpenChange(true)}
               encounter={runtime.encounter}
               jetpack={runtime.jetpack}
+              vehicles={runtime.vehicles}
               panache={runtime.panache}
               meyelRerollUsed={runtime.meyelRerollUsed}
               locks={effects}

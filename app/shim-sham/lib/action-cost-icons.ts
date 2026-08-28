@@ -71,6 +71,8 @@ export function actionCostIconKind(cost: CharacterAction["cost"]): ActionCostIco
       return "single";
     case "double":
       return "double";
+    case "triple":
+      return "triple";
     case "reaction":
       return "reaction";
     default:

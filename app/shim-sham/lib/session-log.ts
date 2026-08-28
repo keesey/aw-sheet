@@ -127,6 +127,13 @@ export function sessionLogLineForSave(
     return "Jetpack deactivated";
   }
 
+  if (body.vehicles === true && !runtime.vehicles) {
+    return "Vehicles";
+  }
+  if (body.vehicles === false && runtime.vehicles) {
+    return "Vehicles off";
+  }
+
   if (body.meyelRerollUsed === true && !runtime.meyelRerollUsed) {
     return "Reroll Save — Meyel's Chosen Pahtra";
   }

@@ -92,6 +92,19 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
   "tumble-through":
     "Stride up to your Speed and attempt an Acrobatics check to move through an enemy's space.",
   trip: "Attempt an Athletics check against the target's Reflex DC to knock them prone.",
+  "drive-single":
+    "Attempt a Piloting check to move the vehicle up to its Speed with normal turning.",
+  board:
+    "Board through a point of entry, or disembark if already aboard; while the vehicle is in motion, attempt an Acrobatics or Athletics check against the vehicle's AC.",
+  "drive-double":
+    "Reckless: move up to twice the vehicle's Speed in a straight line at its current heading.",
+  "drive-triple":
+    "Reckless: move up to three times the vehicle's Speed in a straight line; take a –5 penalty on the Piloting check to maintain control.",
+  "vehicle-stop": "Bring the vehicle to a stop.",
+  "run-over":
+    "Reckless: move up to twice the vehicle's Speed in a straight line and run over creatures in your path (basic Reflex save vs. collision DC); you may ram one larger target.",
+  "take-control":
+    "Attempt a Piloting check to become the vehicle's pilot or regain control if it was uncontrolled.",
 };
 
 export function actionDescription(id: string): string {
