@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/shim-sham/auth";
 import { loadRuntimeState, saveRuntimeState, isKvConfigured } from "@/lib/kv";
 import { buildCharacterSheet, normalizeRuntimeState } from "@/lib/shim-sham/static";
 import { normalizeConditions } from "@/lib/shim-sham/conditions";
@@ -9,8 +10,13 @@ import {
   effectiveMaxHp,
   tickRestConditions,
 } from "@/lib/shim-sham/condition-effects";
-import { getLevelSnapshot, getNextLevelSnapshot, requireLevelSnapshot } from "@/lib/shim-sham/progression";
-import { parseSheetPatch, type SheetPatch } from "@/lib/shim-sham/patch";
+import { getNextLevelSnapshot, requireLevelSnapshot } from "@/lib/shim-sham/progression";
+import { MAX_REQUEST_BODY_BYTES, parseSheetPatch, stripLocalBaseRuntime, extractLocalBaseRuntime } from "@/lib/shim-sham/patch";
+import {
+  pickCompanionPatchFields,
+  pickDirectPatchFields,
+  validatePatchBody,
+} from "@/lib/shim-sham/patch-security";
 import { applyEncounterOffReset } from "@/lib/shim-sham/runtime-reset";
 import type { RuntimeState } from "@/lib/types";
 import {
@@ -23,12 +29,34 @@ function normalizeRuntime(runtime: RuntimeState): RuntimeState {
   return normalizeRuntimeState(runtime);
 }
 
-function mergeClientRuntime(server: RuntimeState, body: SheetPatch): RuntimeState {
-  const { action: _action, delta: _delta, d20: _d20, ...patch } = body;
-  return { ...server, ...patch };
+function clampCurrentHp(
+  runtime: RuntimeState,
+  currentHp: number,
+  snapshotMaxHp: number,
+): number {
+  return Math.max(
+    0,
+    Math.min(effectiveMaxHp(snapshotMaxHp, runtime.conditions, runtime.level), currentHp),
+  );
+}
+
+async function readJsonBody(request: Request): Promise<unknown | NextResponse> {
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && Number.parseInt(contentLength, 10) > MAX_REQUEST_BODY_BYTES) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
+  }
+
+  try {
+    return await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 }
 
 export async function GET() {
+  const authError = await requireAuth();
+  if (authError) return authError;
+
   const runtime = await loadRuntimeState();
   const sheet = buildCharacterSheet(runtime);
 
@@ -39,22 +67,38 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  let rawBody: unknown;
-  try {
-    rawBody = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  const authError = await requireAuth();
+  if (authError) return authError;
+
+  const rawBody = await readJsonBody(request);
+  if (rawBody instanceof NextResponse) {
+    return rawBody;
   }
 
-  const body = parseSheetPatch(rawBody);
+  if (isKvConfigured() && extractLocalBaseRuntime(rawBody)) {
+    return NextResponse.json({ error: "Unexpected _baseRuntime" }, { status: 400 });
+  }
+
+  const body = parseSheetPatch(stripLocalBaseRuntime(rawBody));
   if (!body) {
     return NextResponse.json({ error: "Invalid patch body" }, { status: 400 });
   }
 
-  const previous = await loadRuntimeState();
-  let runtime = mergeClientRuntime(previous, body);
+  const violation = validatePatchBody(body);
+  if (violation) {
+    return NextResponse.json({ error: violation }, { status: 400 });
+  }
+
+  const previous = extractLocalBaseRuntime(rawBody) ?? (await loadRuntimeState());
+  let runtime: RuntimeState = { ...previous };
 
   try {
+    if (body.action) {
+      runtime = { ...runtime, ...pickCompanionPatchFields(body) };
+    } else {
+      runtime = { ...runtime, ...pickDirectPatchFields(body) };
+    }
+
     if (body.action === "rest") {
       const snapshot = requireLevelSnapshot(runtime.level);
       const conMod = Math.max(1, snapshot.attributes.CON);
@@ -168,21 +212,17 @@ export async function PATCH(request: Request) {
       } else if (body.delta > 0) {
         runtime = {
           ...runtime,
-          currentHp: Math.max(
-            0,
-            Math.min(effectiveMaxHp(snapshot.maxHp, runtime.conditions, snapshot.level), startHp + body.delta),
-          ),
+          currentHp: clampCurrentHp(runtime, startHp + body.delta, snapshot.maxHp),
         };
       }
-    } else {
-      const { action: _action, delta: _delta, ...runtimePatch } = body;
-      runtime = { ...runtime, ...runtimePatch };
-      if (typeof body.level === "number") {
-        const snapshot = getLevelSnapshot(body.level);
-        if (snapshot && body.currentHp === undefined) {
-          runtime.currentHp = Math.min(runtime.currentHp, snapshot.maxHp);
-        }
-      }
+    } else if (body.action) {
+      return NextResponse.json({ error: "Invalid action payload" }, { status: 400 });
+    } else if (typeof body.currentHp === "number") {
+      const snapshot = requireLevelSnapshot(runtime.level);
+      runtime = {
+        ...runtime,
+        currentHp: clampCurrentHp(runtime, body.currentHp, snapshot.maxHp),
+      };
     }
 
     runtime = applyEncounterOffReset(runtime);
@@ -209,9 +249,8 @@ export async function PATCH(request: Request) {
       snapshot.level,
       snapshot.maxHp,
     );
-  } catch (e) {
-    const message = e instanceof Error ? e.message : "Invalid runtime state";
-    return NextResponse.json({ error: message }, { status: 400 });
+  } catch {
+    return NextResponse.json({ error: "Invalid runtime state" }, { status: 400 });
   }
 
   await saveRuntimeState(runtime);

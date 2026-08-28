@@ -1,4 +1,8 @@
 import type { ActiveCondition, CharacterSheet, CoverLevel, RuntimeState } from "@/lib/types";
+import { sanitizeOptionalUrl } from "@/lib/shim-sham/url";
+
+export const MAX_NOTES_LENGTH = 32_768;
+export const MAX_REQUEST_BODY_BYTES = 65_536;
 
 export type SheetPatchAction =
   | "rest"
@@ -92,14 +96,33 @@ function parseAdHocItems(
   value: unknown,
 ): RuntimeState["adHocItems"] | undefined {
   if (!Array.isArray(value)) return undefined;
-  const items = value.filter(
-    (entry): entry is RuntimeState["adHocItems"][number] =>
-      isRecord(entry) &&
-      typeof entry.id === "string" &&
-      typeof entry.name === "string" &&
-      typeof entry.bulk === "string",
-  );
-  return items.length === value.length ? items : undefined;
+  const items: RuntimeState["adHocItems"] = [];
+  for (const entry of value) {
+    if (
+      !isRecord(entry) ||
+      typeof entry.id !== "string" ||
+      typeof entry.name !== "string" ||
+      typeof entry.bulk !== "string"
+    ) {
+      return undefined;
+    }
+    const url =
+      entry.url === undefined
+        ? undefined
+        : typeof entry.url === "string"
+          ? sanitizeOptionalUrl(entry.url)
+          : undefined;
+    if (entry.url !== undefined && typeof entry.url === "string" && !url) {
+      return undefined;
+    }
+    items.push({
+      id: entry.id,
+      name: entry.name,
+      bulk: entry.bulk,
+      ...(url ? { url } : {}),
+    });
+  }
+  return items;
 }
 
 /** Strip unknown keys and coerce known runtime patch fields from a request body. */
@@ -121,9 +144,6 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   const d20 = parseNumber(body.d20);
   if (d20 !== undefined) patch.d20 = d20;
 
-  const level = parseNumber(body.level);
-  if (level !== undefined) patch.level = Math.floor(level);
-
   const currentHp = parseNumber(body.currentHp);
   if (currentHp !== undefined) patch.currentHp = Math.floor(currentHp);
 
@@ -136,13 +156,11 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   const credits = parseNumber(body.credits);
   if (credits !== undefined) patch.credits = Math.floor(credits);
 
-  const forceFieldUsesUsed = parseNumber(body.forceFieldUsesUsed);
-  if (forceFieldUsesUsed !== undefined) {
-    patch.forceFieldUsesUsed = Math.max(0, Math.floor(forceFieldUsesUsed));
-  }
-
   const notes = parseString(body.notes);
-  if (notes !== undefined) patch.notes = notes;
+  if (notes !== undefined) {
+    if (notes.length > MAX_NOTES_LENGTH) return null;
+    patch.notes = notes;
+  }
 
   const cover = parseCover(body.cover);
   if (cover !== undefined) patch.cover = cover;
@@ -171,9 +189,6 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   const delayed = parseBoolean(body.delayed);
   if (delayed !== undefined) patch.delayed = delayed;
 
-  const forceFieldActive = parseBoolean(body.forceFieldActive);
-  if (forceFieldActive !== undefined) patch.forceFieldActive = forceFieldActive;
-
   const meyelRerollUsed = parseBoolean(body.meyelRerollUsed);
   if (meyelRerollUsed !== undefined) patch.meyelRerollUsed = meyelRerollUsed;
 
@@ -187,7 +202,10 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   if (batteries !== undefined) patch.batteries = batteries;
 
   const adHocItems = parseAdHocItems(body.adHocItems);
-  if (adHocItems !== undefined) patch.adHocItems = adHocItems;
+  if (body.adHocItems !== undefined) {
+    if (adHocItems === undefined) return null;
+    patch.adHocItems = adHocItems;
+  }
 
   return patch;
 }
@@ -224,4 +242,17 @@ export function parseLocalRuntime(raw: string): RuntimeState | null {
   } catch {
     return null;
   }
+}
+
+/** Client-provided runtime base used only when server persistence is disabled. */
+export function extractLocalBaseRuntime(rawBody: unknown): RuntimeState | null {
+  if (!isRecord(rawBody) || !hasRuntimeShape(rawBody._baseRuntime)) return null;
+  return rawBody._baseRuntime;
+}
+
+export function stripLocalBaseRuntime(rawBody: unknown): unknown {
+  if (!isRecord(rawBody)) return rawBody;
+  const rest = { ...rawBody };
+  delete rest._baseRuntime;
+  return rest;
 }

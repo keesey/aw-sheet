@@ -32,7 +32,7 @@ yarn dev           # → http://localhost:3000/shim-sham
 yarn build         # production build
 ```
 
-Copy `.env.example` to `.env.local` and set Upstash Redis vars for server-side persistence during local dev.
+Copy `.env.example` to `.env.local` and set Upstash Redis vars for server-side persistence during local dev. Optionally set `SHIM_SHAM_ACCESS_TOKEN` to test the production unlock flow locally.
 
 Without Redis configured, the API still computes state changes but only the client persists them — `localStorage` key `shim-sham-runtime`, with a yellow banner: *"Vercel Redis not configured — saving to this browser only."*
 
@@ -46,6 +46,11 @@ Host on **Vercel** with **Upstash Redis** (Vercel Storage / Marketplace). No cus
 2. Project **Storage** tab → add **Upstash Redis**
 3. Env vars are injected automatically (`KV_REST_API_URL`, `KV_REST_API_TOKEN`)
 4. Deploy — free tier is plenty for a single-user private sheet
+5. Set `SHIM_SHAM_ACCESS_TOKEN` in project env vars (generate with `openssl rand -hex 32`) so only you can load or save the shared sheet state
+
+Without Redis configured, the API still computes state changes but only the client persists them — `localStorage` key `shim-sham-runtime`, with a yellow banner: *"Vercel Redis not configured — saving to this browser only."*
+
+Without `SHIM_SHAM_ACCESS_TOKEN`, the API remains open for local development.
 
 ## Architecture
 
@@ -92,6 +97,8 @@ Static data + computed level stats → buildCharacterSheet(runtime)
 Gist stat blocks list attributes, Fort/Ref/Will, AC, and HP — not Perception or Class DC. The sheet calculates those from AoN rules.
 
 ## API
+
+When `SHIM_SHAM_ACCESS_TOKEN` is set, `GET` and `PATCH /api/shim-sham` require an httpOnly cookie obtained from `POST /api/shim-sham/unlock` with `{ "token": "..." }`. The sheet UI shows an unlock screen automatically.
 
 ### `GET /api/shim-sham`
 

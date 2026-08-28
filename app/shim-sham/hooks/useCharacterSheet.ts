@@ -8,7 +8,7 @@ import {
   type SaveInput,
   type SheetPatch,
 } from "@/lib/shim-sham/patch";
-import { patchSheet } from "../lib/api";
+import { fetchSheet, patchSheet, UnauthorizedError } from "../lib/api";
 import { LOCAL_KEY } from "../lib/constants";
 
 function resolvePatch(
@@ -28,6 +28,7 @@ export function useCharacterSheet() {
   const [sheet, setSheet] = useState<CharacterSheet | null>(null);
   const [kvConfigured, setKvConfigured] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [needsUnlock, setNeedsUnlock] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const sheetRef = useRef<CharacterSheet | null>(null);
   const kvConfiguredRef = useRef(kvConfigured);
@@ -49,13 +50,8 @@ export function useCharacterSheet() {
     };
   }, []);
 
-  const load = useCallback(async (signal: AbortSignal) => {
-    try {
-      const res = await fetch("/api/shim-sham", { signal });
-      if (!res.ok) {
-        throw new Error(`Failed to load character sheet (${res.status})`);
-      }
-      const data: unknown = await res.json();
+  const applyLoadedSheet = useCallback(
+    async (data: unknown, signal: AbortSignal) => {
       const parsed = parseSheetResponse(data);
       if (!parsed) {
         throw new Error("Invalid character sheet response");
@@ -63,6 +59,7 @@ export function useCharacterSheet() {
 
       if (signal.aborted) return;
 
+      setNeedsUnlock(false);
       setKvConfigured(parsed.kvConfigured);
       if (!parsed.kvConfigured) {
         const local = localStorage.getItem(LOCAL_KEY);
@@ -82,17 +79,41 @@ export function useCharacterSheet() {
         setSheet(parsed.sheet);
       }
       setError(null);
-    } catch (e) {
-      if (signal.aborted) return;
-      setError(e instanceof Error ? e.message : "Failed to load character sheet.");
-    } finally {
-      if (!signal.aborted) {
-        setLoading(false);
+    },
+    [],
+  );
+
+  const load = useCallback(
+    async (signal: AbortSignal) => {
+      setLoading(true);
+      try {
+        const data = await fetchSheet(signal);
+        await applyLoadedSheet(data, signal);
+      } catch (e) {
+        if (signal.aborted) return;
+        if (e instanceof UnauthorizedError) {
+          setNeedsUnlock(true);
+          setSheet(null);
+          setError(null);
+          return;
+        }
+        setError(e instanceof Error ? e.message : "Failed to load character sheet.");
+      } finally {
+        if (!signal.aborted) {
+          setLoading(false);
+        }
       }
-    }
-  }, []);
+    },
+    [applyLoadedSheet],
+  );
 
   useEffect(() => {
+    const controller = new AbortController();
+    void load(controller.signal);
+    return () => controller.abort();
+  }, [load]);
+
+  const retryLoad = useCallback(() => {
     const controller = new AbortController();
     void load(controller.signal);
     return () => controller.abort();
@@ -104,7 +125,7 @@ export function useCharacterSheet() {
       setError(null);
       const payload =
         !kvConfiguredRef.current && sheetRef.current
-          ? { ...sheetRef.current.runtime, ...body }
+          ? { _baseRuntime: sheetRef.current.runtime, ...body }
           : body;
       const data = await patchSheet(payload);
       if (mountedRef.current) {
@@ -120,6 +141,13 @@ export function useCharacterSheet() {
     try {
       await task;
     } catch (e) {
+      if (e instanceof UnauthorizedError) {
+        if (mountedRef.current) {
+          setNeedsUnlock(true);
+          setError(null);
+        }
+        throw e;
+      }
       if (mountedRef.current) {
         setError(e instanceof Error ? e.message : "Save failed");
       }
@@ -127,5 +155,5 @@ export function useCharacterSheet() {
     }
   }, []);
 
-  return { sheet, kvConfigured, loading, error, save };
+  return { sheet, kvConfigured, loading, needsUnlock, error, save, retryLoad };
 }

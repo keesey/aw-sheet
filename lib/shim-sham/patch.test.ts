@@ -20,6 +20,18 @@ describe("parseSheetPatch", () => {
   it("ignores malformed condition entries", () => {
     expect(parseSheetPatch({ conditions: [{ id: 1 }] })).toEqual({});
   });
+
+  it("rejects notes that exceed the max length", () => {
+    expect(parseSheetPatch({ notes: "x".repeat(32_769) })).toBeNull();
+  });
+
+  it("rejects ad hoc items with disallowed URLs", () => {
+    expect(
+      parseSheetPatch({
+        adHocItems: [{ id: "1", name: "Gadget", bulk: "L", url: "https://evil.example" }],
+      }),
+    ).toBeNull();
+  });
 });
 
 describe("parseLocalRuntime", () => {

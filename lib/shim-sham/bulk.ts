@@ -1,5 +1,6 @@
 /** Bulk units: 10 L (light) = 1 bulk. Negligible (—) = 0. */
 import type { ActiveCondition, AdHocInventoryItem } from "@/lib/types";
+import { sanitizeOptionalUrl } from "@/lib/shim-sham/url";
 
 /** Normalize user bulk input per AoN rules (number, L, or —). */
 function normalizeBulkValue(input: string): string | null {
@@ -32,7 +33,7 @@ export function normalizeAdHocItems(items: AdHocInventoryItem[] | undefined): Ad
     .map((item) => {
       const name = item.name.trim();
       const bulk = normalizeBulkValue(item.bulk) ?? "—";
-      const url = item.url?.trim();
+      const url = sanitizeOptionalUrl(item.url);
       return {
         id: item.id,
         name,

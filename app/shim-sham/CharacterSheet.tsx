@@ -8,6 +8,7 @@ import { deriveSheetViewModel } from "./hooks/useSheetDerivedStats";
 import { useSheetNotes } from "./hooks/useSheetNotes";
 import { useSheetSave } from "./hooks/useSheetSave";
 import { RollProvider } from "./context/RollContext";
+import { UnlockGate } from "./components/UnlockGate";
 import { formatRollSummary, type RollResult } from "./lib/roll";
 import { appendSessionLogLine } from "./lib/session-log";
 import {
@@ -18,7 +19,8 @@ import type { Panel } from "./types";
 import { CharacterSheetView } from "./CharacterSheetView";
 
 export default function CharacterSheet() {
-  const { sheet, kvConfigured, loading, error, save } = useCharacterSheet();
+  const { sheet, kvConfigured, loading, needsUnlock, error, save, retryLoad } =
+    useCharacterSheet();
   const [panel, setPanel] = useState<Panel>(null);
   const [strikesOpen, setStrikesOpen] = useState(false);
   const [strikesOpenOptions, setStrikesOpenOptions] =
@@ -96,6 +98,10 @@ export default function CharacterSheet() {
     if (!sheet) return;
     void saveSheet(restPatch(sheet.runtime));
   }, [saveSheet, sheet]);
+
+  if (needsUnlock) {
+    return <UnlockGate onUnlocked={retryLoad} />;
+  }
 
   if (loading) {
     return (
