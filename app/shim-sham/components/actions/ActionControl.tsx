@@ -5,8 +5,10 @@ import type { StrikesOpenOptions } from "../../lib/strike-format";
 import type { SaveFn } from "../../types";
 import { ActionToggle } from "../ActionToggle";
 import { RollBonusButton } from "../RollBonusButton";
-import { RapierIcon } from "../icons/RapierIcon";
 import { GrenadeIcon } from "../icons/GrenadeIcon";
+import { PauseIcon } from "../icons/PauseIcon";
+import { PlayIcon } from "../icons/PlayIcon";
+import { RapierIcon } from "../icons/RapierIcon";
 
 function TakeCoverButtons({
   cover,
@@ -208,7 +210,7 @@ export function ActionControl({
           aria-label="Delay your turn"
           onClick={() => void save({ delayed: true })}
         >
-          ⏸
+          <PauseIcon className="pause-icon" />
         </button>
       );
     case "return-to-initiative":
@@ -220,7 +222,7 @@ export function ActionControl({
           aria-label="Return to initiative order"
           onClick={() => void save({ delayed: false })}
         >
-          ▶
+          <PlayIcon className="play-icon" />
         </button>
       );
     case "take-cover":
