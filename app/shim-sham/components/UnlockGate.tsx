@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { unlockSheet } from "../client/api";
+import { unlockSheetAction } from "../actions";
 
 export function UnlockGate({ onUnlocked }: { onUnlocked: () => void }) {
   const [token, setToken] = useState("");
@@ -13,7 +13,11 @@ export function UnlockGate({ onUnlocked }: { onUnlocked: () => void }) {
     setSubmitting(true);
     setError(null);
     try {
-      await unlockSheet(token);
+      const result = await unlockSheetAction(token);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
       onUnlocked();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unlock failed");

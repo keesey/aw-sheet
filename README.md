@@ -48,16 +48,15 @@ Host on **Vercel** with **Upstash Redis** (Vercel Storage / Marketplace). No cus
 4. Deploy — free tier is plenty for a single-user private sheet
 5. Set `SHIM_SHAM_ACCESS_TOKEN` in project env vars (generate with `openssl rand -hex 32`) so only you can load or save the shared sheet state
 
-Without Redis configured, the API still computes state changes but only the client persists them — `localStorage` key `shim-sham-runtime`, with a yellow banner: *"Vercel Redis not configured — saving to this browser only."*
+Without Redis configured, the server still computes state changes but only the client persists them — `localStorage` key `shim-sham-runtime`, with a yellow banner: *"Vercel Redis not configured — saving to this browser only."*
 
-Without `SHIM_SHAM_ACCESS_TOKEN`, the API remains open for local development.
+Without `SHIM_SHAM_ACCESS_TOKEN`, sheet load/save remains open for local development.
 
 ## Architecture
 
 ```
 Browser (CharacterSheet.tsx)
-  ↕ fetch GET/PATCH /api/shim-sham
-API route (app/api/shim-sham/route.ts)
+  ↕ Server Actions (app/shim-sham/actions.ts)
   ↕ load/save RuntimeState
 Upstash Redis (or localStorage fallback on client)
   +
@@ -76,7 +75,9 @@ Static data + computed level stats → buildCharacterSheet(runtime)
 |------|---------|
 | `app/shim-sham/CharacterSheet.tsx` | Main UI |
 | `app/shim-sham/components/panels/` | Conditions, Inventory, Levels panels |
-| `app/api/shim-sham/route.ts` | GET/PATCH API |
+| `app/shim-sham/actions.ts` | Server Actions: load, save, unlock |
+| `lib/shim-sham/sheet-service.ts` | Load/save orchestration |
+| `lib/shim-sham/apply-sheet-patch.ts` | Patch application logic |
 | `lib/shim-sham/static.ts` | Static data, default runtime, `buildCharacterSheet()` |
 | `lib/shim-sham/progression.ts` | Level 1–15 feats, class features, attribute boosts |
 | `lib/shim-sham/attributes.ts` | Attribute calculation (ancestry/background/class + level boosts) |
@@ -96,17 +97,17 @@ Static data + computed level stats → buildCharacterSheet(runtime)
 
 Gist stat blocks list attributes, Fort/Ref/Will, AC, and HP — not Perception or Class DC. The sheet calculates those from AoN rules.
 
-## API
+## Server Actions
 
-When `SHIM_SHAM_ACCESS_TOKEN` is set, `GET` and `PATCH /api/shim-sham` require an httpOnly cookie obtained from `POST /api/shim-sham/unlock` with `{ "token": "..." }`. The sheet UI shows an unlock screen automatically.
+When `SHIM_SHAM_ACCESS_TOKEN` is set, `loadSheetAction` and `saveSheetAction` require an httpOnly cookie obtained from `unlockSheetAction(token)`. The sheet UI shows an unlock screen automatically.
 
-### `GET /api/shim-sham`
+### `loadSheetAction()`
 
-Returns `{ sheet: CharacterSheet, kvConfigured: boolean }`.
+Returns `{ ok: true, sheet, kvConfigured }` or `{ ok: false, unauthorized: true }`.
 
-### `PATCH /api/shim-sham`
+### `saveSheetAction(payload)`
 
-Partial runtime updates or actions:
+Partial runtime updates or actions (same payload shape as before):
 
 ```json
 { "panache": true }
@@ -119,6 +120,8 @@ Partial runtime updates or actions:
 { "credits": 1500 }
 { "conditions": [{ "id": "frightened", "value": 1 }] }
 ```
+
+When Redis is not configured, include `_baseRuntime` with the client's current runtime snapshot.
 
 ## Known gaps
 

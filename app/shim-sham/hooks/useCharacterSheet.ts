@@ -4,11 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CharacterSheet, RuntimeState } from "@/lib/types";
 import {
   parseLocalRuntime,
-  parseSheetResponse,
   type SaveInput,
   type SheetPatch,
 } from "@/lib/shim-sham/patch";
-import { fetchSheet, patchSheet, UnauthorizedError } from "../client/api";
+import { loadSheetAction, saveSheetAction } from "../actions";
 import { LOCAL_KEY } from "../client/constants";
 
 function resolvePatch(
@@ -51,17 +50,15 @@ export function useCharacterSheet() {
   }, []);
 
   const applyLoadedSheet = useCallback(
-    async (data: unknown, signal: AbortSignal) => {
-      const parsed = parseSheetResponse(data);
-      if (!parsed) {
-        throw new Error("Invalid character sheet response");
-      }
-
+    async (
+      data: { sheet: CharacterSheet; kvConfigured: boolean },
+      signal: AbortSignal,
+    ) => {
       if (signal.aborted) return;
 
       setNeedsUnlock(false);
-      setKvConfigured(parsed.kvConfigured);
-      if (!parsed.kvConfigured) {
+      setKvConfigured(data.kvConfigured);
+      if (!data.kvConfigured) {
         const local = localStorage.getItem(LOCAL_KEY);
         if (local) {
           const runtime = parseLocalRuntime(local);
@@ -70,13 +67,13 @@ export function useCharacterSheet() {
             setSheet(buildCharacterSheet(runtime));
           } else {
             localStorage.removeItem(LOCAL_KEY);
-            setSheet(parsed.sheet);
+            setSheet(data.sheet);
           }
         } else {
-          setSheet(parsed.sheet);
+          setSheet(data.sheet);
         }
       } else {
-        setSheet(parsed.sheet);
+        setSheet(data.sheet);
       }
       setError(null);
     },
@@ -87,16 +84,21 @@ export function useCharacterSheet() {
     async (signal: AbortSignal) => {
       setLoading(true);
       try {
-        const data = await fetchSheet(signal);
-        await applyLoadedSheet(data, signal);
-      } catch (e) {
+        const result = await loadSheetAction();
         if (signal.aborted) return;
-        if (e instanceof UnauthorizedError) {
-          setNeedsUnlock(true);
-          setSheet(null);
-          setError(null);
+        if (!result.ok) {
+          if ("unauthorized" in result) {
+            setNeedsUnlock(true);
+            setSheet(null);
+            setError(null);
+            return;
+          }
+          setError(result.error);
           return;
         }
+        await applyLoadedSheet(result, signal);
+      } catch (e) {
+        if (signal.aborted) return;
         setError(e instanceof Error ? e.message : "Failed to load character sheet.");
       } finally {
         if (!signal.aborted) {
@@ -127,13 +129,23 @@ export function useCharacterSheet() {
         !kvConfiguredRef.current && sheetRef.current
           ? { _baseRuntime: sheetRef.current.runtime, ...body }
           : body;
-      const data = await patchSheet(payload);
-      if (mountedRef.current) {
-        setSheet(data.sheet);
-        setKvConfigured(data.kvConfigured);
+      const result = await saveSheetAction(payload);
+      if (!result.ok) {
+        if ("unauthorized" in result) {
+          if (mountedRef.current) {
+            setNeedsUnlock(true);
+            setError(null);
+          }
+          throw new Error("Unauthorized");
+        }
+        throw new Error(result.error);
       }
-      if (!data.kvConfigured) {
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(data.sheet.runtime));
+      if (mountedRef.current) {
+        setSheet(result.sheet);
+        setKvConfigured(result.kvConfigured);
+      }
+      if (!result.kvConfigured) {
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(result.sheet.runtime));
       }
     });
 
@@ -141,15 +153,8 @@ export function useCharacterSheet() {
     try {
       await task;
     } catch (e) {
-      if (e instanceof UnauthorizedError) {
-        if (mountedRef.current) {
-          setNeedsUnlock(true);
-          setError(null);
-        }
-        throw e;
-      }
-      if (mountedRef.current) {
-        setError(e instanceof Error ? e.message : "Save failed");
+      if (mountedRef.current && e instanceof Error && e.message !== "Unauthorized") {
+        setError(e.message || "Save failed");
       }
       throw e;
     }

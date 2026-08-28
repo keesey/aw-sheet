@@ -1,6 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
 
 export const ACCESS_COOKIE = "shim-sham-access";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -39,13 +38,23 @@ export function isAuthenticatedCookie(cookie: string | undefined): boolean {
   return safeEqual(cookie, expected);
 }
 
-export async function requireAuth(): Promise<NextResponse | null> {
-  if (!isAuthRequired()) return null;
+/** Used by Server Actions; throws when auth is required and the cookie is missing. */
+export async function assertAuthenticated(): Promise<void> {
+  if (!isAuthRequired()) return;
   const cookieStore = await cookies();
   if (!isAuthenticatedCookie(cookieStore.get(ACCESS_COOKIE)?.value)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    throw new Error("Unauthorized");
   }
-  return null;
+}
+
+/** Set the access cookie after a successful unlock. */
+export async function setAccessCookie(): Promise<void> {
+  const cookieValue = accessCookieValue();
+  if (!cookieValue) {
+    throw new Error("Auth is not configured");
+  }
+  const cookieStore = await cookies();
+  cookieStore.set(ACCESS_COOKIE, cookieValue, accessCookieOptions());
 }
 
 export function verifyAccessToken(submitted: string): boolean {
