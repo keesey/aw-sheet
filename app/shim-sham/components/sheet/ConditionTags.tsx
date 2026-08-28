@@ -1,6 +1,6 @@
 import type { ActiveCondition } from "@/lib/types";
-import { visibleConditionTags } from "@/lib/shim-sham/condition-effects";
-import { removeCondition } from "@/lib/shim-sham/conditions";
+import { visibleConditionTags } from "@/lib/shim-sham/rules/condition-effects";
+import { removeCondition } from "@/lib/shim-sham/rules/conditions";
 import type { SaveFn } from "../../types";
 import { ConditionChip } from "../conditions/ConditionChip";
 

@@ -1,6 +1,6 @@
 import { compareByName } from "@/lib/shim-sham/sort";
-import { PROGRESSION, getNextLevelSnapshot } from "@/lib/shim-sham/progression";
-import { skillChangesAtLevel } from "@/lib/shim-sham/skills";
+import { PROGRESSION, getNextLevelSnapshot } from "@/lib/shim-sham/data/progression";
+import { skillChangesAtLevel } from "@/lib/shim-sham/rules/skills";
 import type { AttributeKey, CharacterSheet, ProgressionFeat } from "@/lib/types";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";

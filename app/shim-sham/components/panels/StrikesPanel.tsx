@@ -1,5 +1,5 @@
 import type { CharacterSheet } from "@/lib/types";
-import type { StrikeDamageMode } from "@/lib/shim-sham/strike-open-options";
+import type { StrikeDamageMode } from "@/lib/shim-sham/rules/strike-open-options";
 import { StrikesSection } from "../sheet/StrikesSection";
 import { BottomPanel } from "../BottomPanel";
 

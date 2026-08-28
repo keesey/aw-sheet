@@ -6,7 +6,7 @@ import {
   setAccessCookie,
   verifyAccessToken,
 } from "@/lib/shim-sham/auth";
-import { loadSheetData, saveSheetData, type SaveSheetInput } from "@/lib/shim-sham/sheet-service";
+import { loadSheetData, saveSheetData, type SaveSheetInput } from "@/lib/shim-sham/sheet/sheet-service";
 import type { CharacterSheet } from "@/lib/types";
 
 export type SheetActionResult =

@@ -4,9 +4,9 @@ import {
   formatBulkLabel,
   formatBulkUnits,
   isOverburdenedByBulk,
-} from "@/lib/shim-sham/bulk";
+} from "@/lib/shim-sham/data/bulk";
 import { compareByName } from "@/lib/shim-sham/sort";
-import { getEquipmentGroups, SHIM_SHAM_AMMUNITION } from "@/lib/shim-sham/inventory";
+import { getEquipmentGroups, SHIM_SHAM_AMMUNITION } from "@/lib/shim-sham/data/inventory";
 import { aonAmmunition } from "@/lib/shim-sham/aon";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";

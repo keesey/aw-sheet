@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { bulkSelectOptions, bulkToUnits } from "@/lib/shim-sham/bulk";
+import { bulkSelectOptions, bulkToUnits } from "@/lib/shim-sham/data/bulk";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 

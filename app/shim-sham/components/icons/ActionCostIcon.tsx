@@ -2,7 +2,7 @@ import type { CharacterAction } from "@/lib/types";
 import {
   ACTION_COST_ICONS,
   actionCostIconKind,
-} from "@/lib/shim-sham/action-cost-icons";
+} from "@/lib/shim-sham/data/action-cost-icons";
 
 const OUTLINE_STROKE_WIDTH = 11;
 

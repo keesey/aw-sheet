@@ -1,6 +1,6 @@
 import type { AdHocInventoryItem } from "@/lib/types";
 import { compareByName } from "@/lib/shim-sham/sort";
-import { formatBulkLabel } from "@/lib/shim-sham/bulk";
+import { formatBulkLabel } from "@/lib/shim-sham/data/bulk";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 

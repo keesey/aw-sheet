@@ -1,7 +1,7 @@
-import { getActiveCondition, removeCondition } from "@/lib/shim-sham/conditions";
+import { getActiveCondition, removeCondition } from "@/lib/shim-sham/rules/conditions";
 import type { CharacterAction, CoverLevel, RuntimeState } from "@/lib/types";
-import { formatSignedBonus } from "@/lib/shim-sham/skills";
-import type { StrikesOpenOptions } from "@/lib/shim-sham/strike-open-options";
+import { formatSignedBonus } from "@/lib/shim-sham/rules/skills";
+import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-options";
 import type { SaveFn } from "../../types";
 import { ActionToggle } from "../ActionToggle";
 import { RollBonusButton } from "../RollBonusButton";

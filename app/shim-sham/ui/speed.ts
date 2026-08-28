@@ -1,4 +1,4 @@
-import type { SpeedEntry } from "@/lib/shim-sham/speed";
+import type { SpeedEntry } from "@/lib/shim-sham/rules/speed";
 
 export function getSpeedClassName(speed: SpeedEntry, panache: boolean, accelerate: boolean) {
   const panacheActive = panache && speed.stylishBoost;

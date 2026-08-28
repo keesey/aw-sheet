@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import { rollDiceNotation, type DamageRollLine, type RollResult } from "@/lib/shim-sham/roll";
+import { rollDiceNotation, type DamageRollLine, type RollResult } from "@/lib/shim-sham/sheet/roll";
 
 import { natClass } from "../../ui/nat-class";
 function AttackRollBreakdown({ d20, bonus }: { d20: number; bonus: number }) {

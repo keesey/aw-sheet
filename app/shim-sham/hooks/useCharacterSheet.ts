@@ -6,7 +6,7 @@ import {
   parseLocalRuntime,
   type SaveInput,
   type SheetPatch,
-} from "@/lib/shim-sham/patch";
+} from "@/lib/shim-sham/rules/patch";
 import { loadSheetAction, saveSheetAction } from "../actions";
 import { LOCAL_KEY } from "../client/constants";
 
@@ -63,7 +63,7 @@ export function useCharacterSheet() {
         if (local) {
           const runtime = parseLocalRuntime(local);
           if (runtime) {
-            const { buildCharacterSheet } = await import("@/lib/shim-sham/static");
+            const { buildCharacterSheet } = await import("@/lib/shim-sham/sheet/static");
             setSheet(buildCharacterSheet(runtime));
           } else {
             localStorage.removeItem(LOCAL_KEY);

@@ -1,0 +1,52 @@
+import type { AttributeKey, ProficiencyRank } from "@/lib/types";
+import { getWornArmor } from "@/lib/shim-sham/rules/armor";
+import { proficiencyBonus, proficiencyRankAtLevel } from "@/lib/shim-sham/rules/proficiency";
+
+type SaveId = "fort" | "reflex" | "will";
+
+const SAVE_ATTRIBUTE: Record<SaveId, AttributeKey> = {
+  fort: "CON",
+  reflex: "DEX",
+  will: "WIS",
+};
+
+/**
+ * Swashbuckler save ranks from https://2e.aonprd.com/Classes.aspx?ID=63
+ * Fortitude Expertise 3, Confident Evasion (Reflex master) 7,
+ * Assured Evasion (Reflex legendary) 13. Will stays expert through 15.
+ */
+const SAVE_RANKS: Record<SaveId, ReadonlyArray<{ level: number; rank: ProficiencyRank }>> = {
+  fort: [
+    { level: 1, rank: "T" },
+    { level: 3, rank: "E" },
+  ],
+  reflex: [
+    { level: 1, rank: "E" },
+    { level: 7, rank: "M" },
+    { level: 13, rank: "L" },
+  ],
+  will: [{ level: 1, rank: "E" }],
+};
+
+function saveModifier(attributeModifier: number, save: SaveId, level: number): number {
+  const rank = proficiencyRankAtLevel(SAVE_RANKS[save], level);
+  const resilient = getWornArmor(level).resilient;
+  return attributeModifier + proficiencyBonus(rank, level) + resilient;
+}
+
+/**
+ * Saving throw modifiers = key attribute + proficiency bonus + other bonuses.
+ * The only other bonus currently is armor's Resilient item bonus.
+ * @see https://2e.aonsrd.com/rules/344-saving-throws
+ * @see https://2e.aonsrd.com/traits/155-resilient
+ */
+export function savingThrows(
+  attributes: Record<AttributeKey, number>,
+  level: number,
+): Record<SaveId, number> {
+  return {
+    fort: saveModifier(attributes[SAVE_ATTRIBUTE.fort], "fort", level),
+    reflex: saveModifier(attributes[SAVE_ATTRIBUTE.reflex], "reflex", level),
+    will: saveModifier(attributes[SAVE_ATTRIBUTE.will], "will", level),
+  };
+}

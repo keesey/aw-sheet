@@ -5,7 +5,7 @@ import {
   getActiveCondition,
   removeCondition,
   toggleCondition,
-} from "@/lib/shim-sham/conditions";
+} from "@/lib/shim-sham/rules/conditions";
 import { AonLink } from "../AonLink";
 
 export function ConditionPicker({

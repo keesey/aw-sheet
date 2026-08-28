@@ -7,8 +7,8 @@ import {
   evaluateRecoveryFlatCheck,
   recoveryCheckContext,
   recoveryOutcomeLabel,
-} from "@/lib/shim-sham/recovery-check";
-import { rollD20 } from "@/lib/shim-sham/roll";
+} from "@/lib/shim-sham/rules/recovery-check";
+import { rollD20 } from "@/lib/shim-sham/sheet/roll";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 

@@ -2,7 +2,7 @@ import type { CharacterSheet } from "@/lib/types";
 import {
   FORCE_FIELD_DAILY_USES,
   FORCE_FIELD_MAX_HP,
-} from "@/lib/shim-sham/static";
+} from "@/lib/shim-sham/sheet/static";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 

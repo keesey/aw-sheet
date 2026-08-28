@@ -7,10 +7,10 @@ import {
   MAX_RANGE_INCREMENT_COUNT,
   rangeAttackPenalty,
   rangeIncrementMaxFeet,
-} from "@/lib/shim-sham/strikes";
+} from "@/lib/shim-sham/rules/strikes";
 import { formatSigned, statModClass } from "../../ui/format";
 import { formatStrikeDamage } from "../../ui/format-strike-damage";
-import type { StrikeDamageMode } from "@/lib/shim-sham/strike-open-options";
+import type { StrikeDamageMode } from "@/lib/shim-sham/rules/strike-open-options";
 import { MapRollButtons } from "../MapRollButtons";
 import { AonLink } from "../AonLink";
 

@@ -1,10 +1,10 @@
 import type { CharacterSheet } from "@/lib/types";
-import type { ConditionEffects } from "@/lib/shim-sham/condition-effects";
-import { runtimeDerivedStats } from "@/lib/shim-sham/condition-effects";
-import { hasJetpackInstalled } from "@/lib/shim-sham/jetpack";
+import type { ConditionEffects } from "@/lib/shim-sham/rules/condition-effects";
+import { runtimeDerivedStats } from "@/lib/shim-sham/rules/condition-effects";
+import { hasJetpackInstalled } from "@/lib/shim-sham/rules/jetpack";
 import { formatSigned, statModClass } from "../../ui/format";
-import { getSpeedDisplayValue } from "@/lib/shim-sham/speed";
-import type { SpeedEntry } from "@/lib/shim-sham/speed";
+import { getSpeedDisplayValue } from "@/lib/shim-sham/rules/speed";
+import type { SpeedEntry } from "@/lib/shim-sham/rules/speed";
 import { getSpeedClassName } from "../../ui/speed";
 import type { SaveFn } from "../../types";
 import { ActionToggle } from "../ActionToggle";

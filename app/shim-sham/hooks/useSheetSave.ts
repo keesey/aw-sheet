@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useRef, type MutableRefObject } from "react";
 import type { CharacterSheet, RuntimeState } from "@/lib/types";
-import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
-import { getSkillKeyAttributes } from "@/lib/shim-sham/skills";
-import type { SaveInput, SheetPatch } from "@/lib/shim-sham/patch";
+import { resolveConditionEffects } from "@/lib/shim-sham/rules/condition-effects";
+import { getSkillKeyAttributes } from "@/lib/shim-sham/rules/skills";
+import type { SaveInput, SheetPatch } from "@/lib/shim-sham/rules/patch";
 import type { SaveFn } from "../types";
-import { appendSessionLogLine, sessionLogLineForSave } from "@/lib/shim-sham/session-log";
+import { appendSessionLogLine, sessionLogLineForSave } from "@/lib/shim-sham/sheet/session-log";
 
 export function useSheetSave(
   sheet: CharacterSheet | null,

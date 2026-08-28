@@ -1,16 +1,16 @@
-import { actionEndsCover } from "@/lib/shim-sham/cover";
+import { actionEndsCover } from "@/lib/shim-sham/rules/cover";
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
-import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
-import { crawlActionAvailable, escapeActionAvailable, modifiedSpeed } from "@/lib/shim-sham/condition-effects";
-import { getActiveCondition } from "@/lib/shim-sham/conditions";
-import { PAHTRA_LAND_SPEED } from "@/lib/shim-sham/ancestry";
-import { hasFlySpeed } from "@/lib/shim-sham/jetpack";
+import type { ConditionActionLocks } from "@/lib/shim-sham/rules/condition-effects";
+import { crawlActionAvailable, escapeActionAvailable, modifiedSpeed } from "@/lib/shim-sham/rules/condition-effects";
+import { getActiveCondition } from "@/lib/shim-sham/rules/conditions";
+import { PAHTRA_LAND_SPEED } from "@/lib/shim-sham/data/ancestry";
+import { hasFlySpeed } from "@/lib/shim-sham/rules/jetpack";
 import {
   stylishCombatantApplies,
   stylishCombatantBonus,
-} from "@/lib/shim-sham/stylish-combatant";
-import { parseMapAttackValues, parseRollBonusString } from "@/lib/shim-sham/roll";
-import type { StrikesOpenOptions } from "@/lib/shim-sham/strike-open-options";
+} from "@/lib/shim-sham/rules/stylish-combatant";
+import { parseMapAttackValues, parseRollBonusString } from "@/lib/shim-sham/sheet/roll";
+import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-options";
 import type { SaveFn } from "../../types";
 import { MapRollButtons } from "../MapRollButtons";
 import { RollBonusButton } from "../RollBonusButton";

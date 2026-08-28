@@ -2,7 +2,7 @@ import type { ActiveCondition } from "@/lib/types";
 import {
   findCondition,
   formatActiveCondition,
-} from "@/lib/shim-sham/conditions";
+} from "@/lib/shim-sham/rules/conditions";
 import { AonLink } from "../AonLink";
 
 export function ConditionChip({

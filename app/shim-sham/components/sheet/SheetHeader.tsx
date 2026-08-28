@@ -1,7 +1,7 @@
 "use client";
 
 import type { CharacterSheet } from "@/lib/types";
-import { encounterOffPatch } from "@/lib/shim-sham/runtime-reset";
+import { encounterOffPatch } from "@/lib/shim-sham/rules/runtime-reset";
 import type { SaveFn } from "../../types";
 import { useRoll } from "../../context/RollContext";
 import { D20Icon } from "../icons/D20Icon";

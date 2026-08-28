@@ -2,7 +2,7 @@
 
 import type { MutableRefObject } from "react";
 import type { CharacterSheet } from "@/lib/types";
-import { formatSignedBonus } from "@/lib/shim-sham/skills";
+import { formatSignedBonus } from "@/lib/shim-sham/rules/skills";
 import { statModClass } from "../../ui/format";
 import type { SaveFn } from "../../types";
 import { RollBonusButton } from "../RollBonusButton";

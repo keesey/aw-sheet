@@ -1,4 +1,4 @@
-import type { StrikeDamageMode } from "@/lib/shim-sham/strike-open-options";
+import type { StrikeDamageMode } from "@/lib/shim-sham/rules/strike-open-options";
 
 const PRECISION_SUFFIX_RE = / [+-]\d+ precision$/;
 

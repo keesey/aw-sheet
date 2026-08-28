@@ -1,11 +1,11 @@
 import type { SkillEntry } from "@/lib/types";
-import { formatSignedBonus } from "@/lib/shim-sham/skills";
+import { formatSignedBonus } from "@/lib/shim-sham/rules/skills";
 import {
   EXPLORATION_ACTIVITIES,
   explorationActivityBonus,
   orderedExplorationActivities,
   type ExplorationActivity,
-} from "@/lib/shim-sham/exploration-activities";
+} from "@/lib/shim-sham/data/exploration-activities";
 import { statModClass } from "../../ui/format";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";

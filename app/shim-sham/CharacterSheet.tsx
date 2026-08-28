@@ -1,20 +1,20 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { restPatch } from "@/lib/shim-sham/runtime-reset";
-import type { SheetPatch } from "@/lib/shim-sham/patch";
+import { restPatch } from "@/lib/shim-sham/rules/runtime-reset";
+import type { SheetPatch } from "@/lib/shim-sham/rules/patch";
 import { useCharacterSheet } from "./hooks/useCharacterSheet";
-import { deriveSheetViewModel } from "@/lib/shim-sham/sheet-view-model";
+import { deriveSheetViewModel } from "@/lib/shim-sham/sheet/sheet-view-model";
 import { useSheetNotes } from "./hooks/useSheetNotes";
 import { useSheetSave } from "./hooks/useSheetSave";
 import { RollProvider } from "./context/RollContext";
 import { UnlockGate } from "./components/UnlockGate";
-import { formatRollSummary, type RollResult } from "@/lib/shim-sham/roll";
-import { appendSessionLogLine } from "@/lib/shim-sham/session-log";
+import { formatRollSummary, type RollResult } from "@/lib/shim-sham/sheet/roll";
+import { appendSessionLogLine } from "@/lib/shim-sham/sheet/session-log";
 import {
   DEFAULT_STRIKES_OPEN,
   type StrikesOpenOptions,
-} from "@/lib/shim-sham/strike-open-options";
+} from "@/lib/shim-sham/rules/strike-open-options";
 import type { Panel } from "./types";
 import { CharacterSheetView } from "./CharacterSheetView";
 

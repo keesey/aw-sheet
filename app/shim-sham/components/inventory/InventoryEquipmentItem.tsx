@@ -1,5 +1,5 @@
 import type { InventoryItem } from "@/lib/types";
-import { formatBulkLabel } from "@/lib/shim-sham/bulk";
+import { formatBulkLabel } from "@/lib/shim-sham/data/bulk";
 import { AonLink } from "../AonLink";
 
 export function InventoryEquipmentItem({ item }: { item: InventoryItem }) {

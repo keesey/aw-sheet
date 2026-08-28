@@ -1,6 +1,6 @@
 import type { AttributeKey, CharacterSheet } from "@/lib/types";
-import { effectiveAttributeModifier } from "@/lib/shim-sham/condition-effects";
-import { MENTAL_ATTRIBUTES, PHYSICAL_ATTRIBUTES } from "@/lib/shim-sham/constants";
+import { effectiveAttributeModifier } from "@/lib/shim-sham/rules/condition-effects";
+import { MENTAL_ATTRIBUTES, PHYSICAL_ATTRIBUTES } from "@/lib/shim-sham/data/constants";
 import { formatAttributeMod, statModClass } from "../../ui/format";
 import { RollBonusButton } from "../RollBonusButton";
 

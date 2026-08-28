@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 import type { RuntimeState } from "@/lib/types";
-import { createDefaultRuntime } from "@/lib/shim-sham/static";
+import { createDefaultRuntime } from "@/lib/shim-sham/sheet/static";
 
 const STATE_KEY = "shim-sham:runtime";
 

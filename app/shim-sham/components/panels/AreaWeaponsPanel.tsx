@@ -1,4 +1,4 @@
-import type { AreaWeaponEntry } from "@/lib/shim-sham/area-weapons";
+import type { AreaWeaponEntry } from "@/lib/shim-sham/data/area-weapons";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
 
