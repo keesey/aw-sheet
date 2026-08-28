@@ -100,7 +100,6 @@ export function SheetHeader({
             onClick={() => void save({ vehicles: !runtime.vehicles })}
             aria-pressed={runtime.vehicles}
             aria-label="Vehicles"
-            disabled={!runtime.encounter}
           >
             <BusIcon className="bus-icon" />
           </button>

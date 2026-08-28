@@ -3,7 +3,6 @@ import type { RuntimeState } from "@/lib/types";
 /** Combat toggles the client may clear when leaving encounter mode. */
 const ENCOUNTER_OFF_DIRECT_FIELDS = {
   panache: false,
-  vehicles: false,
   accelerate: false,
   duelingParry: false,
   batonParry: false,
@@ -13,7 +12,6 @@ const ENCOUNTER_OFF_DIRECT_FIELDS = {
 } as const satisfies Pick<
   RuntimeState,
   | "panache"
-  | "vehicles"
   | "accelerate"
   | "duelingParry"
   | "batonParry"
@@ -26,7 +24,6 @@ const ENCOUNTER_OFF_DIRECT_FIELDS = {
 export function explorationResetFields(): Pick<
   RuntimeState,
   | "panache"
-  | "vehicles"
   | "accelerate"
   | "duelingParry"
   | "batonParry"

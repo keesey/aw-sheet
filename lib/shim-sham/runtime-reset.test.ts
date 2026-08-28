@@ -43,6 +43,15 @@ describe("runtime-reset", () => {
     expect(patch).not.toHaveProperty("forceFieldActive");
   });
 
+  it("preserves vehicles toggle in exploration mode", () => {
+    const runtime = {
+      ...createDefaultRuntime(),
+      encounter: false,
+      vehicles: true,
+    };
+    expect(applyEncounterOffReset(runtime).vehicles).toBe(true);
+  });
+
   it("explorationResetFields clears force field server-side", () => {
     expect(explorationResetFields()).toMatchObject({
       forceFieldActive: false,

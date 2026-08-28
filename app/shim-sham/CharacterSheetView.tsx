@@ -79,6 +79,7 @@ export function CharacterSheetView({
     ffPct,
     ffUsesLeft,
     actionsByCost,
+    vehicleActionsByCost,
     displayAc,
     acDelta,
     inventoryBulk,
@@ -162,6 +163,7 @@ export function CharacterSheetView({
           ) : runtime.encounter ? (
             <ActionsSection
               actionsByCost={actionsByCost}
+              vehicleActionsByCost={vehicleActionsByCost}
               strikeAction={strikeAction}
               level={level}
               speedDelta={effects.speedDelta}

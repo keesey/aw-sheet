@@ -38,13 +38,17 @@ export function deriveSheetViewModel(sheet: CharacterSheet) {
   const ffPct = Math.round((runtime.forceFieldHp / FORCE_FIELD_MAX_HP) * 100);
   const ffUsesLeft = FORCE_FIELD_DAILY_USES - runtime.forceFieldUsesUsed;
 
-  const actionsByCost = {
-    free: data.actions.filter((a) => a.cost === "free").sort(compareByName),
-    reaction: data.actions.filter((a) => a.cost === "reaction").sort(compareByName),
-    single: data.actions.filter((a) => a.cost === "single").sort(compareByName),
-    double: data.actions.filter((a) => a.cost === "double").sort(compareByName),
-    triple: data.actions.filter((a) => a.cost === "triple").sort(compareByName),
-  };
+  const mainActions = data.actions.filter((a) => !a.vehiclesOnly);
+  const vehicleActions = data.actions.filter((a) => a.vehiclesOnly);
+  const groupByCost = (actions: typeof data.actions) => ({
+    free: actions.filter((a) => a.cost === "free").sort(compareByName),
+    reaction: actions.filter((a) => a.cost === "reaction").sort(compareByName),
+    single: actions.filter((a) => a.cost === "single").sort(compareByName),
+    double: actions.filter((a) => a.cost === "double").sort(compareByName),
+    triple: actions.filter((a) => a.cost === "triple").sort(compareByName),
+  });
+  const actionsByCost = groupByCost(mainActions);
+  const vehicleActionsByCost = groupByCost(vehicleActions);
   const circumstanceBonus = circumstanceAcBonus(runtime);
   const displayAc = derived.ac + circumstanceBonus;
   const acDelta = derived.ac - level.ac + circumstanceBonus;
@@ -78,6 +82,7 @@ export function deriveSheetViewModel(sheet: CharacterSheet) {
     ffPct,
     ffUsesLeft,
     actionsByCost,
+    vehicleActionsByCost,
     displayAc,
     acDelta,
     inventoryBulk,
