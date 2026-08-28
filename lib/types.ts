@@ -62,8 +62,8 @@ export type CharacterAction = {
   combatBonus?: string;
   /** Omit from the sheet until this character level. */
   minLevel?: number;
-  /** Shown only when the Vehicles toggle is on. */
-  vehiclesOnly?: boolean;
+  /** Listed in the Piloting section instead of the main action list. */
+  pilotingOnly?: boolean;
   /** Right-side control on the compact action row. */
   control?:
     | "accelerate"
@@ -144,7 +144,6 @@ export type RuntimeState = {
   panache: boolean;
   accelerate: boolean;
   jetpack: boolean;
-  vehicles: boolean;
   encounter: boolean;
   duelingParry: boolean;
   batonParry: boolean;

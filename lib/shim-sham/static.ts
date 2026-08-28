@@ -41,7 +41,6 @@ export function createDefaultRuntime(level = 1): RuntimeState {
     panache: false,
     accelerate: false,
     jetpack: false,
-    vehicles: false,
     encounter: false,
     duelingParry: false,
     batonParry: false,
@@ -93,7 +92,6 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
   return {
     ...runtime,
     encounter: runtime.encounter ?? legacy.combat ?? false,
-    vehicles: runtime.vehicles ?? false,
     batonParry: runtime.batonParry ?? false,
     cover: runtime.cover ?? "none",
     preparedToAid: runtime.preparedToAid ?? false,

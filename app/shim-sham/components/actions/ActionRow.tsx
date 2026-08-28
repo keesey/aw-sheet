@@ -107,7 +107,6 @@ function ActionRollBonus({
 function isActionHidden(
   action: CharacterAction,
   jetpack: boolean,
-  vehicles: boolean,
   panache: boolean,
   meyelRerollUsed: boolean,
   locks: ConditionActionLocks,
@@ -122,7 +121,6 @@ function isActionHidden(
     return action.id !== "return-to-initiative";
   }
 
-  if (action.vehiclesOnly && !vehicles) return true;
   if (action.id === "return-to-initiative") return true;
   if (action.id === "delay" && !encounter) return true;
   if (action.id === "fly" && (characterLevel == null || !hasFlySpeed(characterLevel, jetpack))) return true;
@@ -169,7 +167,6 @@ export function ActionRow({
   action,
   encounter,
   jetpack,
-  vehicles,
   panache,
   meyelRerollUsed,
   locks = EMPTY_LOCKS,
@@ -186,7 +183,6 @@ export function ActionRow({
   action: CharacterAction;
   encounter: boolean;
   jetpack: boolean;
-  vehicles: boolean;
   panache: boolean;
   meyelRerollUsed: boolean;
   locks?: ConditionActionLocks;
@@ -203,7 +199,6 @@ export function ActionRow({
   if (isActionHidden(
     action,
     jetpack,
-    vehicles,
     panache,
     meyelRerollUsed,
     locks,

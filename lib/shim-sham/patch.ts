@@ -177,9 +177,6 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   const jetpack = parseBoolean(body.jetpack);
   if (jetpack !== undefined) patch.jetpack = jetpack;
 
-  const vehicles = parseBoolean(body.vehicles);
-  if (vehicles !== undefined) patch.vehicles = vehicles;
-
   const duelingParry = parseBoolean(body.duelingParry);
   if (duelingParry !== undefined) patch.duelingParry = duelingParry;
 

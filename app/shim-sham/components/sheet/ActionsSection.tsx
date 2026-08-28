@@ -41,7 +41,7 @@ function buildActionSections(
 
 export function ActionsSection({
   actionsByCost,
-  vehicleActionsByCost,
+  pilotingActionsByCost,
   strikeAction,
   level,
   speedDelta,
@@ -52,14 +52,13 @@ export function ActionsSection({
   onOpenAreaWeapons,
   encounter,
   jetpack,
-  vehicles,
   panache,
   meyelRerollUsed,
   locks,
   athleticsBonus,
 }: {
   actionsByCost: ActionsByCost;
-  vehicleActionsByCost: ActionsByCost;
+  pilotingActionsByCost: ActionsByCost;
   strikeAction: CharacterAction;
   level: LevelSnapshot;
   speedDelta: number;
@@ -70,7 +69,6 @@ export function ActionsSection({
   onOpenAreaWeapons: () => void;
   encounter: boolean;
   jetpack: boolean;
-  vehicles: boolean;
   panache: boolean;
   meyelRerollUsed: boolean;
   locks: ConditionActionLocks;
@@ -79,7 +77,6 @@ export function ActionsSection({
   const actionProps = {
     encounter,
     jetpack,
-    vehicles,
     panache,
     meyelRerollUsed,
     locks,
@@ -102,13 +99,11 @@ export function ActionsSection({
 
       {renderActionRows(buildActionSections(actionsByCost, strikeAction), actionProps)}
 
-      {vehicles ? (
-        <PilotingActionsSection
-          vehicleActionsByCost={vehicleActionsByCost}
-          actionProps={actionProps}
-          variant="embedded"
-        />
-      ) : null}
+      <PilotingActionsSection
+        pilotingActionsByCost={pilotingActionsByCost}
+        actionProps={actionProps}
+        variant="embedded"
+      />
     </div>
   );
 }

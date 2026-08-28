@@ -22,22 +22,22 @@ function renderActionRows(
 }
 
 export function PilotingActionsSection({
-  vehicleActionsByCost,
+  pilotingActionsByCost,
   actionProps,
   variant = "standalone",
 }: {
-  vehicleActionsByCost: ActionsByCost;
+  pilotingActionsByCost: ActionsByCost;
   actionProps: Omit<ComponentProps<typeof ActionRow>, "action">;
   variant?: "embedded" | "standalone";
 }) {
-  const vehicleSections = [
-    vehicleActionsByCost.free,
-    vehicleActionsByCost.reaction,
-    vehicleActionsByCost.single,
-    vehicleActionsByCost.double,
-    vehicleActionsByCost.triple,
+  const pilotingSections = [
+    pilotingActionsByCost.free,
+    pilotingActionsByCost.reaction,
+    pilotingActionsByCost.single,
+    pilotingActionsByCost.double,
+    pilotingActionsByCost.triple,
   ];
-  const rows = renderActionRows(vehicleSections, actionProps);
+  const rows = renderActionRows(pilotingSections, actionProps);
 
   if (variant === "embedded") {
     return (

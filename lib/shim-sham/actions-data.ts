@@ -489,7 +489,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move"],
           url: `${AON}/actions/210-board`,
           bonus: skillBonus("Acrobatics"),
-          vehiclesOnly: true,
+          pilotingOnly: true,
         },
         {
           id: "drive-single",
@@ -499,7 +499,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move"],
           url: `${AON}/actions/92-drive`,
           bonus: pilotingBonus,
-          vehiclesOnly: true,
+          pilotingOnly: true,
         },
         {
           id: "drive-double",
@@ -509,7 +509,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move", "Reckless"],
           url: `${AON}/actions/92-drive`,
           bonus: pilotingBonus,
-          vehiclesOnly: true,
+          pilotingOnly: true,
         },
         {
           id: "drive-triple",
@@ -519,7 +519,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move", "Reckless"],
           url: `${AON}/actions/92-drive`,
           bonus: pilotingBonus,
-          vehiclesOnly: true,
+          pilotingOnly: true,
         },
         {
           id: "run-over",
@@ -529,7 +529,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move", "Reckless"],
           url: `${AON}/actions/95-run-over`,
           bonus: pilotingBonus,
-          vehiclesOnly: true,
+          pilotingOnly: true,
         },
         {
           id: "vehicle-stop",
@@ -539,7 +539,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Manipulate"],
           url: `${AON}/actions/96-stop`,
           bonus: pilotingBonus,
-          vehiclesOnly: true,
+          pilotingOnly: true,
         },
         {
           id: "take-control",
@@ -549,7 +549,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Manipulate"],
           url: `${AON}/actions/98-take-control`,
           bonus: pilotingBonus,
-          vehiclesOnly: true,
+          pilotingOnly: true,
         },
   ];
 }

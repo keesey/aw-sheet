@@ -79,7 +79,7 @@ export function CharacterSheetView({
     ffPct,
     ffUsesLeft,
     actionsByCost,
-    vehicleActionsByCost,
+    pilotingActionsByCost,
     displayAc,
     acDelta,
     inventoryBulk,
@@ -163,7 +163,7 @@ export function CharacterSheetView({
           ) : runtime.encounter ? (
             <ActionsSection
               actionsByCost={actionsByCost}
-              vehicleActionsByCost={vehicleActionsByCost}
+              pilotingActionsByCost={pilotingActionsByCost}
               strikeAction={strikeAction}
               level={level}
               speedDelta={effects.speedDelta}
@@ -177,7 +177,6 @@ export function CharacterSheetView({
               onOpenAreaWeapons={() => onAreaWeaponsOpenChange(true)}
               encounter={runtime.encounter}
               jetpack={runtime.jetpack}
-              vehicles={runtime.vehicles}
               panache={runtime.panache}
               meyelRerollUsed={runtime.meyelRerollUsed}
               locks={effects}
