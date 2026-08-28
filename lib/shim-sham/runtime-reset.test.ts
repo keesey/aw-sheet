@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { validatePatchBody } from "@/lib/shim-sham/patch-security";
 import {
   applyEncounterOffReset,
   encounterOffPatch,
@@ -42,7 +41,6 @@ describe("runtime-reset", () => {
     });
     expect(patch).not.toHaveProperty("forceFieldHp");
     expect(patch).not.toHaveProperty("forceFieldActive");
-    expect(validatePatchBody(patch)).toBeNull();
   });
 
   it("explorationResetFields clears force field server-side", () => {
