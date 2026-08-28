@@ -1,7 +1,7 @@
 import type { AttributeKey, CharacterSheet } from "@/lib/types";
 import { effectiveAttributeModifier } from "@/lib/shim-sham/condition-effects";
-import { MENTAL_ATTRIBUTES, PHYSICAL_ATTRIBUTES } from "../../lib/constants";
-import { formatAttributeMod, statModClass } from "../../lib/format";
+import { MENTAL_ATTRIBUTES, PHYSICAL_ATTRIBUTES } from "@/lib/shim-sham/constants";
+import { formatAttributeMod, statModClass } from "../../ui/format";
 import { RollBonusButton } from "../RollBonusButton";
 
 const ATTRIBUTE_ORDER: AttributeKey[] = [...PHYSICAL_ATTRIBUTES, ...MENTAL_ATTRIBUTES];

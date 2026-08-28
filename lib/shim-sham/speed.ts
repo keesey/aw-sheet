@@ -1,13 +1,20 @@
-import { ACCELERATE_SPEED_BONUS } from "./constants";
+import { ACCELERATE_SPEED_BONUS } from "@/lib/shim-sham/constants";
 import { PAHTRA_LAND_SPEED } from "@/lib/shim-sham/ancestry";
 import {
   COMMERCIAL_JETPACK_FLY_SPEED,
   hasJetpackInstalled,
 } from "@/lib/shim-sham/jetpack";
 import { stylishSpeedBonus } from "@/lib/shim-sham/stylish-speed";
-import type { SpeedEntry } from "../types";
 import type { LevelSnapshot } from "@/lib/types";
 import { modifiedSpeed } from "@/lib/shim-sham/condition-effects";
+
+export type SpeedEntry = {
+  label: string;
+  value: number;
+  /** Stylish Combatant / Vivacious Speed status bonus applies. */
+  stylishBoost: boolean;
+  accelerateBoost: boolean;
+};
 
 /** Climbing Claws (Pahtra 5): climb Speed equals land Speed. */
 const CLIMBING_CLAWS_LEVEL = 5;
@@ -58,13 +65,4 @@ export function getSpeedDisplayValue(
   if (speed.stylishBoost) total += stylishSpeedBonus(level, panache);
   if (accelerate && speed.accelerateBoost) total += ACCELERATE_SPEED_BONUS;
   return modifiedSpeed(total, speedDelta);
-}
-
-export function getSpeedClassName(speed: SpeedEntry, panache: boolean, accelerate: boolean) {
-  const panacheActive = panache && speed.stylishBoost;
-  const accelerateActive = accelerate && speed.accelerateBoost;
-  if (panacheActive && accelerateActive) return "speed-accelerate-panache";
-  if (accelerateActive) return "speed-accelerate";
-  if (panacheActive) return "speed-panache";
-  return undefined;
 }

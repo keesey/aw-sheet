@@ -17,8 +17,8 @@ import { ExploreSection } from "./components/sheet/ExploreSection";
 import { StrikesPanel } from "./components/panels/StrikesPanel";
 import { AreaWeaponsPanel } from "./components/panels/AreaWeaponsPanel";
 import { filterWeaponStrikes } from "@/lib/shim-sham/strikes";
-import type { SheetViewModel } from "./hooks/useSheetDerivedStats";
-import type { StrikesOpenOptions } from "./lib/strike-format";
+import type { SheetViewModel } from "@/lib/shim-sham/sheet-view-model";
+import type { StrikesOpenOptions } from "@/lib/shim-sham/strike-open-options";
 import type { Panel, SaveFn } from "./types";
 
 export function CharacterSheetView({

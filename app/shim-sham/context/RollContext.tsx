@@ -2,9 +2,9 @@
 
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
 import type { StrikeDamageProfile } from "@/lib/types";
-import { rollCheck, type RollResult } from "../lib/roll";
-import type { StrikeDamageMode } from "../lib/strike-format";
-import { rollStrikeAttack } from "../lib/strike-roll";
+import { rollCheck, type RollResult } from "@/lib/shim-sham/roll";
+import type { StrikeDamageMode } from "@/lib/shim-sham/strike-open-options";
+import { rollStrikeAttack } from "@/lib/shim-sham/strike-roll";
 import { RollResultModal } from "../components/panels/RollResultModal";
 
 type StrikeRollRequest = {

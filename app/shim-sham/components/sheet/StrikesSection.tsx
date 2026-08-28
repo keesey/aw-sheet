@@ -8,8 +8,9 @@ import {
   rangeAttackPenalty,
   rangeIncrementMaxFeet,
 } from "@/lib/shim-sham/strikes";
-import { formatSigned, statModClass } from "../../lib/format";
-import { formatStrikeDamage, type StrikeDamageMode } from "../../lib/strike-format";
+import { formatSigned, statModClass } from "../../ui/format";
+import { formatStrikeDamage } from "../../ui/format-strike-damage";
+import type { StrikeDamageMode } from "@/lib/shim-sham/strike-open-options";
 import { MapRollButtons } from "../MapRollButtons";
 import { AonLink } from "../AonLink";
 

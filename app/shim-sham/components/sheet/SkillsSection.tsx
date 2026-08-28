@@ -3,7 +3,7 @@
 import type { MutableRefObject } from "react";
 import type { CharacterSheet } from "@/lib/types";
 import { formatSignedBonus } from "@/lib/shim-sham/skills";
-import { statModClass } from "../../lib/format";
+import { statModClass } from "../../ui/format";
 import type { SaveFn } from "../../types";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";

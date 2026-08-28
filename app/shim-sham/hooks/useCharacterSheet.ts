@@ -8,8 +8,8 @@ import {
   type SaveInput,
   type SheetPatch,
 } from "@/lib/shim-sham/patch";
-import { fetchSheet, patchSheet, UnauthorizedError } from "../lib/api";
-import { LOCAL_KEY } from "../lib/constants";
+import { fetchSheet, patchSheet, UnauthorizedError } from "../client/api";
+import { LOCAL_KEY } from "../client/constants";
 
 function resolvePatch(
   input: SaveInput,

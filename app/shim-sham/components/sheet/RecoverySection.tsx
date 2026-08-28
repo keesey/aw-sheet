@@ -8,11 +8,11 @@ import {
   recoveryCheckContext,
   recoveryOutcomeLabel,
 } from "@/lib/shim-sham/recovery-check";
-import { rollD20 } from "../../lib/roll";
+import { rollD20 } from "@/lib/shim-sham/roll";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 
-import { natClass } from "../../lib/nat-class";
+import { natClass } from "../../ui/nat-class";
 export function RecoverySection({
   conditions,
   currentHp,

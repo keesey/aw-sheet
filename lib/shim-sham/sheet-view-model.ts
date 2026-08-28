@@ -19,7 +19,7 @@ import {
   FORCE_FIELD_DAILY_USES,
   FORCE_FIELD_MAX_HP,
 } from "@/lib/shim-sham/static";
-import { buildSpeedEntries } from "../lib/speed";
+import { buildSpeedEntries } from "@/lib/shim-sham/speed";
 
 export function deriveSheetViewModel(sheet: CharacterSheet) {
   const { static: data, level, runtime } = sheet;

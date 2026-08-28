@@ -6,7 +6,7 @@ import { resolveConditionEffects } from "@/lib/shim-sham/condition-effects";
 import { getSkillKeyAttributes } from "@/lib/shim-sham/skills";
 import type { SaveInput, SheetPatch } from "@/lib/shim-sham/patch";
 import type { SaveFn } from "../types";
-import { appendSessionLogLine, sessionLogLineForSave } from "../lib/session-log";
+import { appendSessionLogLine, sessionLogLineForSave } from "@/lib/shim-sham/session-log";
 
 export function useSheetSave(
   sheet: CharacterSheet | null,

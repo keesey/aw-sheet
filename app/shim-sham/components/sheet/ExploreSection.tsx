@@ -6,7 +6,7 @@ import {
   orderedExplorationActivities,
   type ExplorationActivity,
 } from "@/lib/shim-sham/exploration-activities";
-import { statModClass } from "../../lib/format";
+import { statModClass } from "../../ui/format";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
 

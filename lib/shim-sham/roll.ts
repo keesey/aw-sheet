@@ -1,4 +1,4 @@
-import type { StrikeRollResult } from "./strike-roll";
+import type { StrikeRollResult } from "@/lib/shim-sham/strike-roll";
 
 export type DamageRollLine = {
   label: string;

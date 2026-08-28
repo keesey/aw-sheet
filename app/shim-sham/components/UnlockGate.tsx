@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { unlockSheet } from "../lib/api";
+import { unlockSheet } from "../client/api";
 
 export function UnlockGate({ onUnlocked }: { onUnlocked: () => void }) {
   const [token, setToken] = useState("");

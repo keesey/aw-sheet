@@ -1,6 +1,6 @@
 import type { StrikeDamageProfile } from "@/lib/types";
-import type { StrikeDamageMode } from "./strike-format";
-import { rollD20, rollDiceNotation, type DamageRollLine } from "./roll";
+import type { StrikeDamageMode } from "@/lib/shim-sham/strike-open-options";
+import { rollD20, rollDiceNotation, type DamageRollLine } from "@/lib/shim-sham/roll";
 
 export type StrikeRollResult = {
   kind: "strike";

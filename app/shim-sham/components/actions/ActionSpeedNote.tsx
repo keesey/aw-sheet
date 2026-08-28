@@ -2,11 +2,11 @@ import type { LevelSnapshot, RuntimeState } from "@/lib/types";
 import { PAHTRA_LAND_SPEED } from "@/lib/shim-sham/ancestry";
 import {
   climbingClawsSpeedEntry,
-  getSpeedClassName,
   getSpeedDisplayValue,
   jetpackFlySpeedEntry,
-} from "../../lib/speed";
-import type { SpeedEntry } from "../../types";
+  type SpeedEntry,
+} from "@/lib/shim-sham/speed";
+import { getSpeedClassName } from "../../ui/speed";
 
 function SpeedValue({
   speed,

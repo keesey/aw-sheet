@@ -9,8 +9,8 @@ import {
   stylishCombatantApplies,
   stylishCombatantBonus,
 } from "@/lib/shim-sham/stylish-combatant";
-import { parseMapAttackValues, parseRollBonusString } from "../../lib/roll";
-import type { StrikesOpenOptions } from "../../lib/strike-format";
+import { parseMapAttackValues, parseRollBonusString } from "@/lib/shim-sham/roll";
+import type { StrikesOpenOptions } from "@/lib/shim-sham/strike-open-options";
 import type { SaveFn } from "../../types";
 import { MapRollButtons } from "../MapRollButtons";
 import { RollBonusButton } from "../RollBonusButton";

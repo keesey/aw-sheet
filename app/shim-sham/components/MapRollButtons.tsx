@@ -2,8 +2,8 @@
 
 import { Fragment } from "react";
 import type { StrikeDamageProfile } from "@/lib/types";
-import { formatSigned } from "../lib/format";
-import type { StrikeDamageMode } from "../lib/strike-format";
+import { formatSigned } from "../ui/format";
+import type { StrikeDamageMode } from "@/lib/shim-sham/strike-open-options";
 import { useRoll } from "../context/RollContext";
 import { RollBonusButton } from "./RollBonusButton";
 

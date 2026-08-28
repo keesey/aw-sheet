@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/condition-effects";
 import { compareByName } from "@/lib/shim-sham/sort";
-import type { StrikesOpenOptions } from "../../lib/strike-format";
+import type { StrikesOpenOptions } from "@/lib/shim-sham/strike-open-options";
 import type { SaveFn } from "../../types";
 import { ActionRow } from "../actions/ActionRow";
 import { PilotingActionsSection } from "./PilotingActionsSection";
