@@ -36,7 +36,7 @@ Copy `.env.example` to `.env.local` and set Upstash Redis vars for server-side p
 
 Without Redis configured, the API still computes state changes but only the client persists them — `localStorage` key `shim-sham-runtime`, with a yellow banner: *"Vercel Redis not configured — saving to this browser only."*
 
-Default runtime starts at **level 6**, full HP, fresh consumables/dailies (`createDefaultRuntime` in `lib/shim-sham/static.ts`).
+Default runtime starts at **level 6**, full HP, fresh consumables/dailies (`createDefaultRuntime` in `lib/shim-sham/sheet/static.ts`).
 
 ## Deployment
 
@@ -76,22 +76,18 @@ Static data + computed level stats → buildCharacterSheet(runtime)
 | `app/shim-sham/CharacterSheet.tsx` | Main UI |
 | `app/shim-sham/components/panels/` | Conditions, Inventory, Levels panels |
 | `app/shim-sham/actions.ts` | Server Actions: load, save, unlock |
-| `lib/shim-sham/sheet-service.ts` | Load/save orchestration |
-| `lib/shim-sham/apply-sheet-patch.ts` | Patch application logic |
-| `lib/shim-sham/static.ts` | Static data, default runtime, `buildCharacterSheet()` |
-| `lib/shim-sham/progression.ts` | Level 1–15 feats, class features, attribute boosts |
-| `lib/shim-sham/attributes.ts` | Attribute calculation (ancestry/background/class + level boosts) |
-| `lib/shim-sham/condition-effects.ts` | Condition math and runtime stat overrides |
-| `lib/shim-sham/conditions.ts` | Condition definitions with AoN URLs |
+| `lib/shim-sham/data/` | Static character content (progression, inventory, actions) |
+| `lib/shim-sham/rules/` | Stat computation, conditions, patches |
+| `lib/shim-sham/sheet/` | `buildCharacterSheet()`, view model, persistence |
 | `lib/kv.ts` | Upstash Redis load/save |
 
 ## Data sources
 
 | Source | Used for |
 |--------|----------|
-| [Level progression gist](https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530) | `lib/shim-sham/progression.ts` (feats, boosts) |
-| `lib/shim-sham/static.ts` | Actions, character identity, default runtime |
-| `lib/shim-sham/inventory.ts` | Equipment and consumables |
+| [Level progression gist](https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530) | `lib/shim-sham/data/progression.ts` (feats, boosts) |
+| `lib/shim-sham/sheet/static.ts` | Actions, character identity, default runtime |
+| `lib/shim-sham/data/inventory.ts` | Equipment and consumables |
 | [Combat playbook gist](https://gist.github.com/keesey/2c6a5bb30f1ccc30e4d4b7fe3e1c7e78) | Reference only (not in UI) |
 | Paper sheet (`Scoured Stars/character sheet.png`) | Reference only (not in repo) |
 
