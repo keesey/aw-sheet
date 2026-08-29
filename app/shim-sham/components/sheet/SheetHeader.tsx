@@ -4,9 +4,7 @@ import type { CharacterSheet } from "@/lib/types";
 import { encounterOffPatch } from "@/lib/shim-sham/rules/runtime-reset";
 import type { SaveFn } from "../../types";
 import { useRoll } from "../../context/RollContext";
-import { D20Icon } from "../icons/D20Icon";
-import { FeatherIcon } from "../icons/FeatherIcon";
-import { SleepingCatIcon } from "../icons/SleepingCatIcon";
+import { MaskIcon } from "../icons/MaskIcon";
 import { AonLink } from "../AonLink";
 
 export function SheetHeader({
@@ -78,7 +76,7 @@ export function SheetHeader({
             aria-label="Panache"
             disabled={!runtime.encounter}
           >
-            <FeatherIcon className="feather-icon" />
+            <MaskIcon className="feather-icon" />
           </button>
           <button
             type="button"
@@ -99,10 +97,10 @@ export function SheetHeader({
             onClick={() => openRoll("Flat check", 0)}
             aria-label="Roll flat d20 check"
           >
-            <D20Icon className="d20-icon" />
+            <MaskIcon className="d20-icon" />
           </button>
           <button type="button" className="btn btn-icon" onClick={onRest} aria-label="Rest">
-            <SleepingCatIcon className="sleeping-cat-icon" />
+            <MaskIcon className="sleeping-cat-icon" />
           </button>
         </div>
       </div>

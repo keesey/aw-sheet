@@ -7,7 +7,7 @@ import { statModClass } from "../../ui/format";
 import type { SaveFn } from "../../types";
 import { RollBonusButton } from "../RollBonusButton";
 import { AonLink } from "../AonLink";
-import { ClearIcon } from "../icons/ClearIcon";
+import { MaskIcon } from "../icons/MaskIcon";
 
 export function SkillsSection({
   skills,
@@ -67,7 +67,7 @@ export function SkillsSection({
               void save({ notes: "" });
             }}
           >
-            <ClearIcon className="clear-icon" />
+            <MaskIcon className="clear-icon" />
           </button>
         </div>
         <textarea

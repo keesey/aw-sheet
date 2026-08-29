@@ -5,10 +5,9 @@ import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-optio
 import type { SaveFn } from "../../types";
 import { ActionToggle } from "../ActionToggle";
 import { RollBonusButton } from "../RollBonusButton";
-import { GrenadeIcon } from "../icons/GrenadeIcon";
+import { MaskIcon } from "../icons/MaskIcon";
 import { PauseIcon } from "../icons/PauseIcon";
 import { PlayIcon } from "../icons/PlayIcon";
-import { RapierIcon } from "../icons/RapierIcon";
 
 function TakeCoverButtons({
   cover,
@@ -252,7 +251,7 @@ export function ActionControl({
               onClick={openStrikes}
               aria-label="Open strikes"
             >
-              <RapierIcon className="rapier-icon" />
+              <MaskIcon className="rapier-icon" />
             </button>
           </div>
         );
@@ -265,7 +264,7 @@ export function ActionControl({
           onClick={openStrikes}
           aria-label="Open strikes"
         >
-          <RapierIcon className="rapier-icon" />
+          <MaskIcon className="rapier-icon" />
         </button>
       );
     case "area-weapons":
@@ -277,7 +276,7 @@ export function ActionControl({
           onClick={onOpenAreaWeapons}
           aria-label="Open area weapons"
         >
-          <GrenadeIcon className="grenade-icon" />
+          <MaskIcon className="grenade-icon" />
         </button>
       );
     default: {
