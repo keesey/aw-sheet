@@ -137,7 +137,12 @@ function isActionHidden(
   if (action.id === "jetpack" && jetpack) return true;
   if (action.id === "dismiss-jetpack" && !jetpack) return true;
   if (action.id === "drop-prone" && getActiveCondition(conditions, "prone")) return true;
-  if (action.id === "stand" && !getActiveCondition(conditions, "prone")) return true;
+  if (
+    (action.id === "stand" || action.id === "kip-up") &&
+    !getActiveCondition(conditions, "prone")
+  ) {
+    return true;
+  }
   if (action.id === "step" && modifiedSpeed(PAHTRA_LAND_SPEED, speedDelta) < 10) return true;
   if (
     action.id === "crawl" &&
@@ -154,7 +159,7 @@ function isActionHidden(
   if (locks.disableAllActions && !recallWhileParalyzed) return true;
   if (locks.disableReaction && action.cost === "reaction") return true;
   const traits = action.traits ?? [];
-  if (locks.disableMove && traits.includes("Move") && action.id !== "crawl" && action.id !== "stand") return true;
+  if (locks.disableMove && traits.includes("Move") && action.id !== "crawl" && action.id !== "stand" && action.id !== "kip-up") return true;
   if (locks.disableAttack && (traits.includes("Attack") || traits.includes("Finisher")) && action.id !== "escape") {
     return true;
   }

@@ -19,6 +19,7 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
   "force-field":
     "Three times per day, activate your force field for 1 minute or until it is reduced to 0 Hit Points.",
   jetpack: "Gain a fly Speed of 20 feet for 1 minute or until you Dismiss the effect.",
+  "kip-up": "Stand up from prone. This movement doesn't trigger reactions.",
   "dismiss-jetpack": "End the jetpack fly Speed effect.",
   "area-fire-grenade":
     "Hit creatures in the area with a basic Reflex save against your class DC plus the weapon's tracking value.",

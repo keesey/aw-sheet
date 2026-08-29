@@ -17,6 +17,7 @@ export const DIRECT_PATCH_FIELDS = new Set<keyof RuntimeState>([
   "consumables",
   "batteries",
   "chemTankCharges",
+  "breachingGunMagazine",
   "adHocItems",
   "notes",
   "currentHp",

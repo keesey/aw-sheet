@@ -141,6 +141,21 @@ const SHIM_SHAM_STRIKES: readonly StrikeDefinition[] = [
     url: `${AON}/actions/15-strike`,
     weaponUrl: `${AON}/equipment/weapons/48-zero-pistol`,
   },
+  {
+    id: "breaching-gun",
+    name: "Breaching Gun (Advanced)",
+    category: "martial",
+    weaponGroup: "projectile",
+    ranged: true,
+    tracking: 1,
+    rangeIncrement: 15,
+    dice: "2d10",
+    damageType: "P",
+    expend: 1,
+    traits: ["Projectile", "Analog", "Concussive", "Kickback", "Ranged Shove", "Razing"],
+    url: `${AON}/actions/15-strike`,
+    weaponUrl: `${AON}/equipment/weapons/52-breaching-gun`,
+  },
 ];
 
 function signed(value: number): string {
@@ -246,6 +261,23 @@ function parseCritDice(critNote?: string): string | undefined {
   return match?.[1];
 }
 
+function traitMatches(traits: string[], trait: string): boolean {
+  const key = trait.toLowerCase();
+  return traits.some((entry) => {
+    const lower = entry.toLowerCase();
+    return lower === key || lower.startsWith(`${key} `);
+  });
+}
+
+/** Kickback: +1 damage; −2 attack unless effective Strength ≥ +2. @see https://2e.aonsrd.com/traits/104-kickback */
+export function kickbackAttackPenalty(effectiveStrMod: number): number {
+  return effectiveStrMod >= 2 ? 0 : -2;
+}
+
+export function kickbackDamageBonus(traits: string[]): number {
+  return traitMatches(traits, "kickback") ? 1 : 0;
+}
+
 function buildDamageProfile(
   strike: StrikeDefinition,
   snapshot: ProgressionSnapshot,
@@ -253,7 +285,10 @@ function buildDamageProfile(
   strDamageDelta: number,
 ): StrikeDamageProfile {
   const strength = strike.ranged ? 0 : snapshot.attributes.STR + strDamageDelta;
-  const flatBonus = strength + weaponSpecializationDamage(snapshot.level, rank);
+  const flatBonus =
+    strength +
+    weaponSpecializationDamage(snapshot.level, rank) +
+    kickbackDamageBonus(strike.traits);
   return {
     weaponDice: strike.dice,
     flatBonus,
@@ -289,7 +324,10 @@ function formatDamage(
   strDamageDelta = 0,
 ): string {
   const strength = strike.ranged ? 0 : snapshot.attributes.STR + strDamageDelta;
-  const bonus = strength + weaponSpecializationDamage(snapshot.level, rank);
+  const bonus =
+    strength +
+    weaponSpecializationDamage(snapshot.level, rank) +
+    kickbackDamageBonus(strike.traits);
   let text = strike.dice;
   if (bonus !== 0) text += signed(bonus);
   text += ` ${strike.damageType}`;
@@ -316,7 +354,11 @@ export function buildWeaponStrikes(
   const attackDelta = extras.attackDelta ?? (() => 0);
   const strDamageDelta = extras.strDamageDelta ?? 0;
   return SHIM_SHAM_STRIKES.map((strike) => {
-    const first = attackBonus(strike, snapshot, rank) + attackDelta(strike);
+    const kickback =
+      traitMatches(strike.traits, "kickback")
+        ? kickbackAttackPenalty(snapshot.attributes.STR)
+        : 0;
+    const first = attackBonus(strike, snapshot, rank) + attackDelta(strike) + kickback;
     const agile = strike.agile === true;
     const mapAttacks = mapAttackValues(first, agile);
     const critSpecialization = hasCriticalSpecialization(rank)
@@ -336,14 +378,6 @@ export function buildWeaponStrikes(
     ranged: strike.ranged,
     rangeIncrement: strike.rangeIncrement,
   };
-  });
-}
-
-function traitMatches(traits: string[], trait: string): boolean {
-  const key = trait.toLowerCase();
-  return traits.some((entry) => {
-    const lower = entry.toLowerCase();
-    return lower === key || lower.startsWith(`${key} `);
   });
 }
 

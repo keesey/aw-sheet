@@ -6,6 +6,7 @@ import { compareByName } from "@/lib/shim-sham/sort";
 export const SHIM_SHAM_AMMUNITION = {
   battery: { bulk: "—" },
   chemTank: { bulk: "—" },
+  breachingGun: { bulk: "—", magazineMax: 3 },
 } as const;
 
 export const SHIM_SHAM_INVENTORY: InventoryItem[] = [
@@ -65,6 +66,14 @@ export const SHIM_SHAM_INVENTORY: InventoryItem[] = [
     bulk: "L",
     url: `${AON}/equipment/weapons/48-zero-pistol`,
     traits: ["Tech"],
+    equipmentGroup: "weapon",
+  },
+  {
+    id: "breaching-gun-item",
+    name: "Breaching Gun (Advanced)",
+    bulk: "1",
+    url: `${AON}/equipment/weapons/52-breaching-gun`,
+    traits: ["Analog", "Concussive", "Kickback", "Ranged Shove", "Razing"],
     equipmentGroup: "weapon",
   },
   {

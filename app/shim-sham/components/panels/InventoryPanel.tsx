@@ -190,6 +190,46 @@ export function InventoryPanel({
           </button>
         </div>
       </div>
+      <div className="inventory-item inventory-item--controls">
+        <div className="inventory-item__details">
+          <AonLink href={aonAmmunition("1-projectile-ammo")}>
+            Projectile Ammo
+          </AonLink>
+        </div>
+        <span className="inventory-item__bulk">
+          {formatBulkLabel(SHIM_SHAM_AMMUNITION.breachingGun.bulk)}
+        </span>
+        <div className="inventory-item__controls">
+          <button
+            type="button"
+            className="btn btn-icon"
+            onClick={() =>
+              void save((runtime) => ({
+                breachingGunMagazine: Math.max(0, runtime.breachingGunMagazine - 1),
+              }))
+            }
+          >
+            −
+          </button>
+          <span className="inventory-item__qty">
+            {runtime.breachingGunMagazine}/{SHIM_SHAM_AMMUNITION.breachingGun.magazineMax}
+          </span>
+          <button
+            type="button"
+            className="btn btn-icon"
+            onClick={() =>
+              void save((runtime) => ({
+                breachingGunMagazine: Math.min(
+                  SHIM_SHAM_AMMUNITION.breachingGun.magazineMax,
+                  runtime.breachingGunMagazine + 1,
+                ),
+              }))
+            }
+          >
+            +
+          </button>
+        </div>
+      </div>
     </>
   );
 

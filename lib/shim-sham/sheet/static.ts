@@ -1,5 +1,5 @@
 import type { CharacterSheet, RuntimeState } from "@/lib/types";
-import { buildShimShamActions } from "@/lib/shim-sham/data/actions-data";
+import { buildShimShamActions, KIP_UP_MIN_LEVEL } from "@/lib/shim-sham/data/actions-data";
 import { AON, AONP } from "@/lib/shim-sham/aon";
 import { formatSigned } from "@/lib/format-signed";
 import { requireLevelSnapshot } from "@/lib/shim-sham/data/progression";
@@ -7,6 +7,7 @@ import { normalizeConditions } from "@/lib/shim-sham/rules/conditions";
 import { normalizeAdHocItems, syncEncumberedFromBulk } from "@/lib/shim-sham/data/bulk";
 import {
   inventoryTotalBulk,
+  SHIM_SHAM_AMMUNITION,
   SHIM_SHAM_CONSUMABLES,
   SHIM_SHAM_INVENTORY,
 } from "@/lib/shim-sham/data/inventory";
@@ -64,6 +65,7 @@ export function createDefaultRuntime(level = 1): RuntimeState {
       { id: "battery-2", charges: 10, max: 10 },
     ],
     chemTankCharges: 8,
+    breachingGunMagazine: SHIM_SHAM_AMMUNITION.breachingGun.magazineMax,
     notes: "",
     adHocItems: [],
   };
@@ -98,6 +100,13 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     delayed: runtime.delayed ?? false,
     forceFieldActive,
     forceFieldHp,
+    breachingGunMagazine: Math.min(
+      SHIM_SHAM_AMMUNITION.breachingGun.magazineMax,
+      Math.max(
+        0,
+        runtime.breachingGunMagazine ?? SHIM_SHAM_AMMUNITION.breachingGun.magazineMax,
+      ),
+    ),
     adHocItems: normalizeAdHocItems(runtime.adHocItems),
     conditions,
   };
@@ -183,7 +192,11 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       },
       skills: allSkills.filter((skill) => skill.proficiency !== "U"),
       weapons,
-      actions: allActions.filter((action) => level.level >= (action.minLevel ?? 1)),
+      actions: allActions.filter((action) => {
+        if (level.level < (action.minLevel ?? 1)) return false;
+        if (action.id === "stand" && level.level >= KIP_UP_MIN_LEVEL) return false;
+        return true;
+      }),
       inventory: SHIM_SHAM_INVENTORY,
       consumableCatalog: SHIM_SHAM_CONSUMABLES,
       planUrl: "https://gist.github.com/keesey/7ae2c20287b0555a44d3f910eecb4530",

@@ -153,6 +153,11 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   const chemTankCharges = parseNumber(body.chemTankCharges);
   if (chemTankCharges !== undefined) patch.chemTankCharges = Math.floor(chemTankCharges);
 
+  const breachingGunMagazine = parseNumber(body.breachingGunMagazine);
+  if (breachingGunMagazine !== undefined) {
+    patch.breachingGunMagazine = Math.floor(breachingGunMagazine);
+  }
+
   const credits = parseNumber(body.credits);
   if (credits !== undefined) patch.credits = Math.floor(credits);
 

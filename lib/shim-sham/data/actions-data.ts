@@ -2,6 +2,9 @@ import type { CharacterAction } from "@/lib/types";
 import { actionDescription } from "@/lib/shim-sham/data/action-descriptions";
 import { AON, AONP } from "@/lib/shim-sham/aon";
 
+/** Level at which Shim Sham gains Kip Up; Stand is hidden from this level on. */
+export const KIP_UP_MIN_LEVEL = 7;
+
 export type ShimShamActionContext = {
   skillBonus: (name: string) => string;
   attackMapBonus: (bonus: string) => string;
@@ -73,6 +76,15 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Fortune"],
           url: `${AON}/ancestries/12-pahtra/heritages/52-meyels-chosen-pahtra`,
           control: "meyel-reroll",
+        },
+        {
+          id: "kip-up",
+          name: "Kip Up",
+          cost: "free",
+          description: actionDescription("kip-up"),
+          url: `${AON}/feats/824-kip-up`,
+          control: "stand",
+          minLevel: KIP_UP_MIN_LEVEL,
         },
         {
           id: "aid",

@@ -160,6 +160,8 @@ export type RuntimeState = {
   consumables: Record<string, number>;
   batteries: { id: string; charges: number; max: number }[];
   chemTankCharges: number;
+  /** Loaded projectiles in the breaching gun magazine (max 3). */
+  breachingGunMagazine: number;
   notes: string;
   adHocItems: AdHocInventoryItem[];
 };
