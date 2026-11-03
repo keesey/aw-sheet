@@ -30,9 +30,9 @@ import {
   formatStylishCombatantBonus,
 } from "@/lib/shim-sham/rules/stylish-combatant";
 
-export const FORCE_FIELD_MAX_HP = 6;
+export const FORCE_FIELD_MAX_HP = 14;
 export const FORCE_FIELD_DAILY_USES = 3;
-export const FORCE_FIELD_REGEN_PER_TURN = 2;
+export const FORCE_FIELD_REGEN_PER_TURN = 3;
 
 export function createDefaultRuntime(level = 1): RuntimeState {
   const snapshot = requireLevelSnapshot(level);

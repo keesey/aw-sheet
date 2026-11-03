@@ -1,7 +1,7 @@
 import type { Consumable, InventoryItem, RuntimeState } from "@/lib/types";
 import { normalizeAdHocItems, totalBulk } from "@/lib/shim-sham/data/bulk";
 
-import { AON } from "@/lib/shim-sham/aon";
+import { AON, AONP } from "@/lib/shim-sham/aon";
 import { compareByName } from "@/lib/shim-sham/sort";
 export const SHIM_SHAM_AMMUNITION = {
   battery: { bulk: "—" },
@@ -29,9 +29,9 @@ export const SHIM_SHAM_INVENTORY: InventoryItem[] = [
   },
   {
     id: "force-field",
-    name: "Force Field",
+    name: "Force Field (Tactical)",
     bulk: "—",
-    url: `${AON}/treasure/57`,
+    url: `${AON}/treasure/57-force-field`,
     traits: ["Tech"],
     equipmentGroup: "armor",
     indented: true,
@@ -77,6 +77,32 @@ export const SHIM_SHAM_INVENTORY: InventoryItem[] = [
     equipmentGroup: "weapon",
   },
   {
+    id: "bipod-breaching-gun",
+    name: "Bipod (Tactical)",
+    bulk: "1",
+    url: `${AON}/treasure/65-bipod`,
+    traits: ["Tech"],
+    equipmentGroup: "weapon",
+    indented: true,
+  },
+  {
+    id: "crossbolter-item",
+    name: "Crossbolter (Advanced)",
+    bulk: "2",
+    url: `${AON}/equipment/weapons/39-crossbolter`,
+    traits: ["Analog"],
+    equipmentGroup: "weapon",
+  },
+  {
+    id: "reinforced-stock",
+    name: "Reinforced Stock (Advanced)",
+    bulk: "L",
+    url: `${AONP}/Weapons.aspx?ID=187`,
+    traits: ["Analog", "Attached", "Finesse"],
+    equipmentGroup: "weapon",
+    indented: true,
+  },
+  {
     id: "battle-ribbon-item",
     name: "Battle Ribbon",
     bulk: "L",
@@ -89,6 +115,14 @@ export const SHIM_SHAM_INVENTORY: InventoryItem[] = [
     name: "Infiltrator's Toolkit",
     bulk: "L",
     url: `${AON}/treasure/20`,
+    equipmentGroup: "other",
+  },
+  {
+    id: "wayfinder",
+    name: "Wayfinder",
+    bulk: "—",
+    url: `${AONP}/Equipment.aspx?ID=3117`,
+    traits: ["Invested", "Magical"],
     equipmentGroup: "other",
   },
   {
@@ -111,14 +145,14 @@ export const SHIM_SHAM_CONSUMABLES: Consumable[] = [
     id: "medpatch-tactical",
     name: "Medpatch (Tactical)",
     url: `${AON}/treasure/35-medpatch`,
-    quantity: 1,
+    quantity: 8,
     bulk: "L",
   },
   {
     id: "medpatch-commercial",
     name: "Medpatch (Commercial)",
     url: `${AON}/treasure/35-medpatch`,
-    quantity: 3,
+    quantity: 8,
     bulk: "L",
   },
   {

@@ -17,7 +17,13 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
   "arrest-a-fall":
     "When you fall, attempt an Acrobatics check or Reflex save (DC typically 15) to take no damage.",
   "force-field":
-    "Three times per day, activate your force field for 1 minute or until it is reduced to 0 Hit Points.",
+    "Three times per day, activate your tactical force field (14 temp HP, regen 3/turn, deadly-blow flat check DC 20) for 1 minute or until it is reduced to 0 Hit Points.",
+  "wayfinder-light":
+    "Cast light on the wayfinder (1st-rank light spell).",
+  "bipod-retrieve":
+    "Retrieve the tactical bipod on your breaching gun as a free action (deploy still uses Interact).",
+  "bipod-deploy":
+    "Set up the tactical bipod in your square with a single Interact action; ignore kickback attack penalty while it is deployed.",
   jetpack: "Gain a fly Speed of 20 feet for 1 minute or until you Dismiss the effect.",
   "kip-up": "Stand up from prone. This movement doesn't trigger reactions.",
   "dismiss-jetpack": "End the jetpack fly Speed effect.",

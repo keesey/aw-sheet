@@ -28,7 +28,7 @@ const TEMPWEAVE_ADVANCED: WornArmor = {
   acBonus: 2,
   dexCap: 4,
   resilient: 1,
-  notes: "Resilient +1, Jetpack, Force Field",
+  notes: "Resilient +1, Jetpack, Force Field (Tactical)",
 };
 
 /** Worn armor from this character level onward. */

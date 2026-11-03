@@ -2,6 +2,7 @@ import type { CharacterSheet } from "@/lib/types";
 import {
   FORCE_FIELD_DAILY_USES,
   FORCE_FIELD_MAX_HP,
+  FORCE_FIELD_REGEN_PER_TURN,
 } from "@/lib/shim-sham/sheet/static";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
@@ -80,7 +81,10 @@ export function HpBlock({
       <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span className="stat-label">
-            <AonLink href="https://2e.aonsrd.com/treasure/57">Force Field</AonLink> Temp HP
+            <AonLink href="https://2e.aonsrd.com/treasure/57-force-field">
+              Force Field (Tactical)
+            </AonLink>{" "}
+            Temp HP
           </span>
           <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
             {runtime.forceFieldUsesUsed}/{FORCE_FIELD_DAILY_USES} raises used
@@ -105,7 +109,7 @@ export function HpBlock({
               runtime.forceFieldHp >= FORCE_FIELD_MAX_HP
             }
           >
-            +2 (turn)
+            +{FORCE_FIELD_REGEN_PER_TURN} (turn)
           </button>
         </div>
       </div>
