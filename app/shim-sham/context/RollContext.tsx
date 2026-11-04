@@ -8,6 +8,7 @@ import { rollStrikeAttack } from "@/lib/shim-sham/rules/strike-roll";
 import { RollResultModal } from "../components/panels/RollResultModal";
 
 type StrikeRollRequest = {
+  strikeId: string;
   label: string;
   bonus: number;
   mapIndex: number;
@@ -31,6 +32,7 @@ function executeRoll(request: RollRequest): RollResult {
     return rollCheck(request.label, request.bonus, { endsCover: request.endsCover });
   }
   return rollStrikeAttack(
+    request.strikeId,
     request.label,
     request.bonus,
     request.mapIndex,
@@ -80,10 +82,8 @@ export function RollProvider({
 
   const reroll = useCallback(() => {
     if (!requestRef.current) return;
-    const next = executeRoll(requestRef.current);
-    setResult(next);
-    onRollResult?.(next);
-  }, [onRollResult]);
+    setResult(executeRoll(requestRef.current));
+  }, []);
 
   return (
     <RollContext.Provider value={{ openRoll, openStrikeRoll }}>

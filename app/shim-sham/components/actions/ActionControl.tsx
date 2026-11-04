@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { getActiveCondition, removeCondition } from "@/lib/shim-sham/rules/conditions";
 import type { CharacterAction, CoverLevel, RuntimeState } from "@/lib/types";
 import { formatSignedBonus } from "@/lib/shim-sham/rules/skills";
@@ -8,6 +9,40 @@ import { RollBonusButton } from "../RollBonusButton";
 import { MaskIcon } from "../icons/MaskIcon";
 import { PauseIcon } from "../icons/PauseIcon";
 import { PlayIcon } from "../icons/PlayIcon";
+import { ReloadWeaponModal } from "../panels/ReloadWeaponModal";
+
+function ReloadActionControl({
+  runtime,
+  disabled,
+  save,
+}: {
+  runtime: RuntimeState;
+  disabled: boolean;
+  save: SaveFn;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="btn action-reload__open"
+        disabled={disabled}
+        onClick={() => setOpen(true)}
+      >
+        Choose weapon…
+      </button>
+      {open ? (
+        <ReloadWeaponModal
+          runtime={runtime}
+          disabled={disabled}
+          save={save}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
 
 function TakeCoverButtons({
   cover,
@@ -279,6 +314,8 @@ export function ActionControl({
           <MaskIcon className="grenade-icon" />
         </button>
       );
+    case "reload":
+      return <ReloadActionControl runtime={runtime} disabled={disabled} save={save} />;
     default: {
       const _exhaustive: never = action.control;
       return _exhaustive;

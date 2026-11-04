@@ -9,6 +9,7 @@ import {
   stylishCombatantApplies,
   stylishCombatantBonus,
 } from "@/lib/shim-sham/rules/stylish-combatant";
+import { canReloadAnyProjectileMagazine } from "@/lib/shim-sham/rules/projectile-ammo";
 import { parseMapAttackValues, parseRollBonusString } from "@/lib/shim-sham/sheet/roll";
 import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-options";
 import type { SaveFn } from "../../types";
@@ -116,6 +117,7 @@ function isActionHidden(
   speedDelta = 0,
   delayed = false,
   encounter = false,
+  runtime?: RuntimeState,
 ) {
   if (delayed) {
     return action.id !== "return-to-initiative";
@@ -154,6 +156,12 @@ function isActionHidden(
   if (action.id === "retch" && !getActiveCondition(conditions, "sickened")) return true;
   if (PANACHE_ACTION_IDS.has(action.id) && !panache) return true;
   if (action.id === "meyel-reroll" && meyelRerollUsed) return true;
+  if (
+    action.id === "reload" &&
+    (!runtime || !canReloadAnyProjectileMagazine(runtime))
+  ) {
+    return true;
+  }
   const recallWhileParalyzed =
     action.id === "recall-knowledge" && getActiveCondition(conditions, "paralyzed") != null;
   if (locks.disableAllActions && !recallWhileParalyzed) return true;
@@ -213,6 +221,7 @@ export function ActionRow({
     speedDelta,
     runtime?.delayed,
     encounter,
+    runtime,
   )) {
     return null;
   }

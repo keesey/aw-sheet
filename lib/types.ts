@@ -80,7 +80,8 @@ export type CharacterAction = {
     | "delay"
     | "return-to-initiative"
     | "strikes"
-    | "area-weapons";
+    | "area-weapons"
+    | "reload";
 };
 
 export type Consumable = {
@@ -160,8 +161,10 @@ export type RuntimeState = {
   consumables: Record<string, number>;
   batteries: { id: string; charges: number; max: number }[];
   chemTankCharges: number;
-  /** Loaded projectiles in the breaching gun magazine (max 3). */
+  /** Spare projectile rounds (not loaded in a weapon magazine). */
+  projectileRounds: number;
   breachingGunMagazine: number;
+  crossbolterMagazine: number;
   notes: string;
   adHocItems: AdHocInventoryItem[];
 };

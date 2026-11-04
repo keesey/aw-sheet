@@ -317,6 +317,15 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           url: `${AON}/actions/6-interact`,
         },
         {
+          id: "reload",
+          name: "Reload",
+          cost: "single",
+          description: actionDescription("reload"),
+          traits: ["Manipulate"],
+          url: `${AON}/actions/6-interact`,
+          control: "reload",
+        },
+        {
           id: "leading-dance",
           name: "Leading Dance",
           cost: "single",

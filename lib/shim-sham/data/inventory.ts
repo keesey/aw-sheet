@@ -7,6 +7,8 @@ export const SHIM_SHAM_AMMUNITION = {
   battery: { bulk: "—" },
   chemTank: { bulk: "—" },
   breachingGun: { bulk: "—", magazineMax: 3 },
+  crossbolter: { bulk: "—", magazineMax: 1 },
+  projectile: { bulk: "—" },
 } as const;
 
 export const SHIM_SHAM_INVENTORY: InventoryItem[] = [

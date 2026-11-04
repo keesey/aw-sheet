@@ -23,6 +23,7 @@ export function MapRollButtons({
   className?: string;
   combatBonus?: number;
   strikeRoll?: {
+    strikeId: string;
     damage: StrikeDamageProfile;
     damageMode: StrikeDamageMode;
   };
@@ -52,6 +53,7 @@ export function MapRollButtons({
                 strikeRoll
                   ? () =>
                       openStrikeRoll({
+                        strikeId: strikeRoll.strikeId,
                         label: rollLabel,
                         bonus,
                         mapIndex: index,

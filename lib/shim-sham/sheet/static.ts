@@ -34,6 +34,48 @@ export const FORCE_FIELD_MAX_HP = 14;
 export const FORCE_FIELD_DAILY_USES = 3;
 export const FORCE_FIELD_REGEN_PER_TURN = 3;
 
+function normalizeProjectileAmmo(runtime: RuntimeState): Pick<
+  RuntimeState,
+  "projectileRounds" | "breachingGunMagazine" | "crossbolterMagazine"
+> {
+  const maxBreach = SHIM_SHAM_AMMUNITION.breachingGun.magazineMax;
+  const maxCross = SHIM_SHAM_AMMUNITION.crossbolter.magazineMax;
+  const legacy = runtime as RuntimeState & {
+    breachingGunMagazine?: number;
+    crossbolterMagazine?: number;
+  };
+
+  let spare = Math.max(
+    0,
+    Math.floor(
+      typeof runtime.projectileRounds === "number" && !Number.isNaN(runtime.projectileRounds)
+        ? runtime.projectileRounds
+        : 99,
+    ),
+  );
+  let breachingGunMagazine = Math.min(
+    maxBreach,
+    Math.max(0, Math.floor(legacy.breachingGunMagazine ?? maxBreach)),
+  );
+  let crossbolterMagazine = Math.min(
+    maxCross,
+    Math.max(0, Math.floor(legacy.crossbolterMagazine ?? 1)),
+  );
+
+  // Legacy: 103 spare rounds with no magazine fields → 99 spare + 3 + 1 loaded.
+  if (
+    legacy.breachingGunMagazine === undefined &&
+    legacy.crossbolterMagazine === undefined &&
+    spare === 103
+  ) {
+    spare = 99;
+    breachingGunMagazine = maxBreach;
+    crossbolterMagazine = 1;
+  }
+
+  return { projectileRounds: spare, breachingGunMagazine, crossbolterMagazine };
+}
+
 export function createDefaultRuntime(level = 1): RuntimeState {
   const snapshot = requireLevelSnapshot(level);
   return {
@@ -65,7 +107,9 @@ export function createDefaultRuntime(level = 1): RuntimeState {
       { id: "battery-2", charges: 10, max: 10 },
     ],
     chemTankCharges: 8,
+    projectileRounds: 99,
     breachingGunMagazine: SHIM_SHAM_AMMUNITION.breachingGun.magazineMax,
+    crossbolterMagazine: 1,
     notes: "",
     adHocItems: [],
   };
@@ -100,13 +144,7 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     delayed: runtime.delayed ?? false,
     forceFieldActive,
     forceFieldHp,
-    breachingGunMagazine: Math.min(
-      SHIM_SHAM_AMMUNITION.breachingGun.magazineMax,
-      Math.max(
-        0,
-        runtime.breachingGunMagazine ?? SHIM_SHAM_AMMUNITION.breachingGun.magazineMax,
-      ),
-    ),
+    ...normalizeProjectileAmmo(runtime),
     adHocItems: normalizeAdHocItems(runtime.adHocItems),
     conditions,
   };

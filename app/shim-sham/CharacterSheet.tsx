@@ -10,6 +10,7 @@ import { useSheetSave } from "./hooks/useSheetSave";
 import { RollProvider } from "./context/RollContext";
 import { UnlockGate } from "./components/UnlockGate";
 import { formatRollSummary, type RollResult } from "@/lib/shim-sham/sheet/roll";
+import { projectileMagazineKey } from "@/lib/shim-sham/rules/projectile-ammo";
 import { appendSessionLogLine } from "@/lib/shim-sham/sheet/session-log";
 import {
   DEFAULT_STRIKES_OPEN,
@@ -65,9 +66,15 @@ export default function CharacterSheet() {
       if (result.kind === "strike" && result.damageMode === "finisher") {
         body.panache = false;
       }
+      if (result.kind === "strike" && vm) {
+        const magazineKey = projectileMagazineKey(result.strikeId);
+        if (magazineKey) {
+          body[magazineKey] = Math.max(0, vm.runtime[magazineKey] - 1);
+        }
+      }
       void saveSheet(body);
     },
-    [notesDraftRef, runtimeNotesRef, saveSheet, setNotesDraft],
+    [notesDraftRef, runtimeNotesRef, saveSheet, setNotesDraft, vm],
   );
 
   const applyHpDelta = useCallback(

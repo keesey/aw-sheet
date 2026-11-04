@@ -153,9 +153,19 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   const chemTankCharges = parseNumber(body.chemTankCharges);
   if (chemTankCharges !== undefined) patch.chemTankCharges = Math.floor(chemTankCharges);
 
+  const projectileRounds = parseNumber(body.projectileRounds);
+  if (projectileRounds !== undefined) {
+    patch.projectileRounds = Math.max(0, Math.floor(projectileRounds));
+  }
+
   const breachingGunMagazine = parseNumber(body.breachingGunMagazine);
   if (breachingGunMagazine !== undefined) {
-    patch.breachingGunMagazine = Math.floor(breachingGunMagazine);
+    patch.breachingGunMagazine = Math.max(0, Math.floor(breachingGunMagazine));
+  }
+
+  const crossbolterMagazine = parseNumber(body.crossbolterMagazine);
+  if (crossbolterMagazine !== undefined) {
+    patch.crossbolterMagazine = Math.max(0, Math.floor(crossbolterMagazine));
   }
 
   const credits = parseNumber(body.credits);

@@ -83,7 +83,7 @@ export function StrikesSection({
             values={w.mapAttacks}
             className={statModClass(attackDelta) ?? undefined}
             rangePenalty={rangePenalty}
-            strikeRoll={{ damage: w.damageProfile, damageMode }}
+            strikeRoll={{ strikeId: w.id, damage: w.damageProfile, damageMode }}
           />
         </div>
         <div className="strike-damage-row">

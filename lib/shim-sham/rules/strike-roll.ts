@@ -4,6 +4,7 @@ import { rollD20, rollDiceNotation, type DamageRollLine } from "@/lib/shim-sham/
 
 export type StrikeRollResult = {
   kind: "strike";
+  strikeId: string;
   label: string;
   mapIndex: number;
   d20: number;
@@ -92,6 +93,7 @@ function appendDeadlyOnCrit(lines: DamageRollLine[], critDice?: string): DamageR
 }
 
 export function rollStrikeAttack(
+  strikeId: string,
   label: string,
   bonus: number,
   mapIndex: number,
@@ -114,6 +116,7 @@ export function rollStrikeAttack(
 
   return {
     kind: "strike",
+    strikeId,
     label,
     mapIndex,
     d20,

@@ -55,6 +55,8 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Stride at least 10 feet, then attempt an Athletics check (typically DC 15) to Leap horizontally.",
   interact:
     "Use your hands to manipulate an object or the terrain, such as drawing a weapon or opening a door.",
+  reload:
+    "Refill the selected weapon's magazine from your spare projectile ammo (up to magazine capacity).",
   "grab-an-edge":
     "When you fall past an edge, attempt an Acrobatics check or Reflex save to grab it and stop your fall.",
   "leading-dance": "Attempt a Performance check against an adjacent enemy's Will DC.",
