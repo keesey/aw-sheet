@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_CLOUD_STORAGE,
+  filterWeaponStrikesByCloudStorage,
+  isWeaponStrikeInCloudStorage,
   normalizeCloudStorage,
 } from "@/lib/shim-sham/data/cloud-storage";
+import { buildWeaponStrikes } from "@/lib/shim-sham/rules/strikes";
+import { requireLevelSnapshot } from "@/lib/shim-sham/data/progression";
 import {
   inventoryCloudStorageBulk,
   inventoryTotalBulk,
@@ -33,6 +37,19 @@ describe("cloud storage bulk", () => {
         cloudStorage: DEFAULT_CLOUD_STORAGE,
       }),
     ).toBe(3);
+  });
+
+  it("hides stowed weapon strikes from strike lists", () => {
+    const runtime = createDefaultRuntime(8);
+    const level = requireLevelSnapshot(8);
+    const all = buildWeaponStrikes(level);
+    const stowedRuntime = { ...runtime, cloudStorage: DEFAULT_CLOUD_STORAGE };
+    expect(isWeaponStrikeInCloudStorage(stowedRuntime, SHIM_SHAM_CONSUMABLES, "breaching-gun")).toBe(
+      true,
+    );
+    const available = filterWeaponStrikesByCloudStorage(all, stowedRuntime, SHIM_SHAM_CONSUMABLES);
+    expect(available.some((w) => w.id === "breaching-gun")).toBe(false);
+    expect(available.some((w) => w.id === "rapier")).toBe(true);
   });
 
   it("clamps stowed consumables when used increases", () => {

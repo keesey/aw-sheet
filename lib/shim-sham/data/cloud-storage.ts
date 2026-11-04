@@ -1,4 +1,4 @@
-import type { CloudStorageState, Consumable, RuntimeState } from "@/lib/types";
+import type { CloudStorageState, Consumable, RuntimeState, WeaponStrike } from "@/lib/types";
 
 export const CLOUD_STORAGE_PARTNER = "UV Nova";
 /** Level of the character who has Cloud Storage (capacity is based on their level). */
@@ -13,9 +13,21 @@ export function cloudStorageCapacity(bondMemberLevel: number): number {
   return 12;
 }
 
-/** Strike id → inventory item id when the weapon can be stowed. */
+/** Strike id → inventory item id (items not listed are always available, e.g. unarmed). */
 export const STRIKE_INVENTORY_ITEM: Record<string, string> = {
+  baton: "baton-item",
+  "battle-ribbon": "battle-ribbon-item",
+  rapier: "rapier-item",
+  tailblade: "tailblade-item",
+  "zero-pistol": "zero-pistol-item",
   "breaching-gun": "breaching-gun-item",
+  crossbolter: "crossbolter-item",
+  "reinforced-stock": "reinforced-stock",
+};
+
+/** Attached strikes unavailable when the parent item is stowed. */
+const STRIKE_CLOUD_PARENT: Record<string, string> = {
+  "reinforced-stock": "crossbolter-item",
 };
 
 /** Keep in sync with `SHIM_SHAM_INVENTORY` ids (avoid importing inventory — circular deps). */
@@ -109,12 +121,34 @@ export function adjustStowedConsumable(
   };
 }
 
+export function isWeaponStrikeInCloudStorage(
+  runtime: Pick<RuntimeState, "cloudStorage" | "consumables">,
+  consumableCatalog: Consumable[],
+  strikeId: string,
+): boolean {
+  const cloud = normalizeCloudStorage(runtime, consumableCatalog);
+  const itemId = STRIKE_INVENTORY_ITEM[strikeId];
+  const parentId = STRIKE_CLOUD_PARENT[strikeId];
+  if (parentId && isEquipmentInCloudStorage(cloud, parentId)) return true;
+  if (!itemId) return false;
+  return isEquipmentInCloudStorage(cloud, itemId);
+}
+
+export function filterWeaponStrikesByCloudStorage(
+  weapons: WeaponStrike[],
+  runtime: Pick<RuntimeState, "cloudStorage" | "consumables">,
+  consumableCatalog: Consumable[],
+): WeaponStrike[] {
+  return weapons.filter(
+    (weapon) => !isWeaponStrikeInCloudStorage(runtime, consumableCatalog, weapon.id),
+  );
+}
+
 export function isBreachingGunInCloudStorage(
   runtime: Pick<RuntimeState, "cloudStorage" | "consumables">,
   consumableCatalog: Consumable[],
 ): boolean {
-  const cloud = normalizeCloudStorage(runtime, consumableCatalog);
-  return isEquipmentInCloudStorage(cloud, "breaching-gun-item");
+  return isWeaponStrikeInCloudStorage(runtime, consumableCatalog, "breaching-gun");
 }
 
 export function isBipodUnavailableInCloudStorage(

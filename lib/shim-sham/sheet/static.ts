@@ -13,10 +13,9 @@ import {
 } from "@/lib/shim-sham/data/inventory";
 import {
   DEFAULT_CLOUD_STORAGE,
+  filterWeaponStrikesByCloudStorage,
   isBipodUnavailableInCloudStorage,
-  isBreachingGunInCloudStorage,
   normalizeCloudStorage,
-  STRIKE_INVENTORY_ITEM,
 } from "@/lib/shim-sham/data/cloud-storage";
 import { getWornArmor } from "@/lib/shim-sham/rules/armor";
 import { perception } from "@/lib/shim-sham/rules/perception";
@@ -188,13 +187,13 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
     acrobaticsSkill.proficiency,
     effectiveLevel.level,
   );
-  const weapons = buildWeaponStrikes(effectiveLevel, {
-    attackDelta: (strike) => attackDeltaForStrike(effects, strike),
-  }).filter((strike) => {
-    const itemId = STRIKE_INVENTORY_ITEM[strike.id];
-    if (!itemId) return true;
-    return !isBreachingGunInCloudStorage(normalizedRuntime, SHIM_SHAM_CONSUMABLES);
-  });
+  const weapons = filterWeaponStrikesByCloudStorage(
+    buildWeaponStrikes(effectiveLevel, {
+      attackDelta: (strike) => attackDeltaForStrike(effects, strike),
+    }),
+    normalizedRuntime,
+    SHIM_SHAM_CONSUMABLES,
+  );
   const armor = getWornArmor(level.level);
   const stylishBonus = formatStylishCombatantBonus(level.level);
   const perceptionBonus = formatSigned(
