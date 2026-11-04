@@ -10,6 +10,8 @@ import { useSheetSave } from "./hooks/useSheetSave";
 import { RollProvider } from "./context/RollContext";
 import { UnlockGate } from "./components/UnlockGate";
 import { formatRollSummary, type RollResult } from "@/lib/shim-sham/sheet/roll";
+import { SHIM_SHAM_CONSUMABLES } from "@/lib/shim-sham/data/inventory";
+import { drawWeaponStrikePatch } from "@/lib/shim-sham/data/weapon-carry";
 import { projectileMagazineKey } from "@/lib/shim-sham/rules/projectile-ammo";
 import { appendSessionLogLine } from "@/lib/shim-sham/sheet/session-log";
 import {
@@ -71,10 +73,20 @@ export default function CharacterSheet() {
         if (magazineKey) {
           body[magazineKey] = Math.max(0, vm.runtime[magazineKey] - 1);
         }
+        if (strikesOpenOptions.quickDraw) {
+          const drawPatch = drawWeaponStrikePatch(
+            vm.runtime,
+            SHIM_SHAM_CONSUMABLES,
+            result.strikeId,
+          );
+          if (drawPatch?.weaponCarry) {
+            body.weaponCarry = drawPatch.weaponCarry;
+          }
+        }
       }
       void saveSheet(body);
     },
-    [notesDraftRef, runtimeNotesRef, saveSheet, setNotesDraft, vm],
+    [notesDraftRef, runtimeNotesRef, saveSheet, setNotesDraft, strikesOpenOptions.quickDraw, vm],
   );
 
   const applyHpDelta = useCallback(

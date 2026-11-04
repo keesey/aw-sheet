@@ -4,6 +4,7 @@ import { StrikesSection } from "../sheet/StrikesSection";
 import { BottomPanel } from "../BottomPanel";
 
 export function StrikesPanel({
+  title = "Strikes",
   weapons,
   finisherDice,
   damageMode,
@@ -11,6 +12,7 @@ export function StrikesPanel({
   damagePenalized,
   onClose,
 }: {
+  title?: string;
   weapons: CharacterSheet["static"]["weapons"];
   finisherDice: string;
   damageMode: StrikeDamageMode;
@@ -19,7 +21,7 @@ export function StrikesPanel({
   onClose: () => void;
 }) {
   return (
-    <BottomPanel title="Strikes" onClose={onClose}>
+    <BottomPanel title={title} onClose={onClose}>
       <StrikesSection
         weapons={weapons}
         finisherDice={finisherDice}

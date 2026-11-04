@@ -17,6 +17,7 @@ import {
   isBipodUnavailableInCloudStorage,
   normalizeCloudStorage,
 } from "@/lib/shim-sham/data/cloud-storage";
+import { normalizeWeaponCarry } from "@/lib/shim-sham/data/weapon-carry";
 import { getWornArmor } from "@/lib/shim-sham/rules/armor";
 import { perception } from "@/lib/shim-sham/rules/perception";
 import {
@@ -119,6 +120,7 @@ export function createDefaultRuntime(level = 1): RuntimeState {
     notes: "",
     adHocItems: [],
     cloudStorage: DEFAULT_CLOUD_STORAGE,
+    weaponCarry: {},
   };
 }
 
@@ -136,7 +138,11 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     effects.attributeDelta.STR,
   );
   const cloudStorage = normalizeCloudStorage(runtime, SHIM_SHAM_CONSUMABLES);
-  const runtimeForBulk = { ...runtime, cloudStorage };
+  const weaponCarry = normalizeWeaponCarry(
+    { ...runtime, cloudStorage },
+    SHIM_SHAM_CONSUMABLES,
+  );
+  const runtimeForBulk = { ...runtime, cloudStorage, weaponCarry };
   const conditions = syncEncumberedFromBulk(
     normalizedConditions,
     inventoryTotalBulk(SHIM_SHAM_INVENTORY, SHIM_SHAM_CONSUMABLES, runtimeForBulk),
@@ -156,6 +162,7 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     ...normalizeProjectileAmmo(runtime),
     adHocItems: normalizeAdHocItems(runtime.adHocItems),
     cloudStorage,
+    weaponCarry,
     conditions,
   };
 }

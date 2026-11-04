@@ -81,7 +81,10 @@ export type CharacterAction = {
     | "return-to-initiative"
     | "strikes"
     | "area-weapons"
-    | "reload";
+    | "reload"
+    | "weapon-draw"
+    | "weapon-sheathe"
+    | "weapon-drop";
 };
 
 export type Consumable = {
@@ -145,6 +148,8 @@ export type CloudStorageState = {
   consumables: Record<string, number>;
 };
 
+export type WeaponCarryState = "stowed" | "drawn" | "dropped";
+
 export type RuntimeState = {
   level: number;
   currentHp: number;
@@ -174,6 +179,8 @@ export type RuntimeState = {
   notes: string;
   adHocItems: AdHocInventoryItem[];
   cloudStorage?: CloudStorageState;
+  /** On-person weapon state by strike id (e.g. rapier, crossbolter). */
+  weaponCarry?: Record<string, WeaponCarryState>;
 };
 
 export type CharacterSheet = {

@@ -96,6 +96,11 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
   swim: "Attempt an Athletics check to move up to 10 feet through water.",
   strike:
     "Attack with a weapon you're wielding or an unarmed attack, rolling against the target's AC.",
+  "draw-weapon": "Draw a weapon on your person (Interact). Cannot draw from Cloud Storage.",
+  sheathe: "Sheathe a drawn weapon (Interact).",
+  "drop-weapon": "Drop a weapon you're carrying (free action).",
+  "quick-draw":
+    "Draw a holstered or dropped weapon and Strike with it in one action (Quick Draw).",
   "take-cover":
     "Gain standard cover (+2 AC) or greater cover (+4 AC) until you move, attack, become unconscious, or end the effect.",
   "tumble-through":

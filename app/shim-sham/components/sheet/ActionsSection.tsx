@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
+import type { CharacterAction, LevelSnapshot, RuntimeState, WeaponStrike } from "@/lib/types";
 import type { ConditionActionLocks } from "@/lib/shim-sham/rules/condition-effects";
 import { compareByName } from "@/lib/shim-sham/sort";
 import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-options";
@@ -56,6 +56,7 @@ export function ActionsSection({
   meyelRerollUsed,
   locks,
   athleticsBonus,
+  weapons,
 }: {
   actionsByCost: ActionsByCost;
   pilotingActionsByCost: ActionsByCost;
@@ -73,6 +74,7 @@ export function ActionsSection({
   meyelRerollUsed: boolean;
   locks: ConditionActionLocks;
   athleticsBonus: number;
+  weapons: WeaponStrike[];
 }) {
   const actionProps = {
     encounter,
@@ -89,6 +91,7 @@ export function ActionsSection({
     athleticsBonus,
     level,
     speedDelta,
+    weapons,
   };
 
   return (

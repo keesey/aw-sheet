@@ -4,6 +4,7 @@ import type {
   CloudStorageState,
   CoverLevel,
   RuntimeState,
+  WeaponCarryState,
 } from "@/lib/types";
 import { sanitizeOptionalUrl } from "@/lib/shim-sham/url";
 
@@ -131,6 +132,19 @@ function parseAdHocItems(
   return items;
 }
 
+const WEAPON_CARRY_STATES = new Set<WeaponCarryState>(["stowed", "drawn", "dropped"]);
+
+function parseWeaponCarry(value: unknown): Record<string, WeaponCarryState> | undefined {
+  if (!isRecord(value)) return undefined;
+  const carry: Record<string, WeaponCarryState> = {};
+  for (const [key, state] of Object.entries(value)) {
+    if (typeof key !== "string" || typeof state !== "string") return undefined;
+    if (!WEAPON_CARRY_STATES.has(state as WeaponCarryState)) return undefined;
+    carry[key] = state as WeaponCarryState;
+  }
+  return carry;
+}
+
 function parseCloudStorage(value: unknown): CloudStorageState | undefined {
   if (!isRecord(value)) return undefined;
   const equipmentRaw = value.equipmentIds;
@@ -253,6 +267,12 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   if (body.cloudStorage !== undefined) {
     if (cloudStorage === undefined) return null;
     patch.cloudStorage = cloudStorage;
+  }
+
+  const weaponCarry = parseWeaponCarry(body.weaponCarry);
+  if (body.weaponCarry !== undefined) {
+    if (weaponCarry === undefined) return null;
+    patch.weaponCarry = weaponCarry;
   }
 
   return patch;

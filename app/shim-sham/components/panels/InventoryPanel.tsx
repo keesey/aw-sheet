@@ -24,6 +24,11 @@ import {
   stowedConsumableCount,
   toggleEquipmentInCloudStorage,
 } from "@/lib/shim-sham/data/cloud-storage";
+import {
+  carryStateLabel,
+  drawStrikesForInventoryItemPatch,
+  primaryStrikeIdForInventoryItem,
+} from "@/lib/shim-sham/data/weapon-carry";
 import { adjustProjectileMagazine } from "@/lib/shim-sham/rules/projectile-ammo";
 import { AON, aonAmmunition } from "@/lib/shim-sham/aon";
 import type { SaveFn } from "../../types";
@@ -387,12 +392,28 @@ export function InventoryPanel({
           key={item.id}
           item={item}
           inCloudStorage={isEquipmentInCloudStorage(cloudStorage, item.id)}
+          carryLabel={
+            primaryStrikeIdForInventoryItem(item.id)
+              ? carryStateLabel(runtime, data.consumableCatalog, primaryStrikeIdForInventoryItem(item.id)!)
+              : null
+          }
           onToggleCloudStorage={() =>
             void save((runtime) => {
               const cloud = normalizeCloudStorage(runtime, data.consumableCatalog);
-              return {
-                cloudStorage: toggleEquipmentInCloudStorage(cloud, item.id),
-              };
+              const wasInCloud = isEquipmentInCloudStorage(cloud, item.id);
+              const cloudStorage = toggleEquipmentInCloudStorage(cloud, item.id);
+              const retrieved = wasInCloud && !isEquipmentInCloudStorage(cloudStorage, item.id);
+              if (retrieved) {
+                return {
+                  cloudStorage,
+                  ...drawStrikesForInventoryItemPatch(
+                    { ...runtime, cloudStorage },
+                    data.consumableCatalog,
+                    item.id,
+                  ),
+                };
+              }
+              return { cloudStorage };
             })
           }
         />

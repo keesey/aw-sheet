@@ -1,5 +1,13 @@
 import { actionEndsCover } from "@/lib/shim-sham/rules/cover";
-import type { CharacterAction, LevelSnapshot, RuntimeState } from "@/lib/types";
+import type { CharacterAction, LevelSnapshot, RuntimeState, WeaponStrike } from "@/lib/types";
+import { SHIM_SHAM_CONSUMABLES } from "@/lib/shim-sham/data/inventory";
+import {
+  canDrawWeaponStrike,
+  canDropWeaponStrike,
+  canSheatheWeaponStrike,
+  filterDrawnWeaponStrikes,
+  filterQuickDrawWeaponStrikes,
+} from "@/lib/shim-sham/data/weapon-carry";
 import type { ConditionActionLocks } from "@/lib/shim-sham/rules/condition-effects";
 import { crawlActionAvailable, escapeActionAvailable, modifiedSpeed } from "@/lib/shim-sham/rules/condition-effects";
 import { getActiveCondition } from "@/lib/shim-sham/rules/conditions";
@@ -10,6 +18,7 @@ import {
   stylishCombatantBonus,
 } from "@/lib/shim-sham/rules/stylish-combatant";
 import { canReloadAnyProjectileMagazine } from "@/lib/shim-sham/rules/projectile-ammo";
+import { filterWeaponStrikes } from "@/lib/shim-sham/rules/strikes";
 import { parseMapAttackValues, parseRollBonusString } from "@/lib/shim-sham/sheet/roll";
 import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-options";
 import type { SaveFn } from "../../types";
@@ -118,6 +127,7 @@ function isActionHidden(
   delayed = false,
   encounter = false,
   runtime?: RuntimeState,
+  weapons: WeaponStrike[] = [],
 ) {
   if (delayed) {
     return action.id !== "return-to-initiative";
@@ -162,6 +172,40 @@ function isActionHidden(
   ) {
     return true;
   }
+  if (action.id === "draw-weapon" && runtime) {
+    if (!weapons.some((w) => canDrawWeaponStrike(runtime, SHIM_SHAM_CONSUMABLES, w.id))) {
+      return true;
+    }
+  }
+  if (action.id === "sheathe" && runtime) {
+    if (!weapons.some((w) => canSheatheWeaponStrike(runtime, SHIM_SHAM_CONSUMABLES, w.id))) {
+      return true;
+    }
+  }
+  if (action.id === "drop-weapon" && runtime) {
+    if (!weapons.some((w) => canDropWeaponStrike(runtime, SHIM_SHAM_CONSUMABLES, w.id))) {
+      return true;
+    }
+  }
+  if (action.id === "quick-draw" && runtime) {
+    if (filterQuickDrawWeaponStrikes(weapons, runtime, SHIM_SHAM_CONSUMABLES).length === 0) {
+      return true;
+    }
+  }
+  if (
+    (action.id === "strike" || action.id === "confident-finisher" || action.id === "opportune-riposte") &&
+    runtime
+  ) {
+    const pool =
+      action.id === "confident-finisher"
+        ? filterWeaponStrikes(weapons, "finisher")
+        : action.id === "opportune-riposte"
+          ? filterWeaponStrikes(weapons, "melee")
+          : weapons;
+    if (filterDrawnWeaponStrikes(pool, runtime, SHIM_SHAM_CONSUMABLES).length === 0) {
+      return true;
+    }
+  }
   const recallWhileParalyzed =
     action.id === "recall-knowledge" && getActiveCondition(conditions, "paralyzed") != null;
   if (locks.disableAllActions && !recallWhileParalyzed) return true;
@@ -192,6 +236,7 @@ export function ActionRow({
   athleticsBonus,
   level,
   speedDelta = 0,
+  weapons = [],
 }: {
   action: CharacterAction;
   encounter: boolean;
@@ -208,6 +253,7 @@ export function ActionRow({
   athleticsBonus: number;
   level?: LevelSnapshot;
   speedDelta?: number;
+  weapons?: WeaponStrike[];
 }) {
   if (isActionHidden(
     action,
@@ -222,6 +268,7 @@ export function ActionRow({
     runtime?.delayed,
     encounter,
     runtime,
+    weapons,
   )) {
     return null;
   }
@@ -235,6 +282,7 @@ export function ActionRow({
       <ActionControl
         action={action}
         runtime={runtime}
+        weapons={weapons}
         ffUsesLeft={ffUsesLeft}
         disabled={false}
         save={save}

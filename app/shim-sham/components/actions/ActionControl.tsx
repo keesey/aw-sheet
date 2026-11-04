@@ -10,6 +10,8 @@ import { MaskIcon } from "../icons/MaskIcon";
 import { PauseIcon } from "../icons/PauseIcon";
 import { PlayIcon } from "../icons/PlayIcon";
 import { ReloadWeaponModal } from "../panels/ReloadWeaponModal";
+import { WeaponCarryModal, type WeaponCarryModalMode } from "../panels/WeaponCarryModal";
+import type { WeaponStrike } from "@/lib/types";
 
 function ReloadActionControl({
   runtime,
@@ -79,9 +81,49 @@ function TakeCoverButtons({
   );
 }
 
+function WeaponCarryActionControl({
+  mode,
+  weapons,
+  runtime,
+  disabled,
+  save,
+}: {
+  mode: WeaponCarryModalMode;
+  weapons: WeaponStrike[];
+  runtime: RuntimeState;
+  disabled: boolean;
+  save: SaveFn;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="btn action-reload__open"
+        disabled={disabled}
+        onClick={() => setOpen(true)}
+      >
+        Choose…
+      </button>
+      {open ? (
+        <WeaponCarryModal
+          mode={mode}
+          weapons={weapons}
+          runtime={runtime}
+          disabled={disabled}
+          save={save}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
 export function ActionControl({
   action,
   runtime,
+  weapons,
   ffUsesLeft,
   disabled,
   save,
@@ -91,6 +133,7 @@ export function ActionControl({
 }: {
   action: CharacterAction;
   runtime: RuntimeState;
+  weapons: WeaponStrike[];
   ffUsesLeft: number;
   disabled: boolean;
   save: SaveFn;
@@ -103,6 +146,10 @@ export function ActionControl({
   }
 
   const openStrikes = () => {
+    if (action.id === "quick-draw") {
+      onOpenStrikes({ damageMode: "default", weaponFilter: "all", quickDraw: true });
+      return;
+    }
     if (action.id === "confident-finisher") {
       onOpenStrikes({ damageMode: "finisher", weaponFilter: "finisher" });
       return;
@@ -316,6 +363,36 @@ export function ActionControl({
       );
     case "reload":
       return <ReloadActionControl runtime={runtime} disabled={disabled} save={save} />;
+    case "weapon-draw":
+      return (
+        <WeaponCarryActionControl
+          mode="draw"
+          weapons={weapons}
+          runtime={runtime}
+          disabled={disabled}
+          save={save}
+        />
+      );
+    case "weapon-sheathe":
+      return (
+        <WeaponCarryActionControl
+          mode="sheathe"
+          weapons={weapons}
+          runtime={runtime}
+          disabled={disabled}
+          save={save}
+        />
+      );
+    case "weapon-drop":
+      return (
+        <WeaponCarryActionControl
+          mode="drop"
+          weapons={weapons}
+          runtime={runtime}
+          disabled={disabled}
+          save={save}
+        />
+      );
     default: {
       const _exhaustive: never = action.control;
       return _exhaustive;

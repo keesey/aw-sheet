@@ -6,10 +6,12 @@ import { InventoryActionButton } from "./InventoryActionButton";
 export function InventoryEquipmentItem({
   item,
   inCloudStorage,
+  carryLabel,
   onToggleCloudStorage,
 }: {
   item: InventoryItem;
   inCloudStorage?: boolean;
+  carryLabel?: string | null;
   onToggleCloudStorage?: () => void;
 }) {
   return (
@@ -19,6 +21,8 @@ export function InventoryEquipmentItem({
           {item.url ? <AonLink href={item.url}>{item.name}</AonLink> : item.name}
           {inCloudStorage ? (
             <span className="inventory-item__tag inventory-item__tag--cloud"> · Cloud</span>
+          ) : carryLabel ? (
+            <span className="inventory-item__tag inventory-item__tag--carry"> · {carryLabel}</span>
           ) : null}
           {item.notes && <span className="inventory-item__notes"> — {item.notes}</span>}
         </span>

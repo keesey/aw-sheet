@@ -14,3 +14,7 @@ export function buildStrikeAction(): CharacterAction {
     control: "strikes",
   };
 }
+
+export function isQuickDrawStrikeAction(actionId: string): boolean {
+  return actionId === "quick-draw";
+}

@@ -16,9 +16,17 @@ import { RecoverySection } from "./components/sheet/RecoverySection";
 import { ExploreSection } from "./components/sheet/ExploreSection";
 import { StrikesPanel } from "./components/panels/StrikesPanel";
 import { AreaWeaponsPanel } from "./components/panels/AreaWeaponsPanel";
+import { SHIM_SHAM_CONSUMABLES } from "@/lib/shim-sham/data/inventory";
+import {
+  filterDrawnWeaponStrikes,
+  filterQuickDrawWeaponStrikes,
+} from "@/lib/shim-sham/data/weapon-carry";
 import { filterWeaponStrikes } from "@/lib/shim-sham/rules/strikes";
 import type { SheetViewModel } from "@/lib/shim-sham/sheet/sheet-view-model";
-import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-options";
+import {
+  DEFAULT_STRIKES_OPEN,
+  type StrikesOpenOptions,
+} from "@/lib/shim-sham/rules/strike-open-options";
 import type { Panel, SaveFn } from "./types";
 
 export function CharacterSheetView({
@@ -181,6 +189,7 @@ export function CharacterSheetView({
               meyelRerollUsed={runtime.meyelRerollUsed}
               locks={effects}
               athleticsBonus={athleticsBonus}
+              weapons={data.weapons}
             />
           ) : (
             <ExploreSection
@@ -243,12 +252,21 @@ export function CharacterSheetView({
 
       {strikesOpen && runtime.encounter && (
         <StrikesPanel
-          weapons={filterWeaponStrikes(data.weapons, strikesOpenOptions.weaponFilter)}
+          title={strikesOpenOptions.quickDraw ? "Quick Draw" : "Strikes"}
+          weapons={(() => {
+            const filtered = filterWeaponStrikes(data.weapons, strikesOpenOptions.weaponFilter);
+            return strikesOpenOptions.quickDraw
+              ? filterQuickDrawWeaponStrikes(filtered, runtime, SHIM_SHAM_CONSUMABLES)
+              : filterDrawnWeaponStrikes(filtered, runtime, SHIM_SHAM_CONSUMABLES);
+          })()}
           finisherDice={level.finisherDice}
           damageMode={strikesOpenOptions.damageMode}
           attackDelta={effects.finesseMeleeAttack}
           damagePenalized={effects.attributeDelta.STR < 0}
-          onClose={() => onStrikesOpenChange(false)}
+          onClose={() => {
+            onStrikesOpenChange(false);
+            onStrikesOpenOptionsChange(DEFAULT_STRIKES_OPEN);
+          }}
         />
       )}
 
