@@ -21,6 +21,7 @@ export const DIRECT_PATCH_FIELDS = new Set<keyof RuntimeState>([
   "breachingGunMagazine",
   "crossbolterMagazine",
   "adHocItems",
+  "cloudStorage",
   "notes",
   "currentHp",
   "meyelRerollUsed",

@@ -11,6 +11,13 @@ import {
   SHIM_SHAM_CONSUMABLES,
   SHIM_SHAM_INVENTORY,
 } from "@/lib/shim-sham/data/inventory";
+import {
+  DEFAULT_CLOUD_STORAGE,
+  isBipodUnavailableInCloudStorage,
+  isBreachingGunInCloudStorage,
+  normalizeCloudStorage,
+  STRIKE_INVENTORY_ITEM,
+} from "@/lib/shim-sham/data/cloud-storage";
 import { getWornArmor } from "@/lib/shim-sham/rules/armor";
 import { perception } from "@/lib/shim-sham/rules/perception";
 import {
@@ -112,6 +119,7 @@ export function createDefaultRuntime(level = 1): RuntimeState {
     crossbolterMagazine: 1,
     notes: "",
     adHocItems: [],
+    cloudStorage: DEFAULT_CLOUD_STORAGE,
   };
 }
 
@@ -128,9 +136,11 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     level.attributes.STR,
     effects.attributeDelta.STR,
   );
+  const cloudStorage = normalizeCloudStorage(runtime, SHIM_SHAM_CONSUMABLES);
+  const runtimeForBulk = { ...runtime, cloudStorage };
   const conditions = syncEncumberedFromBulk(
     normalizedConditions,
-    inventoryTotalBulk(SHIM_SHAM_INVENTORY, SHIM_SHAM_CONSUMABLES, runtime),
+    inventoryTotalBulk(SHIM_SHAM_INVENTORY, SHIM_SHAM_CONSUMABLES, runtimeForBulk),
     effectiveStr,
   );
   const forceFieldHp = Math.max(0, runtime.forceFieldHp);
@@ -146,6 +156,7 @@ export function normalizeRuntimeState(runtime: RuntimeState): RuntimeState {
     forceFieldHp,
     ...normalizeProjectileAmmo(runtime),
     adHocItems: normalizeAdHocItems(runtime.adHocItems),
+    cloudStorage,
     conditions,
   };
 }
@@ -179,6 +190,10 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
   );
   const weapons = buildWeaponStrikes(effectiveLevel, {
     attackDelta: (strike) => attackDeltaForStrike(effects, strike),
+  }).filter((strike) => {
+    const itemId = STRIKE_INVENTORY_ITEM[strike.id];
+    if (!itemId) return true;
+    return !isBreachingGunInCloudStorage(normalizedRuntime, SHIM_SHAM_CONSUMABLES);
   });
   const armor = getWornArmor(level.level);
   const stylishBonus = formatStylishCombatantBonus(level.level);
@@ -233,6 +248,12 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       actions: allActions.filter((action) => {
         if (level.level < (action.minLevel ?? 1)) return false;
         if (action.id === "stand" && level.level >= KIP_UP_MIN_LEVEL) return false;
+        if (
+          (action.id === "bipod-retrieve" || action.id === "bipod-deploy") &&
+          isBipodUnavailableInCloudStorage(normalizedRuntime, SHIM_SHAM_CONSUMABLES)
+        ) {
+          return false;
+        }
         return true;
       }),
       inventory: SHIM_SHAM_INVENTORY,

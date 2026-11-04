@@ -139,6 +139,12 @@ export type ProgressionSnapshot = LevelSnapshot & {
   feats: ProgressionFeat[];
 };
 
+/** Items stowed in UV Nova's Cloud Storage feat — not counted toward bulk. */
+export type CloudStorageState = {
+  equipmentIds: string[];
+  consumables: Record<string, number>;
+};
+
 export type RuntimeState = {
   level: number;
   currentHp: number;
@@ -167,6 +173,7 @@ export type RuntimeState = {
   crossbolterMagazine: number;
   notes: string;
   adHocItems: AdHocInventoryItem[];
+  cloudStorage?: CloudStorageState;
 };
 
 export type CharacterSheet = {

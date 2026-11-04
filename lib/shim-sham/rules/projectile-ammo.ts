@@ -1,4 +1,5 @@
-import { SHIM_SHAM_AMMUNITION } from "@/lib/shim-sham/data/inventory";
+import { SHIM_SHAM_AMMUNITION, SHIM_SHAM_CONSUMABLES } from "@/lib/shim-sham/data/inventory";
+import { isBreachingGunInCloudStorage } from "@/lib/shim-sham/data/cloud-storage";
 import type { RuntimeState } from "@/lib/types";
 
 export type ProjectileMagazineKey = "breachingGunMagazine" | "crossbolterMagazine";
@@ -50,9 +51,15 @@ export function reloadProjectileMagazine(
 }
 
 export function canReloadAnyProjectileMagazine(runtime: RuntimeState): boolean {
-  return PROJECTILE_MAGAZINE_WEAPONS.some(
-    (weapon) => reloadProjectileMagazine(runtime, weapon.key) !== null,
-  );
+  return PROJECTILE_MAGAZINE_WEAPONS.some((weapon) => {
+    if (
+      weapon.key === "breachingGunMagazine" &&
+      isBreachingGunInCloudStorage(runtime, SHIM_SHAM_CONSUMABLES)
+    ) {
+      return false;
+    }
+    return reloadProjectileMagazine(runtime, weapon.key) !== null;
+  });
 }
 
 /** Load from spare (+1) or unload to spare (−1). Returns null if no change. */

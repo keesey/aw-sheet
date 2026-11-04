@@ -1,4 +1,10 @@
-import type { ActiveCondition, CharacterSheet, CoverLevel, RuntimeState } from "@/lib/types";
+import type {
+  ActiveCondition,
+  CharacterSheet,
+  CloudStorageState,
+  CoverLevel,
+  RuntimeState,
+} from "@/lib/types";
 import { sanitizeOptionalUrl } from "@/lib/shim-sham/url";
 
 export const MAX_NOTES_LENGTH = 32_768;
@@ -125,6 +131,27 @@ function parseAdHocItems(
   return items;
 }
 
+function parseCloudStorage(value: unknown): CloudStorageState | undefined {
+  if (!isRecord(value)) return undefined;
+  const equipmentRaw = value.equipmentIds;
+  if (!Array.isArray(equipmentRaw)) return undefined;
+  if (!equipmentRaw.every((id) => typeof id === "string")) return undefined;
+  const consumablesRaw = value.consumables;
+  if (!isRecord(consumablesRaw)) return undefined;
+  const consumableEntries = Object.entries(consumablesRaw);
+  if (
+    !consumableEntries.every(
+      ([, qty]) => typeof qty === "number" && Number.isFinite(qty) && qty >= 0,
+    )
+  ) {
+    return undefined;
+  }
+  return {
+    equipmentIds: equipmentRaw,
+    consumables: consumablesRaw as Record<string, number>,
+  };
+}
+
 /** Strip unknown keys and coerce known runtime patch fields from a request body. */
 export function parseSheetPatch(body: unknown): SheetPatch | null {
   if (!isRecord(body)) return null;
@@ -220,6 +247,12 @@ export function parseSheetPatch(body: unknown): SheetPatch | null {
   if (body.adHocItems !== undefined) {
     if (adHocItems === undefined) return null;
     patch.adHocItems = adHocItems;
+  }
+
+  const cloudStorage = parseCloudStorage(body.cloudStorage);
+  if (body.cloudStorage !== undefined) {
+    if (cloudStorage === undefined) return null;
+    patch.cloudStorage = cloudStorage;
   }
 
   return patch;

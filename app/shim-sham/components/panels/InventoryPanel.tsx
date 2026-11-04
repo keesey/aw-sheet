@@ -6,12 +6,30 @@ import {
   isOverburdenedByBulk,
 } from "@/lib/shim-sham/data/bulk";
 import { compareByName } from "@/lib/shim-sham/sort";
-import { getEquipmentGroups, SHIM_SHAM_AMMUNITION } from "@/lib/shim-sham/data/inventory";
+import {
+  getEquipmentGroups,
+  inventoryCloudStorageBulk,
+  SHIM_SHAM_AMMUNITION,
+} from "@/lib/shim-sham/data/inventory";
+import {
+  adjustStowedConsumable,
+  carriedConsumableCount,
+  CLOUD_STORAGE_BOND_LEVEL,
+  cloudStorageCapacity,
+  CLOUD_STORAGE_FEAT_URL,
+  CLOUD_STORAGE_PARTNER,
+  isBreachingGunInCloudStorage,
+  isEquipmentInCloudStorage,
+  normalizeCloudStorage,
+  stowedConsumableCount,
+  toggleEquipmentInCloudStorage,
+} from "@/lib/shim-sham/data/cloud-storage";
 import { adjustProjectileMagazine } from "@/lib/shim-sham/rules/projectile-ammo";
 import { AON, aonAmmunition } from "@/lib/shim-sham/aon";
 import type { SaveFn } from "../../types";
 import { AonLink } from "../AonLink";
 import { BottomPanel } from "../BottomPanel";
+import { InventoryActionButton } from "../inventory/InventoryActionButton";
 import { InventoryEquipmentItem } from "../inventory/InventoryEquipmentItem";
 import { AdHocItemForm } from "../inventory/AdHocItemForm";
 import { AdHocItemsList } from "../inventory/AdHocItemsList";
@@ -52,36 +70,76 @@ export function InventoryPanel({
   save: SaveFn;
   onClose: () => void;
 }) {
+  const cloudStorage = normalizeCloudStorage(runtime, data.consumableCatalog);
+  const breachingGunInCloud = isBreachingGunInCloudStorage(runtime, data.consumableCatalog);
+  const cloudBulk = inventoryCloudStorageBulk(data.inventory, data.consumableCatalog, runtime);
+  const cloudBulkMax = cloudStorageCapacity(CLOUD_STORAGE_BOND_LEVEL);
+
   const consumablesContent = [...data.consumableCatalog]
     .sort(compareByName)
     .map((c) => {
       const used = runtime.consumables[c.id] ?? 0;
-      const remaining = c.quantity - used;
+      const stowed = stowedConsumableCount(cloudStorage, c.id);
+      const carried = carriedConsumableCount(c, runtime, cloudStorage);
       return (
         <div key={c.id} className="inventory-item inventory-item--controls">
           <div className="inventory-item__details">
             <AonLink href={c.url}>{c.name}</AonLink>
+            {stowed > 0 ? (
+              <div className="strike-traits">
+                {carried} on you · {stowed} in Cloud
+              </div>
+            ) : null}
           </div>
           <span className="inventory-item__bulk">{formatBulkLabel(c.bulk)}</span>
           <div className="inventory-item__controls">
             <span className="inventory-item__qty">
-              {remaining}/{c.quantity}
+              {carried + stowed}/{c.quantity}
             </span>
-            <button
-              type="button"
-              className="btn btn-icon"
-              disabled={remaining <= 0}
+            <InventoryActionButton
+              kind="single"
+              label="Stow"
+              title="Stow in Cloud Storage (Interact)"
+              disabled={carried <= 0}
               onClick={() =>
                 void save((runtime) => {
-                  const used = runtime.consumables[c.id] ?? 0;
+                  const cloud = normalizeCloudStorage(runtime, data.consumableCatalog);
+                  const usedNow = runtime.consumables[c.id] ?? 0;
                   return {
-                    consumables: { ...runtime.consumables, [c.id]: used + 1 },
+                    cloudStorage: adjustStowedConsumable(cloud, c, usedNow, 1),
                   };
                 })
               }
-            >
-              Use
-            </button>
+            />
+            <InventoryActionButton
+              kind="double"
+              label="Get"
+              title="Retrieve from Cloud Storage (2 Interact actions in play)"
+              disabled={stowed <= 0}
+              onClick={() =>
+                void save((runtime) => {
+                  const cloud = normalizeCloudStorage(runtime, data.consumableCatalog);
+                  const usedNow = runtime.consumables[c.id] ?? 0;
+                  return {
+                    cloudStorage: adjustStowedConsumable(cloud, c, usedNow, -1),
+                  };
+                })
+              }
+            />
+            <InventoryActionButton
+              kind="single"
+              label="Use"
+              title="Use item (Interact)"
+              disabled={carried <= 0}
+              onClick={() =>
+                void save((runtime) => {
+                  const usedNow = runtime.consumables[c.id] ?? 0;
+                  return {
+                    consumables: { ...runtime.consumables, [c.id]: usedNow + 1 },
+                  };
+                })
+              }
+            />
             {used > 0 && (
               <button
                 type="button"
@@ -226,45 +284,47 @@ export function InventoryPanel({
           </button>
         </div>
       </div>
-      <div className="inventory-item inventory-item--controls">
-        <div className="inventory-item__details">
-          <AonLink href={`${AON}/equipment/weapons/52-breaching-gun`}>
-            Breaching Gun magazine
-          </AonLink>
-        </div>
-        <span className="inventory-item__bulk">
-          {formatBulkLabel(SHIM_SHAM_AMMUNITION.breachingGun.bulk)}
-        </span>
-        <div className="inventory-item__controls">
-          <button
-            type="button"
-            className="btn btn-icon"
-            onClick={() =>
-              void save((runtime) => {
-                const patch = adjustProjectileMagazine(runtime, "breachingGunMagazine", -1);
-                return patch ?? {};
-              })
-            }
-          >
-            −
-          </button>
-          <span className="inventory-item__qty">
-            {runtime.breachingGunMagazine}/{SHIM_SHAM_AMMUNITION.breachingGun.magazineMax}
+      {!breachingGunInCloud ? (
+        <div className="inventory-item inventory-item--controls">
+          <div className="inventory-item__details">
+            <AonLink href={`${AON}/equipment/weapons/52-breaching-gun`}>
+              Breaching Gun magazine
+            </AonLink>
+          </div>
+          <span className="inventory-item__bulk">
+            {formatBulkLabel(SHIM_SHAM_AMMUNITION.breachingGun.bulk)}
           </span>
-          <button
-            type="button"
-            className="btn btn-icon"
-            onClick={() =>
-              void save((runtime) => {
-                const patch = adjustProjectileMagazine(runtime, "breachingGunMagazine", 1);
-                return patch ?? {};
-              })
-            }
-          >
-            +
-          </button>
+          <div className="inventory-item__controls">
+            <button
+              type="button"
+              className="btn btn-icon"
+              onClick={() =>
+                void save((runtime) => {
+                  const patch = adjustProjectileMagazine(runtime, "breachingGunMagazine", -1);
+                  return patch ?? {};
+                })
+              }
+            >
+              −
+            </button>
+            <span className="inventory-item__qty">
+              {runtime.breachingGunMagazine}/{SHIM_SHAM_AMMUNITION.breachingGun.magazineMax}
+            </span>
+            <button
+              type="button"
+              className="btn btn-icon"
+              onClick={() =>
+                void save((runtime) => {
+                  const patch = adjustProjectileMagazine(runtime, "breachingGunMagazine", 1);
+                  return patch ?? {};
+                })
+              }
+            >
+              +
+            </button>
+          </div>
         </div>
-      </div>
+      ) : null}
       <div className="inventory-item inventory-item--controls">
         <div className="inventory-item__details">
           <AonLink href={`${AON}/equipment/weapons/39-crossbolter`}>
@@ -323,7 +383,19 @@ export function InventoryPanel({
       id: group.id,
       title: group.label,
       content: group.items.map((item) => (
-        <InventoryEquipmentItem key={item.id} item={item} />
+        <InventoryEquipmentItem
+          key={item.id}
+          item={item}
+          inCloudStorage={isEquipmentInCloudStorage(cloudStorage, item.id)}
+          onToggleCloudStorage={() =>
+            void save((runtime) => {
+              const cloud = normalizeCloudStorage(runtime, data.consumableCatalog);
+              return {
+                cloudStorage: toggleEquipmentInCloudStorage(cloud, item.id),
+              };
+            })
+          }
+        />
       )),
     })),
     {
@@ -350,6 +422,17 @@ export function InventoryPanel({
               Encumbered at {5 + strModifier}+ · Max {inventoryBulkMax}
             </span>
           </div>
+          <p className="inventory-cloud__summary">
+            <AonLink href={CLOUD_STORAGE_FEAT_URL}>Cloud Storage</AonLink> ({CLOUD_STORAGE_PARTNER}
+            ):{" "}
+            <span className="inventory-cloud__bulk">
+              {formatBulkUnits(cloudBulk)} bulk stowed
+              {cloudBulkMax > 0 ? ` · ${cloudBulkMax} max` : null}
+            </span>
+          </p>
+          <p className="inventory-cloud__note">
+            Stowed gear doesn&apos;t count toward your bulk. Retrieve in play costs 2 Interact actions.
+          </p>
           {overburdened ? (
             <p className="inventory-bulk__warning">
               Over max bulk — drop items before you can carry more.

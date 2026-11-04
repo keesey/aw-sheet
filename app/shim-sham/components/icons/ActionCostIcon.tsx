@@ -2,18 +2,21 @@ import type { CharacterAction } from "@/lib/types";
 import {
   ACTION_COST_ICONS,
   actionCostIconKind,
+  type ActionCostIconKind,
 } from "@/lib/shim-sham/data/action-cost-icons";
 
 const OUTLINE_STROKE_WIDTH = 11;
 
 export function ActionCostIcon({
   cost,
+  kind: kindProp,
   className,
 }: {
-  cost: CharacterAction["cost"];
+  cost?: CharacterAction["cost"];
+  kind?: ActionCostIconKind;
   className?: string;
 }) {
-  const kind = actionCostIconKind(cost);
+  const kind = kindProp ?? (cost ? actionCostIconKind(cost) : null);
   if (!kind) return null;
 
   const icon = ACTION_COST_ICONS[kind];

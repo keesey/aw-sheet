@@ -1239,6 +1239,28 @@ button {
   font-size: 0.75rem;
 }
 
+.inventory-item__tag--cloud {
+  color: var(--accent);
+}
+
+.inventory-cloud__summary {
+  margin: 0.35rem 0 0.25rem;
+  color: var(--text);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.inventory-cloud__bulk {
+  font-variant-numeric: tabular-nums;
+}
+
+.inventory-cloud__note {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
 .inventory-item__notes {
   color: var(--muted);
   font-size: 0.8rem;
@@ -1260,6 +1282,31 @@ button {
   font-variant-numeric: tabular-nums;
   min-width: 2.5rem;
   text-align: center;
+}
+
+.inventory-action-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 3.25rem;
+  min-height: 44px;
+  padding: 0.2rem 0.35rem;
+  line-height: 1.1;
+}
+
+.inventory-action-btn__icon {
+  flex-shrink: 0;
+  color: var(--text);
+}
+
+.inventory-action-btn__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .action-row {

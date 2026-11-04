@@ -1,5 +1,10 @@
 import type { Consumable, InventoryItem, RuntimeState } from "@/lib/types";
 import { normalizeAdHocItems, totalBulk } from "@/lib/shim-sham/data/bulk";
+import {
+  isEquipmentInCloudStorage,
+  normalizeCloudStorage,
+  stowedConsumableCount,
+} from "@/lib/shim-sham/data/cloud-storage";
 
 import { AON, AONP } from "@/lib/shim-sham/aon";
 import { compareByName } from "@/lib/shim-sham/sort";
@@ -161,7 +166,7 @@ export const SHIM_SHAM_CONSUMABLES: Consumable[] = [
     id: "celebrity-serum",
     name: "Celebrity Serum",
     url: `${AON}/treasure/38-celebrity-serum`,
-    quantity: 5,
+    quantity: 4,
     bulk: "L",
   },
   {
@@ -194,7 +199,7 @@ export function getEquipmentGroups(items: InventoryItem[]) {
 
 type InventoryRuntime = Pick<
   RuntimeState,
-  "consumables" | "batteries" | "chemTankCharges" | "adHocItems"
+  "consumables" | "batteries" | "chemTankCharges" | "adHocItems" | "cloudStorage"
 >;
 
 /** One bulk entry per carried item (equipment piece, remaining consumable, battery, chem tank, ad hoc). */
@@ -203,11 +208,15 @@ function inventoryBulkItems(
   consumableCatalog: Consumable[],
   runtime: InventoryRuntime,
 ): { bulk: string }[] {
-  const items: { bulk: string }[] = [...equipment];
+  const cloud = normalizeCloudStorage(runtime, consumableCatalog);
+  const items: { bulk: string }[] = equipment.filter(
+    (item) => !isEquipmentInCloudStorage(cloud, item.id),
+  );
 
   for (const consumable of consumableCatalog) {
     const used = runtime.consumables[consumable.id] ?? 0;
-    const remaining = Math.max(0, consumable.quantity - used);
+    const stowed = stowedConsumableCount(cloud, consumable.id);
+    const remaining = Math.max(0, consumable.quantity - used - stowed);
     for (let i = 0; i < remaining; i++) {
       items.push({ bulk: consumable.bulk });
     }
@@ -232,4 +241,33 @@ export function inventoryTotalBulk(
   runtime: InventoryRuntime,
 ): number {
   return totalBulk(inventoryBulkItems(equipment, consumableCatalog, runtime));
+}
+
+function inventoryCloudStorageBulkItems(
+  equipment: InventoryItem[],
+  consumableCatalog: Consumable[],
+  runtime: InventoryRuntime,
+): { bulk: string }[] {
+  const cloud = normalizeCloudStorage(runtime, consumableCatalog);
+  const items: { bulk: string }[] = equipment
+    .filter((item) => isEquipmentInCloudStorage(cloud, item.id))
+    .map((item) => ({ bulk: item.bulk }));
+
+  for (const consumable of consumableCatalog) {
+    const stowed = stowedConsumableCount(cloud, consumable.id);
+    for (let i = 0; i < stowed; i++) {
+      items.push({ bulk: consumable.bulk });
+    }
+  }
+
+  return items;
+}
+
+/** Bulk of gear stowed in party Cloud Storage (same rounding as carried bulk). */
+export function inventoryCloudStorageBulk(
+  equipment: InventoryItem[],
+  consumableCatalog: Consumable[],
+  runtime: InventoryRuntime,
+): number {
+  return totalBulk(inventoryCloudStorageBulkItems(equipment, consumableCatalog, runtime));
 }

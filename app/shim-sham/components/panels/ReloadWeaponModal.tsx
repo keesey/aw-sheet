@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import type { RuntimeState } from "@/lib/types";
+import { SHIM_SHAM_CONSUMABLES } from "@/lib/shim-sham/data/inventory";
+import { isBreachingGunInCloudStorage } from "@/lib/shim-sham/data/cloud-storage";
 import {
   PROJECTILE_MAGAZINE_WEAPONS,
   projectileMagazineMax,
@@ -55,7 +57,10 @@ export function ReloadWeaponModal({
             Spare projectile ammo: {runtime.projectileRounds}
           </p>
           <ul className="reload-weapon-list">
-            {PROJECTILE_MAGAZINE_WEAPONS.map((weapon) => {
+            {PROJECTILE_MAGAZINE_WEAPONS.filter((weapon) => {
+              if (weapon.key !== "breachingGunMagazine") return true;
+              return !isBreachingGunInCloudStorage(runtime, SHIM_SHAM_CONSUMABLES);
+            }).map((weapon) => {
               const max = projectileMagazineMax(weapon.key);
               const loaded = runtime[weapon.key];
               const canReload = !disabled && reloadProjectileMagazine(runtime, weapon.key) !== null;
