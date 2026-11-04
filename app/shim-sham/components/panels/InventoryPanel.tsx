@@ -435,36 +435,43 @@ export function InventoryPanel({
     <BottomPanel title="Inventory" onClose={onClose} fullScreen>
       <div className="inventory-layout">
         <div className="inventory-bulk">
-          <div className="inventory-bulk__header">
-            <span className="inventory-bulk__total">
-              Bulk {formatBulkUnits(inventoryBulk)} / {inventoryBulkMax}
-            </span>
-            <span className="inventory-bulk__note">
-              Encumbered at {5 + strModifier}+ · Max {inventoryBulkMax}
-            </span>
+          <div className="inventory-bulk__row">
+            <div className="inventory-bulk__meta">
+              <span className="inventory-bulk__stat">
+                Bulk {formatBulkUnits(inventoryBulk)}/{inventoryBulkMax}
+              </span>
+              <span className="inventory-bulk__sep" aria-hidden>
+                ·
+              </span>
+              <span className="inventory-bulk__note">
+                Encumbered at {5 + strModifier}+
+              </span>
+              <span className="inventory-bulk__sep" aria-hidden>
+                ·
+              </span>
+              <span className="inventory-bulk__cloud">
+                <AonLink href={CLOUD_STORAGE_FEAT_URL}>Cloud</AonLink> ({CLOUD_STORAGE_PARTNER}
+                ): {formatBulkUnits(cloudBulk)}/{cloudBulkMax}
+              </span>
+              <span className="inventory-bulk__sep inventory-bulk__sep--hide-narrow" aria-hidden>
+                ·
+              </span>
+              <span className="inventory-bulk__hint">
+                Stowed excluded · Get = 2 actions
+              </span>
+            </div>
+            <div className="inventory-bulk__bar hp-bar bulk-bar">
+              <div
+                className="bulk-bar-fill"
+                style={{ width: `${bulkBarPct}%`, background: bulkBarFillColor }}
+              />
+            </div>
           </div>
-          <p className="inventory-cloud__summary">
-            <AonLink href={CLOUD_STORAGE_FEAT_URL}>Cloud Storage</AonLink> ({CLOUD_STORAGE_PARTNER}
-            ):{" "}
-            <span className="inventory-cloud__bulk">
-              {formatBulkUnits(cloudBulk)} bulk stowed
-              {cloudBulkMax > 0 ? ` · ${cloudBulkMax} max` : null}
-            </span>
-          </p>
-          <p className="inventory-cloud__note">
-            Stowed gear doesn&apos;t count toward your bulk. Retrieve in play costs 2 Interact actions.
-          </p>
           {overburdened ? (
             <p className="inventory-bulk__warning">
               Over max bulk — drop items before you can carry more.
             </p>
           ) : null}
-          <div className="hp-bar bulk-bar">
-            <div
-              className="bulk-bar-fill"
-              style={{ width: `${bulkBarPct}%`, background: bulkBarFillColor }}
-            />
-          </div>
         </div>
 
         <div className="inventory-sections">
