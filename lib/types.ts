@@ -62,8 +62,8 @@ export type CharacterAction = {
   combatBonus?: string;
   /** Omit from the sheet until this character level. */
   minLevel?: number;
-  /** Listed in the Piloting section instead of the main action list. */
-  pilotingOnly?: boolean;
+  /** Listed in its own section (Piloting or Battle Station) instead of the main action list. */
+  actionGroup?: "piloting" | "battle-station";
   /** Right-side control on the compact action row. */
   control?:
     | "accelerate"

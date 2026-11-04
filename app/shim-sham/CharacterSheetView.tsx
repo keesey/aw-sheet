@@ -88,6 +88,7 @@ export function CharacterSheetView({
     ffUsesLeft,
     actionsByCost,
     pilotingActionsByCost,
+    battleStationActionsByCost,
     displayAc,
     acDelta,
     inventoryBulk,
@@ -172,6 +173,7 @@ export function CharacterSheetView({
             <ActionsSection
               actionsByCost={actionsByCost}
               pilotingActionsByCost={pilotingActionsByCost}
+              battleStationActionsByCost={battleStationActionsByCost}
               strikeAction={strikeAction}
               level={level}
               speedDelta={effects.speedDelta}

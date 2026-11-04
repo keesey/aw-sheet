@@ -38,8 +38,9 @@ export function deriveSheetViewModel(sheet: CharacterSheet) {
   const ffPct = Math.round((runtime.forceFieldHp / FORCE_FIELD_MAX_HP) * 100);
   const ffUsesLeft = FORCE_FIELD_DAILY_USES - runtime.forceFieldUsesUsed;
 
-  const mainActions = data.actions.filter((a) => !a.pilotingOnly);
-  const pilotingActions = data.actions.filter((a) => a.pilotingOnly);
+  const mainActions = data.actions.filter((a) => !a.actionGroup);
+  const pilotingActions = data.actions.filter((a) => a.actionGroup === "piloting");
+  const battleStationActions = data.actions.filter((a) => a.actionGroup === "battle-station");
   const groupByCost = (actions: typeof data.actions) => ({
     free: actions.filter((a) => a.cost === "free").sort(compareByName),
     reaction: actions.filter((a) => a.cost === "reaction").sort(compareByName),
@@ -49,6 +50,7 @@ export function deriveSheetViewModel(sheet: CharacterSheet) {
   });
   const actionsByCost = groupByCost(mainActions);
   const pilotingActionsByCost = groupByCost(pilotingActions);
+  const battleStationActionsByCost = groupByCost(battleStationActions);
   const circumstanceBonus = circumstanceAcBonus(runtime);
   const displayAc = derived.ac + circumstanceBonus;
   const acDelta = derived.ac - level.ac + circumstanceBonus;
@@ -83,6 +85,7 @@ export function deriveSheetViewModel(sheet: CharacterSheet) {
     ffUsesLeft,
     actionsByCost,
     pilotingActionsByCost,
+    battleStationActionsByCost,
     displayAc,
     acDelta,
     inventoryBulk,

@@ -21,28 +21,30 @@ function renderActionRows(
   );
 }
 
-export function PilotingActionsSection({
-  pilotingActionsByCost,
+export function ActionGroupSection({
+  title,
+  actionsByCost,
   actionProps,
   variant = "standalone",
 }: {
-  pilotingActionsByCost: ActionsByCost;
+  title: string;
+  actionsByCost: ActionsByCost;
   actionProps: Omit<ComponentProps<typeof ActionRow>, "action">;
   variant?: "embedded" | "standalone";
 }) {
-  const pilotingSections = [
-    pilotingActionsByCost.free,
-    pilotingActionsByCost.reaction,
-    pilotingActionsByCost.single,
-    pilotingActionsByCost.double,
-    pilotingActionsByCost.triple,
+  const sections = [
+    actionsByCost.free,
+    actionsByCost.reaction,
+    actionsByCost.single,
+    actionsByCost.double,
+    actionsByCost.triple,
   ];
-  const rows = renderActionRows(pilotingSections, actionProps);
+  const rows = renderActionRows(sections, actionProps);
 
   if (variant === "embedded") {
     return (
       <>
-        <div className="action-group-title">Piloting</div>
+        <div className="action-group-title">{title}</div>
         {rows}
       </>
     );
@@ -51,7 +53,7 @@ export function PilotingActionsSection({
   return (
     <div className="stat-card sheet-section actions-main-section">
       <div className="stat-label" style={{ marginBottom: "0.5rem" }}>
-        Piloting
+        {title}
       </div>
       {rows}
     </div>

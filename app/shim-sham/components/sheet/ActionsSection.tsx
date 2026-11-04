@@ -5,7 +5,7 @@ import { compareByName } from "@/lib/shim-sham/sort";
 import type { StrikesOpenOptions } from "@/lib/shim-sham/rules/strike-open-options";
 import type { SaveFn } from "../../types";
 import { ActionRow } from "../actions/ActionRow";
-import { PilotingActionsSection } from "./PilotingActionsSection";
+import { ActionGroupSection } from "./ActionGroupSection";
 
 type ActionsByCost = {
   free: CharacterAction[];
@@ -42,6 +42,7 @@ function buildActionSections(
 export function ActionsSection({
   actionsByCost,
   pilotingActionsByCost,
+  battleStationActionsByCost,
   strikeAction,
   level,
   speedDelta,
@@ -60,6 +61,7 @@ export function ActionsSection({
 }: {
   actionsByCost: ActionsByCost;
   pilotingActionsByCost: ActionsByCost;
+  battleStationActionsByCost: ActionsByCost;
   strikeAction: CharacterAction;
   level: LevelSnapshot;
   speedDelta: number;
@@ -102,8 +104,16 @@ export function ActionsSection({
 
       {renderActionRows(buildActionSections(actionsByCost, strikeAction), actionProps)}
 
-      <PilotingActionsSection
-        pilotingActionsByCost={pilotingActionsByCost}
+      <ActionGroupSection
+        title="Piloting"
+        actionsByCost={pilotingActionsByCost}
+        actionProps={actionProps}
+        variant="embedded"
+      />
+
+      <ActionGroupSection
+        title="Battle Station"
+        actionsByCost={battleStationActionsByCost}
         actionProps={actionProps}
         variant="embedded"
       />

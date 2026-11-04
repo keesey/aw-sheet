@@ -569,7 +569,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move"],
           url: `${AON}/actions/210-board`,
           bonus: skillBonus("Acrobatics"),
-          pilotingOnly: true,
+          actionGroup: "piloting",
         },
         {
           id: "drive-single",
@@ -579,7 +579,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move"],
           url: `${AON}/actions/92-drive`,
           bonus: pilotingBonus,
-          pilotingOnly: true,
+          actionGroup: "piloting",
         },
         {
           id: "drive-double",
@@ -589,7 +589,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move", "Reckless"],
           url: `${AON}/actions/92-drive`,
           bonus: pilotingBonus,
-          pilotingOnly: true,
+          actionGroup: "piloting",
         },
         {
           id: "drive-triple",
@@ -599,7 +599,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move", "Reckless"],
           url: `${AON}/actions/92-drive`,
           bonus: pilotingBonus,
-          pilotingOnly: true,
+          actionGroup: "piloting",
         },
         {
           id: "run-over",
@@ -609,7 +609,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Move", "Reckless"],
           url: `${AON}/actions/95-run-over`,
           bonus: pilotingBonus,
-          pilotingOnly: true,
+          actionGroup: "piloting",
         },
         {
           id: "vehicle-stop",
@@ -619,7 +619,7 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Manipulate"],
           url: `${AON}/actions/96-stop`,
           bonus: pilotingBonus,
-          pilotingOnly: true,
+          actionGroup: "piloting",
         },
         {
           id: "take-control",
@@ -629,7 +629,216 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           traits: ["Manipulate"],
           url: `${AON}/actions/98-take-control`,
           bonus: pilotingBonus,
-          pilotingOnly: true,
+          actionGroup: "piloting",
         },
+        ...buildBattleStationActions({ pilotingBonus, perceptionBonus }),
+  ];
+}
+
+function buildBattleStationActions({
+  pilotingBonus,
+  perceptionBonus,
+}: {
+  pilotingBonus: string;
+  perceptionBonus: string;
+}): CharacterAction[] {
+  const station = (
+    action: Omit<CharacterAction, "actionGroup" | "description" | "url"> & { path: string },
+  ): CharacterAction => {
+    const { path, ...rest } = action;
+    return {
+      ...rest,
+      description: actionDescription(rest.id),
+      url: `${AON}/actions/${path}`,
+      actionGroup: "battle-station",
+    };
+  };
+  return [
+    station({
+      id: "detonate-starship-mine-reaction",
+      name: "Detonate Starship Mine",
+      cost: "reaction",
+      traits: ["Manipulate", "Station"],
+      path: "570-detonate-starship-mine",
+    }),
+    station({
+      id: "drone-block",
+      name: "Drone Block",
+      cost: "reaction",
+      traits: ["Manipulate", "Station"],
+      path: "585-drone-block",
+    }),
+    station({
+      id: "intercept-munitions",
+      name: "Intercept Munitions",
+      cost: "reaction",
+      traits: ["Manipulate", "Station"],
+      path: "576-intercept-munitions",
+    }),
+    station({
+      id: "reposition-shield",
+      name: "Reposition Shield",
+      cost: "reaction",
+      traits: ["Manipulate", "Station"],
+      path: "589-reposition-shield",
+      bonus: perceptionBonus,
+    }),
+    station({
+      id: "smoke-and-mirrors",
+      name: "Smoke and Mirrors",
+      cost: "reaction",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "602-smoke-and-mirrors",
+    }),
+    station({
+      id: "boost-battle-station",
+      name: "Boost Battle Station",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "587-boost-battle-station",
+    }),
+    station({
+      id: "boost-thrusters",
+      name: "Boost Thrusters",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "596-boost-thrusters",
+    }),
+    station({
+      id: "change-heading",
+      name: "Change Heading",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "598-change-heading",
+    }),
+    station({
+      id: "clear-a-path",
+      name: "Clear a Path",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "601-clear-a-path",
+      bonus: pilotingBonus,
+    }),
+    station({
+      id: "deploy-drone",
+      name: "Deploy Drone",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "584-deploy-drone",
+    }),
+    station({
+      id: "deploy-starship-mine",
+      name: "Deploy Starship Mine",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "569-deploy-starship-mine",
+    }),
+    station({
+      id: "detonate-starship-mine",
+      name: "Detonate Starship Mine",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "570-detonate-starship-mine",
+    }),
+    station({
+      id: "evade-single",
+      name: "Evade",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "597-evade",
+    }),
+    station({
+      id: "generate-shields",
+      name: "Generate Shields",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "588-generate-shields",
+    }),
+    station({
+      id: "hack-comms",
+      name: "Hack Comms",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "603-hack-comms",
+    }),
+    station({
+      id: "harry-sensors",
+      name: "Harry Sensors",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "575-harry-sensors",
+    }),
+    station({
+      id: "juke",
+      name: "Juke",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "599-juke",
+      bonus: pilotingBonus,
+    }),
+    station({
+      id: "lock-on",
+      name: "Lock On",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "591-lock-on",
+    }),
+    station({
+      id: "modify-starship-mine",
+      name: "Modify Starship Mine",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "571-modify-starship-mine",
+    }),
+    station({
+      id: "move-starship-mine",
+      name: "Move Starship Mine",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "572-move-starship-mine",
+    }),
+    station({
+      id: "restore-functionality",
+      name: "Restore Functionality",
+      cost: "single",
+      traits: ["Healing", "Manipulate", "Station"],
+      path: "574-restore-functionality",
+    }),
+    station({
+      id: "retrieve-drone",
+      name: "Retrieve Drone",
+      cost: "single",
+      traits: ["Manipulate", "Station"],
+      path: "586-retrieve-drone",
+    }),
+    station({
+      id: "seek-starships",
+      name: "Seek Starships",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "604-seek-starships",
+      bonus: perceptionBonus,
+    }),
+    station({
+      id: "stick-to-cover",
+      name: "Stick to Cover",
+      cost: "single",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "600-stick-to-cover",
+    }),
+    station({
+      id: "target-battle-station",
+      name: "Target Battle Station",
+      cost: "single",
+      traits: ["Concentrate", "Incapacitation", "Manipulate", "Station"],
+      path: "592-target-battle-station",
+    }),
+    station({
+      id: "evade-double",
+      name: "Evade",
+      cost: "double",
+      traits: ["Concentrate", "Manipulate", "Station"],
+      path: "597-evade",
+    }),
   ];
 }

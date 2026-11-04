@@ -119,6 +119,49 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Reckless: move up to twice the vehicle's Speed in a straight line and run over creatures in your path (basic Reflex save vs. collision DC); you may ram one larger target.",
   "take-control":
     "Attempt a Piloting check to become the vehicle's pilot or regain control if it was uncontrolled.",
+  "detonate-starship-mine-reaction":
+    "When a starship enters or leaves a zone with your mine, detonate it: 2d8 fire or piercing to starships in that zone (basic Reflex vs. your class DC).",
+  "drone-block":
+    "When your starship would be hit by a Strike, a deployed drone intercepts it, granting resistance equal to half your level.",
+  "intercept-munitions":
+    "When your starship would be hit by a Strike, your scramble drone's flares give the attack a –2 circumstance penalty.",
+  "reposition-shield":
+    "When your starship is hit by a Strike, attempt a Perception check against the attacker's Reflex DC to absorb damage with your shields.",
+  "smoke-and-mirrors":
+    "When a Strike misses your starship, reroll it against another starship of your choice within 0 zones.",
+  "boost-battle-station":
+    "Station actions at a battle station of your choice gain a +1 status bonus to checks and damage rolls for 1 round.",
+  "boost-thrusters": "Once per round, move the starship up to its Speed along its current heading.",
+  "change-heading": "Reverse the starship's heading; it is no longer off-kilter.",
+  "clear-a-path":
+    "Once per round, attempt a Piloting check against a starship's Reflex DC within 0 zones so an ally can Strike it or gain a bonus to the next Strike.",
+  "deploy-drone": "Deploy a drone that's docked on your starship.",
+  "deploy-starship-mine":
+    "Once per round, your pyrotechnics drone deploys a starship mine in your starship's zone.",
+  "detonate-starship-mine":
+    "Detonate a mine you deployed within sensor range: 2d8 fire or piercing to starships in its zone (basic Reflex vs. your class DC).",
+  "evade-single": "Your starship gains a +1 circumstance bonus to AC for 1 round.",
+  "evade-double": "Your starship gains a +2 circumstance bonus to AC for 1 round.",
+  "generate-shields": "Generate power to gain 1d4 Shield Points (more at higher starship levels).",
+  "hack-comms":
+    "Force open a comm channel with a tech starship, letting crew use auditory or verbal actions (like Demoralize) against it.",
+  "harry-sensors":
+    "Your drone's flares make a starship in your zone attempt a Will save against your class DC or become off-kilter.",
+  juke: "Attempt a Piloting check against a starship's Perception DC to make it off-guard for 1 round.",
+  "lock-on":
+    "Until the end of your turn, a target takes a –1 status penalty to AC against your Strikes and –1 to Reflex saves against your Area Fire and Auto-Fire.",
+  "modify-starship-mine":
+    "Mod a mine in your zone until the end of your next turn: make one starship immune to it, or add your Intelligence modifier to its damage.",
+  "move-starship-mine": "Move one of your deployed starship mines 1 zone.",
+  "restore-functionality":
+    "Suppress the malfunctioning condition on a battle station in your zone for 1 round.",
+  "retrieve-drone": "Retrieve a deployed drone, returning it to the starship.",
+  "seek-starships":
+    "Scan within sensor range; the GM rolls a secret Perception check against hidden starships' and hazards' Stealth DCs.",
+  "stick-to-cover":
+    "When sharing a zone with a larger starship or object, gain a +2 circumstance bonus to AC and Reflex saves against attacks from one direction.",
+  "target-battle-station":
+    "Your next Strike against a starship with an identified battle station can make that battle station malfunction if it damages Hull Points.",
 };
 
 export function actionDescription(id: string): string {
