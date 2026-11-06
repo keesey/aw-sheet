@@ -14,6 +14,8 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "The first time each day that you critically fail a saving throw, reroll it as a free action.",
   "opportune-riposte":
     "When an enemy within reach critically fails a Strike against you, Strike them or attempt to Disarm them.",
+  "charmed-life":
+    "When you attempt a saving throw but haven't rolled yet, gain a +2 circumstance bonus to that save; if you succeed, gain panache until the end of your next turn.",
   "arrest-a-fall":
     "When you fall, attempt an Acrobatics check or Reflex save (DC typically 15) to take no damage.",
   "force-field":

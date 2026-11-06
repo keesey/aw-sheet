@@ -102,6 +102,15 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           url: `${AON}/actions/18-arrest-a-fall`,
         },
         {
+          id: "charmed-life",
+          name: "Charmed Life",
+          cost: "reaction",
+          description: actionDescription("charmed-life"),
+          traits: ["Swashbuckler"],
+          url: `${AONP}/Feats.aspx?ID=6138`,
+          minLevel: 8,
+        },
+        {
           id: "grab-an-edge",
           name: "Grab an Edge",
           cost: "reaction",
