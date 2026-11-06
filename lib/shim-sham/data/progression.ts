@@ -135,8 +135,8 @@ export const PROGRESSION: LevelProgression[] = [
     preciseStrike: 4,
     finisherDice: "4d6",
     feats: [
-      feat("Intimidating Prowess", `${AON}/feats/820-intimidating-prowess`),
-      feat("Dueling Riposte", `${AONP}/Feats.aspx?ID=4811`),
+      feat("Tumbling Theft", `${AONP}/Feats.aspx?ID=6513`),
+      feat("Selfless Parry", `${AONP}/Feats.aspx?ID=6315`),
     ],
   },
   {
@@ -155,7 +155,7 @@ export const PROGRESSION: LevelProgression[] = [
     preciseStrike: 4,
     finisherDice: "4d6",
     feats: [
-      feat("Tumbling Theft", `${AONP}/Feats.aspx?ID=6513`),
+      feat("Virtuosic Performer", `${AON}/feats/907-virtuosic-performer`),
       feat("Mobile Finisher", `${AONP}/Feats.aspx?ID=6170`),
     ],
   },
@@ -176,8 +176,8 @@ export const PROGRESSION: LevelProgression[] = [
     preciseStrike: 5,
     finisherDice: "5d6",
     feats: [
-      feat("Virtuosic Performer", `${AON}/feats/907-virtuosic-performer`),
-      feat("Selfless Parry", `${AONP}/Feats.aspx?ID=6315`),
+      feat("Chat, Help!", `${AON}/feats/2673-chat-help`),
+      feat("Dueling Riposte", `${AONP}/Feats.aspx?ID=4811`),
     ],
   },
   {

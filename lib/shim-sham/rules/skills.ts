@@ -63,10 +63,7 @@ const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
     name: "Intimidation",
     keyAttribute: "CHA",
     url: `${AON}/skills/8-intimidation`,
-    ranks: [
-      { level: 1, rank: "T" },
-      { level: 9, rank: "E" },
-    ],
+    ranks: [{ level: 1, rank: "T" }],
   },
   {
     name: "Lore (Piracy)",
@@ -103,7 +100,7 @@ const SHIM_SHAM_SKILLS: readonly SkillDefinition[] = [
     url: `${AON}/skills/19-thievery`,
     ranks: [
       { level: 1, rank: "T" },
-      { level: 11, rank: "E" },
+      { level: 9, rank: "E" },
     ],
   },
 ];
