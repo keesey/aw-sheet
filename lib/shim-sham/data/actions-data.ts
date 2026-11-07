@@ -5,6 +5,9 @@ import { AON, AONP } from "@/lib/shim-sham/aon";
 /** Level at which Shim Sham gains Kip Up; Stand is hidden from this level on. */
 export const KIP_UP_MIN_LEVEL = 7;
 
+/** Level at which Quick Jump makes High Jump and Long Jump single actions. */
+export const QUICK_JUMP_MIN_LEVEL = 8;
+
 export type ShimShamActionContext = {
   skillBonus: (name: string) => string;
   attackMapBonus: (bonus: string) => string;
@@ -198,22 +201,44 @@ export function buildShimShamActions(ctx: ShimShamActionContext): CharacterActio
           bonus: skillBonus("Thievery"),
         },
         {
-          id: "high-jump",
+          id: "high-jump-two-actions",
           name: "High Jump",
           cost: "double",
           description: actionDescription("high-jump"),
           traits: ["Move"],
           url: `${AON}/actions/65-high-jump`,
           bonus: skillBonus("Athletics"),
+          maxLevel: QUICK_JUMP_MIN_LEVEL - 1,
         },
         {
-          id: "long-jump",
+          id: "high-jump",
+          name: "High Jump",
+          cost: "single",
+          description: actionDescription("high-jump-quick"),
+          traits: ["Move"],
+          url: `${AON}/actions/65-high-jump`,
+          bonus: skillBonus("Athletics"),
+          minLevel: QUICK_JUMP_MIN_LEVEL,
+        },
+        {
+          id: "long-jump-two-actions",
           name: "Long Jump",
           cost: "double",
           description: actionDescription("long-jump"),
           traits: ["Move"],
           url: `${AON}/actions/66-long-jump`,
           bonus: skillBonus("Athletics"),
+          maxLevel: QUICK_JUMP_MIN_LEVEL - 1,
+        },
+        {
+          id: "long-jump",
+          name: "Long Jump",
+          cost: "single",
+          description: actionDescription("long-jump-quick"),
+          traits: ["Move"],
+          url: `${AON}/actions/66-long-jump`,
+          bonus: skillBonus("Athletics"),
+          minLevel: QUICK_JUMP_MIN_LEVEL,
         },
         {
           id: "ready",
@@ -791,20 +816,6 @@ function buildBattleStationActions({
       cost: "single",
       traits: ["Concentrate", "Manipulate", "Station"],
       path: "591-lock-on",
-    }),
-    station({
-      id: "modify-starship-mine",
-      name: "Modify Starship Mine",
-      cost: "single",
-      traits: ["Manipulate", "Station"],
-      path: "571-modify-starship-mine",
-    }),
-    station({
-      id: "move-starship-mine",
-      name: "Move Starship Mine",
-      cost: "single",
-      traits: ["Manipulate", "Station"],
-      path: "572-move-starship-mine",
     }),
     station({
       id: "restore-functionality",

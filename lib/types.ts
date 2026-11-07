@@ -62,6 +62,8 @@ export type CharacterAction = {
   combatBonus?: string;
   /** Omit from the sheet until this character level. */
   minLevel?: number;
+  /** Omit from the sheet at this character level and above (e.g. superseded by a feat). */
+  maxLevel?: number;
   /** Listed in its own section (Piloting or Battle Station) instead of the main action list. */
   actionGroup?: "piloting" | "battle-station";
   /** Right-side control on the compact action row. */

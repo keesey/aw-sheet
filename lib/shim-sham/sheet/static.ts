@@ -253,6 +253,7 @@ export function buildCharacterSheet(runtime: RuntimeState): CharacterSheet {
       weapons,
       actions: allActions.filter((action) => {
         if (level.level < (action.minLevel ?? 1)) return false;
+        if (action.maxLevel !== undefined && level.level > action.maxLevel) return false;
         if (action.id === "stand" && level.level >= KIP_UP_MIN_LEVEL) return false;
         if (
           (action.id === "bipod-retrieve" || action.id === "bipod-deploy") &&

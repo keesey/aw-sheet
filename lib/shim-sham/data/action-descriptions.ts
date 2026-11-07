@@ -53,8 +53,12 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
     "Attempt a Stealth check to become hidden from creatures you have cover or concealment against.",
   "high-jump":
     "Stride at least 10 feet, then attempt an Athletics check (typically DC 30) to Leap vertically.",
+  "high-jump-quick":
+    "Attempt an Athletics check (typically DC 30) to Leap vertically (Quick Jump: skip the initial Stride).",
   "long-jump":
     "Stride at least 10 feet, then attempt an Athletics check (typically DC 15) to Leap horizontally.",
+  "long-jump-quick":
+    "Attempt an Athletics check (typically DC 15) to Leap horizontally (Quick Jump: skip the initial Stride).",
   interact:
     "Use your hands to manipulate an object or the terrain, such as drawing a weapon or opening a door.",
   reload:
@@ -152,9 +156,6 @@ const ACTION_DESCRIPTIONS: Record<string, string> = {
   juke: "Attempt a Piloting check against a starship's Perception DC to make it off-guard for 1 round.",
   "lock-on":
     "Until the end of your turn, a target takes a –1 status penalty to AC against your Strikes and –1 to Reflex saves against your Area Fire and Auto-Fire.",
-  "modify-starship-mine":
-    "Mod a mine in your zone until the end of your next turn: make one starship immune to it, or add your Intelligence modifier to its damage.",
-  "move-starship-mine": "Move one of your deployed starship mines 1 zone.",
   "restore-functionality":
     "Suppress the malfunctioning condition on a battle station in your zone for 1 round.",
   "retrieve-drone": "Retrieve a deployed drone, returning it to the starship.",
